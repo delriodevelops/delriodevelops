@@ -4,7 +4,7 @@ import Alert from '../components/Alert'
 const Contact = () => {
   const [email,setEmail]=useState('')
   const [message,setMessage]=useState('')
-  const [alert,setAlert]=useState(true)
+  const [alert,setAlert]=useState(false)
 
   function handleSubmit(e){
     e.preventDefault()
