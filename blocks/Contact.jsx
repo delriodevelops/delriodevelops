@@ -8,14 +8,15 @@ const Contact = () => {
   function handleSubmit(e){
     e.preventDefault()
     sendMessage(email,message)
+    setEmail('')
+    setMessage('')
   }
-  console.log(email,message)
 
 
   return (
     <section id='contact' className="text-gray-400 bg-gray-900 body-font relative">
       <div className="absolute inset-0 bg-gray-900">
-        <iframe title="map" width="100%" height="100%" frameBorder="0" marginHeight="0" marginWidth="0" scrolling="no" src="https://maps.google.com/maps?width=100%&height=600&hl=en&q=Madrid+(My%20Business%20Name)&ie=UTF8&t=&z=14&iwloc=B&output=embed" style={{filter: "grayscale(1) contrast(1.2) opacity(0.16);"}}></iframe>
+        <iframe title="map" width="100%" height="100%" frameBorder="0" marginHeight="0" marginWidth="0" scrolling="no" src="https://maps.google.com/maps?width=100%&height=600&hl=en&q=Madrid+(My%20Business%20Name)&ie=UTF8&t=&z=14&iwloc=B&output=embed" style={{filter: "grayscale(1) contrast(1.2) opacity(0.16)"}}></iframe>
       </div>
       <form onSubmit={(e)=>{handleSubmit(e)}} className="container px-5 py-24 mx-auto flex">
         <div className="lg:w-1/3 md:w-1/2 bg-gray-900 shadow-md rounded-lg p-8 flex flex-col md:ml-auto  mt-10 md:mt-0 relative z-10">
