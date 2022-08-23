@@ -1,0 +1,54 @@
+html,
+body {
+  padding: 0;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+    scroll-behavior: smooth;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+@media (prefers-color-scheme: dark) {
+  html {
+    color-scheme: dark;
+  }
+  body {
+    color: white;
+    background: black;
+  }
+}
+
+body {
+  background: url('https://r3f-gradient.vercel.app/0.8117034141136092');
+}
+.background {
+  width: 100vw;
+  height: 100vh;
+  filter: blur(25px);
+}
+
+.hoverSpan {
+  padding: 2px 4px;
+  border-radius: 6px;
+  cursor: default;
+}
+.hoverSpan:hover{
+  transition: all .3s ease;
+  background: #2d3748;
+  color: #63b3ed;
+}
+.fixedNav {
+  backdrop-filter: blur(4px);
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
