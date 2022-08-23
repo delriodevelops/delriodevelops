@@ -3,8 +3,8 @@ import Link from 'next/link'
 const Header = () => {
   return (
     <header className="text-gray-400 bg-gray-900 body-font">
-        <div className="  container mx-auto flex flex-wrap p-5 flex-col md:flex-row items-center">
-            <nav className="fixedNav md:ml-auto flex flex-wrap items-center text-base justify-center [&>a]:cursor-pointer">
+        <div className="container mx-auto flex flex-wrap p-5 flex-col md:flex-row items-center">
+            <nav className=" md:ml-auto flex flex-wrap items-center text-base justify-center [&>a]:cursor-pointer">
                 <Link href='/#about'>
                     <a className="mr-5 hover:text-white">About</a>
                 </Link>
