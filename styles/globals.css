@@ -27,14 +27,6 @@ a {
   }
 }
 
-body {
-  background: url('https://r3f-gradient.vercel.app/0.8117034141136092');
-}
-.background {
-  width: 100vw;
-  height: 100vh;
-  filter: blur(25px);
-}
 
 .hoverSpan {
   padding: 2px 4px;
@@ -47,11 +39,6 @@ body {
   color: #63b3ed;
 }
 
-#__next {
-  display: flex;
-  flex-direction: column;
-  min-width: 100vw;
-}
 
 @tailwind base;
 @tailwind components;
