@@ -52,16 +52,19 @@ const About = () => {
         <FiServer fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" className="sm:w-16 sm:h-16 w-10 h-10" viewBox="0 0 24 24"/>
       </div>
       <div className="flex-grow mt-6 text-left sm:mt-0">
-        <h2 className="text-white text-lg title-font font-medium mb-2">WHO AM I?</h2>
-        <p className="leading-relaxed text-base pepe">
+        <h2 className="text-white text-lg title-font font-medium mb-2">BACKEND</h2>
+        <p className="leading-relaxed text-base">
           <span className='hoverSpan'>At the same time,</span>
           <span className='hoverSpan'>I have been working</span>
           <span className='hoverSpan'>in the backend</span>
           <span className='hoverSpan'>with</span>
           <span className='hoverSpan'>Express,</span>
           <span className='hoverSpan'>MongoDB,</span>
+          <span className='hoverSpan'>REST API creation,</span>
           <span className='hoverSpan'>mongoose,</span>
-          <span className='hoverSpan'>REST API creation...</span>
+          <span className='hoverSpan'>BCrypt,</span>
+          <span className='hoverSpan'>JSONWebToken,</span>
+          <span className='hoverSpan'>etc...</span>
         </p>
       </div>
     </div>
