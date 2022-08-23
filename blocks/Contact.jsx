@@ -1,19 +1,23 @@
 import React, { useState } from 'react'
 import sendMessage from '../services/sendMessage'
-
+import Alert from '../components/Alert'
 const Contact = () => {
   const [email,setEmail]=useState('')
   const [message,setMessage]=useState('')
+  const [alert,setAlert]=useState(true)
 
   function handleSubmit(e){
     e.preventDefault()
     sendMessage(email,message)
     setEmail('')
     setMessage('')
+    setAlert(true)
   }
 
 
   return (
+  <>
+      {!!alert && <Alert setAlert={setAlert}>Message was succesfully sent. MAKE SURE to check your SPAM INBOX my response could be redirected there.</Alert>}
     <section id='contact' className="text-gray-400 bg-gray-900 body-font relative">
       <div className="absolute inset-0 bg-gray-900">
         <iframe title="map" width="100%" height="100%" frameBorder="0" marginHeight="0" marginWidth="0" scrolling="no" src="https://maps.google.com/maps?width=100%&height=600&hl=en&q=Madrid+(My%20Business%20Name)&ie=UTF8&t=&z=14&iwloc=B&output=embed" style={{filter: "grayscale(1) contrast(1.2) opacity(0.16)"}}></iframe>
@@ -40,6 +44,7 @@ const Contact = () => {
         </div>
       </form>
     </section>
+  </>
   )
 }
 
