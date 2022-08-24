@@ -2,8 +2,9 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  images:{
-    domains:['media-exp1.licdn.com/']
+  env: {
+    USER: process.env.USER,
+    PASS:process.env.PASS
   }
 }
 

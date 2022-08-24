@@ -4,16 +4,10 @@ import Layout from "../blocks/Layout";
 export const GlobalContext = createContext()
 
 export const GlobalProvider = ({children})=>{
-    const [user,setUser]=useState(null)
-
-    const checkUser =async ()=>{
-        const user = await JSON.parse(localStorage.getItem('user'))
-        setUser(user)
-    }
+    const [user,setUser]=useState()
 
     const value = {
-        user,
-        checkUser
+        user
     }
     return(
         <GlobalContext.Provider value={value}>
