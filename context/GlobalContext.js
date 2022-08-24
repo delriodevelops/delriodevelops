@@ -7,7 +7,8 @@ export const GlobalProvider = ({children})=>{
     const [user,setUser]=useState()
 
     const value = {
-        user
+        user,
+        setUser
     }
     return(
         <GlobalContext.Provider value={value}>
