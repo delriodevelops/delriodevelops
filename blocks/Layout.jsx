@@ -27,6 +27,7 @@ const Layout = ({children}) => {
             <meta property="twitter:title" content="Del Rio — Full Stack Developer"/>
             <meta property="twitter:description" content="Freelance Full Stack Developer Christian del Rio Rodriguez. Proficent in Next.JS. Open to work. Madrid, Spain. Contact within just 2 hours."/>
             <meta property="twitter:image" content="https://i.imgur.com/WeE5ZK2.png"/>
+            <meta name="author" content="Christian del Rio Rodriguez"/>
         </Head>
         <Header/>
             {children}
