@@ -5,6 +5,10 @@ const nextConfig = {
   env: {
     USER: process.env.USER,
     PASS:process.env.PASS
+  },
+  i18n: {
+    locales: ["en"],
+    defaultLocale: "en",
   }
 }
 

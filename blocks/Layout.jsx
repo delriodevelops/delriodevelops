@@ -5,6 +5,7 @@ import Head from 'next/head'
 import Contact from './Contact'
 
 const Layout = ({children}) => {
+  console.clear()
   return (
     <>
         <Head>

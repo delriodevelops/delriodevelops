@@ -11,7 +11,7 @@ const Footer = () => {
             </a>
           </Link>
         <p className="text-sm text-gray-400 sm:ml-4 sm:pl-4 sm:border-l-2 sm:border-gray-800 sm:py-2 sm:mt-0 mt-4">© 2022 Christian del Rio Rodriguez —
-          <a href="https://www.instagram.com/iamdelrio" className="text-gray-500 ml-1" target="_blank" rel="noopener noreferrer">@iamdelrio</a>
+          <a href="https://www.instagram.com/iamdelrio" className="text-white ml-1" target="_blank" rel="noopener noreferrer">@iamdelrio</a>
         </p>
         <span className="inline-flex sm:ml-auto sm:mt-0 mt-4 justify-center sm:justify-start">
           {/* 
