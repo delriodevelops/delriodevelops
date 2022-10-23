@@ -20,7 +20,7 @@ const Contact = () => {
       {!!alert && <Alert setAlert={setAlert}>Message was succesfully sent. MAKE SURE to check your SPAM INBOX my response could be redirected there.</Alert>}
     <section id='contact' className="text-gray-400 bg-gray-900 body-font relative">
       <div className="absolute inset-0 bg-gray-900">
-        <iframe width="100%" height="100%" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.com/maps?width=100%25&amp;height=600&amp;hl=es&amp;q=madrid+(Mi%20nombre%20de%20egocios)&amp;t=&amp;z=15&amp;ie=UTF8&amp;iwloc=B&amp;output=embed" style={{filter: "grayscale(1) contrast(1.2) opacity(0.16)"}}/>
+        <iframe width="100%" height="100%" frameBorder="0" scrolling="no" marginHeight="0" marginWidth="0" src="https://maps.google.com/maps?width=100%25&amp;height=600&amp;hl=es&amp;q=madrid+(Mi%20nombre%20de%20egocios)&amp;t=&amp;z=15&amp;ie=UTF8&amp;iwloc=B&amp;output=embed" style={{filter: "grayscale(1) contrast(1.2) opacity(0.16)"}}/>
       </div>
       <form onSubmit={(e)=>{handleSubmit(e)}} className="container px-5 py-24 mx-auto flex">
         <div className="lg:w-1/3 md:w-1/2 bg-gray-900 shadow-md rounded-lg p-8 flex flex-col md:ml-auto  mt-10 md:mt-0 relative z-10">
