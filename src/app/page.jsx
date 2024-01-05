@@ -99,9 +99,9 @@ export default function Home() {
       </section>
 
       {/* discord */}
-      <section className='bg-violet-500 aspect-square'>
+      {/* <section className='bg-violet-500 aspect-square'>
         discord
-      </section>
+      </section> */}
     </main>
   )
 }
