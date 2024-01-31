@@ -25,6 +25,7 @@ const Chat = () => {
 
     useEffect(() => {
         const localThread = localStorage.getItem('threadId')
+
         if (localThread) {
             const tID = JSON.parse(localThread)
             setThreadId(tID)
@@ -34,8 +35,11 @@ const Chat = () => {
 
     function handleSubmit(e) {
         e.preventDefault()
+
         if (!content) return;
+
         setIsStreaming(true)
+
         const newMessages = [...messages, { role: 'user', content }]
         setMessages(newMessages)
         fetch('/api/messages', {
