@@ -30,14 +30,15 @@ const Chat = () => {
             const tID = JSON.parse(localThread)
             setThreadId(tID)
             getMessages(tID)
-        } else createThread()
+        }
     }, [])
 
-    function handleSubmit(e) {
+    async function handleSubmit(e) {
         e.preventDefault()
 
         if (!content) return;
-
+        if (!threadId) await createThread()
+        
         setIsStreaming(true)
 
         const newMessages = [...messages, { role: 'user', content }]

@@ -4,6 +4,12 @@ import React from 'react'
 const page = () => {
     const projects = [
         {
+            name: "Baitme",
+            info: 'Test your thumbnails and get the best one for your video!',
+            img: '/baitme.png',
+            href: 'https://baitme.iamdelrio.com/'
+        },
+        {
             name: "CitySwipe",
             info: 'Find your perfect city to live in!',
             img: '/cityswipe.png',

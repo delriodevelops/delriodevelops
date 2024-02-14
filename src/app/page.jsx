@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { FaFileDownload } from "react-icons/fa";
-import { IoLogoLinkedin, IoLogoGithub } from "react-icons/io5";
+import { IoLogoLinkedin, IoLogoGithub,IoLogoYoutube  } from "react-icons/io5";
 import Chat from '@/components/chat';
 
 export default function Home() {
@@ -47,8 +47,8 @@ export default function Home() {
           data-tooltip-target="tooltip-hover"
           data-tooltip-trigger="hover"
           src="/me.png"
-          width={500}
-          height={500}
+          width={1000}
+          height={1000}
           className="hidden lg:inline scale-x-[-1] absolute right-0 w-2/5 bottom-0 rounded-l-2xl"
         />
       </section>
@@ -82,6 +82,11 @@ export default function Home() {
         <h3 className='text-4xl font-bold text-center'>download cv</h3>
       </Link>
 
+
+      {/* youtube */}
+      <a target="_blank" rel="noopener noreferrer" href="https://www.youtube.com/@iamdelrio" className='aspect-square bg-red-900 hover:bg-red-800 rounded-2xl col-span-1 row-span lg:h-full uppercase flex flex-col justify-center items-center cursor-pointer hover:scale-[105%] transition duration-300 ease-in-out'>
+        <IoLogoYoutube className='text-[300px]' />
+      </a>
 
       {/* LINKEDIN */}
       <a target="_blank" rel="noopener noreferrer" href="https://www.linkedin.com/in/iamdelrio" className='aspect-square bg-blue-900 hover:bg-blue-800 rounded-2xl col-span-1 row-span lg:h-full uppercase flex flex-col justify-center items-center cursor-pointer hover:scale-[105%] transition duration-300 ease-in-out'>
