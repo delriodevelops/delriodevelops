@@ -13,6 +13,7 @@ const Chat = () => {
         const threadId = await (await fetch('/api/threads/create')).json()
         setThreadId(threadId)
         localStorage.setItem('threadId', JSON.stringify(threadId))
+        return threadId
     }
 
     async function getMessages(tID) {
@@ -35,9 +36,9 @@ const Chat = () => {
 
     async function handleSubmit(e) {
         e.preventDefault()
-
+        let tId = threadId
         if (!content) return;
-        if (!threadId) await createThread()
+        if (!threadId) tId = await createThread()
         
         setIsStreaming(true)
 
@@ -45,7 +46,7 @@ const Chat = () => {
         setMessages(newMessages)
         fetch('/api/messages', {
             method: 'POST',
-            body: JSON.stringify({ threadId, content }),
+            body: JSON.stringify({ threadId: tId, content }),
             headers: {
                 'Content-Type': 'application/json'
             }
