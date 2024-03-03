@@ -19,7 +19,13 @@ const page = () => {
             name: "DR.NEWS",
             info: 'All the latest info in your hand!',
             img: '/drnews.png',
-            href: 'https://drnews.vercel.app/'
+            href: 'https://drnews.iamdelrio.com/'
+        },
+        {
+            name: "my dog food",
+            info: "Feed your dog properly",
+            img: '/mydogfood.png',
+            href: 'https://mydogfood.vercel.app/'
         },
         {
             name: "clyme",
@@ -27,12 +33,7 @@ const page = () => {
             img: '/clyme.png',
             href: 'https://clyme.vercel.app/'
         },
-        {
-            name: "my dog food",
-            info: "Feed your dog properly",
-            img: '/mydogfood.png',
-            href: 'https://delriodevelops.github.io/mydogfood/'
-        },
+
     ]
     return (
         <div className='mx-auto min-h-screen py-8 px-4 lg:px-16 flex flex-col gap-8 lg:gap-16'>
