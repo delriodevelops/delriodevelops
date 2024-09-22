@@ -4,6 +4,12 @@ import React from 'react'
 const page = () => {
     const projects = [
         {
+            name: "local-ai",
+            info: "Chat with your models locally and totally private",
+            img: "/local-ai.png",
+            href: "https://local-ai-five.vercel.app/"
+        },
+        {
             name: "Baitme",
             info: 'Test your thumbnails and get the best one for your video!',
             img: '/baitme.png',
