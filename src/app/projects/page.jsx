@@ -4,6 +4,12 @@ import React from 'react'
 const page = () => {
     const projects = [
         {
+            name: "Escudo Leal JPT",
+            info: "Landing page of Escudo Leal JPT",
+            img: "/escudo-leal-jpt.png",
+            href: "https://www.escudolealjpt.com"
+        },
+        {
             name: "local-ai",
             info: "Chat with your models locally and totally private",
             img: "/local-ai.png",
