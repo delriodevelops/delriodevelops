@@ -73,7 +73,7 @@ export default function Home() {
         hover:scale-[105%] transition duration-300 ease-in-out text-center'
         href='/projects'
       >
-        <h1 className='font-extrabold text-5xl sm:text-6xl'>my projects</h1>
+        <h1 className='font-extrabold text-5xl sm:text-6xl'>my products</h1>
       </Link>
 
       {/* CURRICULUM VITAE */}

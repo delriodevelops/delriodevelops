@@ -112,10 +112,10 @@ const page = () => {
                     <h1 className='text-3xl font-bold'>Christian del Río Rodríguez</h1>
                     <h2 className='text-2xl'>Full Stack Developer</h2>
                     <div className='grid grid-cols-3 justify-items-center mt-4'>
-                        <span className='flex items-center gap-2'><IoGlobeOutline /> iamdelrio.com</span>
-                        <span className='flex items-center gap-2'><IoLogoLinkedin /> iamdelrio</span>
+                        <a href='https://iamdelrio.com' className='flex items-center gap-2'><IoGlobeOutline /> iamdelrio.com</a>
+                        <a href='https://www.linkedin.com/in/iamdelrio' className='flex items-center gap-2'><IoLogoLinkedin /> iamdelrio</a>
                         {/* <span className='flex items-center gap-2'><IoLogoInstagram /> iamdelrio</span> */}
-                        <span className='flex items-center gap-2'><IoLogoGithub /> delriodevelops</span>
+                        <a href='https://github.com/delriodevelops' className='flex items-center gap-2'><IoLogoGithub /> delriodevelops</a>
                     </div>
                 </div>
             </section>
@@ -156,12 +156,12 @@ const page = () => {
                         </ul>
                     </section>
                     <section>
-                        <h3 className='text-lg font-bold bg-orange-300 px-4 w-fit rounded-full uppercase'>my projects</h3>
+                        <h3 className='text-lg font-bold bg-orange-300 px-4 w-fit rounded-full uppercase'>my products</h3>
                         <ul className='mt-2 ml-2 uppercase'>
-                            <li>cityswipe.city</li>
-                            <li><span className='text-sm bg-yellow-200 rounded-full px-2 lowercase'>wip</span> sortz </li>
-                            <li><span className='text-sm bg-yellow-200 rounded-full px-2 lowercase'>wip</span> beba </li>
-                            <li><span className='text-sm bg-yellow-200 rounded-full px-2 lowercase'>wip</span> ai assistant </li>
+                            <li><a href="https://meshmind.vercel.app">meshmind</a></li>
+                            <li><a href="https://escudolealjpt.com">escudo leal jpt</a></li>
+                            <li><a href="https://baitme.iamdelrio.com/">baitme</a></li>
+                            <li><span className='text-sm bg-yellow-200 rounded-full px-2 lowercase'>wip</span> trip manager</li>
                         </ul>
                     </section>
                 </div>
