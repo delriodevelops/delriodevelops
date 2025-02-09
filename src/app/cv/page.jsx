@@ -105,7 +105,7 @@ const page = () => {
         },
     ]
     return (
-        <article className='bg-gray-100 h-[200vh] w-fit p-4 text-black text-pretty mx-auto'>
+        <article className='bg-neutral-100 h-[200vh] w-fit p-4 text-black text-pretty mx-auto'>
             <section className='bg-lime-500 h-[150px] w-fit rounded-2xl flex mx-auto'>
                 <img src="/me.png" alt="" className='w-[150px] rounded-l-2xl' />
                 <div className='pl-4 pr-8 py-4 flex flex-col content-evenly'>
@@ -179,18 +179,18 @@ const page = () => {
                             {experience.map((company, i) => (
                                 <div key={i} className='mb-10'>
                                     <div className='flex'>
-                                        <img src={company.img} alt="" className='w-[50px] h-[50px] rounded-full border-2 border-gray-700' />
+                                        <img src={company.img} alt="" className='w-[50px] h-[50px] rounded-full border-2 border-neutral-700' />
                                         <div className='pl-4'>
                                             <h4 className='text-lg font-bold'>{company.company}</h4>
-                                            <h5 className='text-md text-gray-700'>{company.contract} - {calculateTimeDifference(company.projects.at(-1).dateStart, company.projects[0].dateEnd || undefined)} - {company.remote}</h5>
+                                            <h5 className='text-md text-neutral-700'>{company.contract} - {calculateTimeDifference(company.projects.at(-1).dateStart, company.projects[0].dateEnd || undefined)} - {company.remote}</h5>
                                         </div>
                                     </div>
                                     <ul className='mt-8 ml-4'>
                                         {company.projects.map((project, i) => (
-                                            <li key={i} className='relative border-l-2 border-gray-700 pl-6'>
-                                                <span className='absolute -left-3 top-0 w-6 h-6 bg-lime-500 rounded-full border-2 border-gray-700'></span>
+                                            <li key={i} className='relative border-l-2 border-neutral-700 pl-6'>
+                                                <span className='absolute -left-3 top-0 w-6 h-6 bg-lime-500 rounded-full border-2 border-neutral-700'></span>
                                                 <h5 className='text-md font-bold'>{project.title} — {project.name}</h5>
-                                                <p className='text-gray-700'>{project.dateStart} - {project.dateEnd || 'Present'} · {calculateTimeDifference(project.dateStart, project.dateEnd || undefined)}</p>
+                                                <p className='text-neutral-700'>{project.dateStart} - {project.dateEnd || 'Present'} · {calculateTimeDifference(project.dateStart, project.dateEnd || undefined)}</p>
                                                 <p className='text-md grid gap-2 mt-4'>
                                                     {
                                                         project.description.map((paragraph, i) => (<span key={i} className='text-pretty'>{

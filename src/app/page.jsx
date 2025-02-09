@@ -94,13 +94,13 @@ export default function Home() {
       </a>
 
       {/* GITHUB */}
-      <a target="_blank" rel="noopener noreferrer" href="https://github.com/delriodevelops" className='bg-gray-900 hover:bg-gray-800 aspect-square rounded-2xl col-span-1 row-span lg:h-full uppercase flex flex-col justify-center items-center cursor-pointer hover:scale-[105%] transition duration-300 ease-in-out'>
+      <a target="_blank" rel="noopener noreferrer" href="https://github.com/delriodevelops" className='bg-neutral-900 hover:bg-neutral-800 aspect-square rounded-2xl col-span-1 row-span lg:h-full uppercase flex flex-col justify-center items-center cursor-pointer hover:scale-[105%] transition duration-300 ease-in-out'>
         <IoLogoGithub className='text-[300px]' />
       </a>
 
       {/* current location */}
-      <section className='relative bg-gray-800 aspect-square uppercase aspect-square rounded-2xl col-span-1 row-span lg:h-full uppercase flex flex-col justify-center items-center cursor-pointer'>
-        <iframe width="100%" height="100%" className="absolute inset-0 rounded-2xl grayscale-[40%]" title="map" src="https://maps.google.com/maps?width=100%&amp;height=600&amp;hl=en&amp;q=Madrid,Spain&amp;ie=UTF8&amp;t=&amp;z=14&amp;iwloc=B&amp;output=embed"></iframe>
+      <section className='relative bg-neutral-800 aspect-square uppercase aspect-square rounded-2xl col-span-1 row-span lg:h-full uppercase flex flex-col justify-center items-center cursor-pointer'>
+        <iframe width="100%" height="100%" className="absolute inset-0 rounded-2xl neutralscale-[40%]" title="map" src="https://maps.google.com/maps?width=100%&amp;height=600&amp;hl=en&amp;q=Madrid,Spain&amp;ie=UTF8&amp;t=&amp;z=14&amp;iwloc=B&amp;output=embed"></iframe>
       </section>
 
       {/* discord */}

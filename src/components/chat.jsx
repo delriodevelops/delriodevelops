@@ -73,7 +73,7 @@ const Chat = () => {
                                     <img src='/mecha.png' alt='mecha' className='w-12 h-12 rounded-full bg-lime-500' />
                                 )
                             }
-                            <div className={`rounded-3xl px-4 py-2 ${['assistant', 'error'].includes(role) ? 'mr-[10px]' : 'bg-gray-600 ml-[10px]'} ${role === 'assistant' && 'bg-blue-500'} ${role === 'error' && 'bg-red-500'} h-fit self-center `}>
+                            <div className={`rounded-3xl px-4 py-2 ${['assistant', 'error'].includes(role) ? 'mr-[10px]' : 'bg-neutral-600 ml-[10px]'} ${role === 'assistant' && 'bg-blue-500'} ${role === 'error' && 'bg-red-500'} h-fit self-center `}>
                                 {content?.split('\n').map((t, i) => <p key={i} className={i && 'block mt-4'}>{t}</p>)}
                             </div>
                         </div>
@@ -89,7 +89,7 @@ const Chat = () => {
                 }
             </div>
             <form className="flex gap-2" onSubmit={handleSubmit}>
-                <input disabled={isStreaming} value={content} onChange={(e) => { setContent(e.target.value) }} type="text" id="chatbox" className="flex-grow p-4 text-md text-gray-900 border border-gray-300 rounded-2xl bg-gray-50 focus:ring-blue-500 focus:border-blue-500 w-full" placeholder="Type your message..." required />
+                <input disabled={isStreaming} value={content} onChange={(e) => { setContent(e.target.value) }} type="text" id="chatbox" className="flex-grow p-4 text-md text-neutral-900 border border-neutral-300 rounded-2xl bg-neutral-50 focus:ring-blue-500 focus:border-blue-500 w-full" placeholder="Type your message..." required />
                 <button disabled={isStreaming} type="submit" className="text-black bg-lime-400 hover:bg-lime-500 focus:ring-4 focus:outline-none focus:ring-lime-300 font-medium rounded-2xl text-sm px-4 py-2">
                     <IoSendSharp className='text-xl' />
                 </button>

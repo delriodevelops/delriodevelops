@@ -4,24 +4,6 @@ import React from 'react'
 const page = () => {
     const projects = [
         {
-            name: "Escudo Leal JPT",
-            info: "Landing page of Escudo Leal JPT",
-            img: "/escudo-leal-jpt.png",
-            href: "https://www.escudolealjpt.com"
-        },
-        {
-            name: "local-ai",
-            info: "Chat with your models locally and totally private",
-            img: "/local-ai.png",
-            href: "https://local-ai-five.vercel.app/"
-        },
-        {
-            name: "Baitme",
-            info: 'Test your thumbnails and get the best one for your video!',
-            img: '/baitme.png',
-            href: 'https://baitme.iamdelrio.com/'
-        },
-        {
             name: "CitySwipe",
             info: 'Find your perfect city to live in!',
             img: '/cityswipe.png',
@@ -50,6 +32,10 @@ const page = () => {
     return (
         <div className='mx-auto min-h-screen py-8 px-4 lg:px-16 flex flex-col gap-8 lg:gap-16'>
             <h1 className='uppercase text-5xl font-bold'>projects</h1>
+            <div className='text-2xl p-2 gap-3 bg-neutral-900 uppercase rounded-xl flex w-fit'>
+                <Link href="/products" className='rounded-xl hover:bg-neutral-800 p-3'>products</Link>
+                <Link href="/projects" className='rounded-xl p-3 bg-neutral-700'>projects</Link>
+            </div>
             <section className='grid grid-cols-1 md:grid-cols-2 gap-8'>
                 {projects.map(({ name, info, img, href }, i) => (
                     <a target="_blank" rel="noopener noreferrer" href={href} className='rounded-2xl relative group' key={i}>
