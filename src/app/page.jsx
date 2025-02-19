@@ -77,7 +77,7 @@ export default function Home() {
       </Link>
 
       {/* CURRICULUM VITAE */}
-      <Link href="/cv" className='gap-8 text-black aspect-square col-span-1 row-span lg:h-full uppercase flex flex-col justify-center items-center rounded-2xl hover:bg-lime-500 bg-lime-400 cursor-pointer hover:scale-[105%] transition duration-300 ease-in-out'>
+      <Link href="/cv/en" className='gap-8 text-black aspect-square col-span-1 row-span lg:h-full uppercase flex flex-col justify-center items-center rounded-2xl hover:bg-lime-500 bg-lime-400 cursor-pointer hover:scale-[105%] transition duration-300 ease-in-out'>
         <FaFileDownload className='text-[250px] ' />
         <h3 className='text-4xl font-bold text-center'>download cv</h3>
       </Link>

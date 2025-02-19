@@ -22,8 +22,8 @@ const page = () => {
 
     const downloadPDF = () => {
         const link = document.createElement('a');
-        link.href = '/CV_CHRISTIAN_DELRIO_RODRIGUEZ.pdf'; // replace with the actual path to your PDF
-        link.download = 'CV_CHRISTIAN_DELRIO_RODRIGUEZ.pdf'; // replace with your desired filename
+        link.href = '/CV_CHRISTIAN_DELRIO_RODRIGUEZ_EN.pdf'; // replace with the actual path to your PDF
+        link.download = 'CV_CHRISTIAN_DELRIO_RODRIGUEZ_EN.pdf'; // replace with your desired filename
         link.click();
         window.close();
     };
