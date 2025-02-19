@@ -27,6 +27,7 @@ const page = () => {
         link.click();
         window.close();
     };
+
     useEffect(() => {
         downloadPDF()
     }, [])
@@ -39,7 +40,38 @@ const page = () => {
             remote: 'Hybrid',
             projects: [
                 {
+                    dateStart: 'Feb 2024',
+                    dateEnd: 'Feb 2025',
+                    name: 'Permira - GAIA',
+                    title: 'Frontend Developer',
+                    description: [
+                        // "At Permira, I worked on *Gaia, an AI-powered tool* designed to enhance data management and productivity. When I joined, *the project faced serious performance, UI, and architectural issues*. My role was crucial in *restructuring and improving the product*, focusing on *speed*, *scalability*, and *user experience*.",
+                        "• Implemented Next.js with server-side rendering, *improving speed* in virtualized environments, *reducing load times*, and *enhancing the user experience on low-performance devices.*",
+                        "• Using Tailwind and Zustand, I *redesigned the interface*, eliminated redundant code, and *optimized navigation and accessibility.*",
+                        "• Vector knowledge base to facilitate *search in confidential documents*, a chat with image and document support, PDF viewer with summaries, etc...",
+                        "• Integrated Okta SDK to ensure secure *authentication and robust data protection.*",
+                        "• *Contributed to Python - based optimizations*, ensuring seamless frontend - backend integration and enhancing system efficiency.",
+                        "• *Agile* Collaboration & International Communication: Worked in sprints, daily stand - ups, and retrospectives, managed tasks via ClickUp, and collaborated in English with the *UK - based client.*",
+                        // "These improvements transformed Gaia from a slow and inefficient tool into a fast, user - friendly, and scalable platform, significantly enhancing productivity and data security.",
+                    ],
+                    techs: [
+                        "Zusdant",
+                        "NextJS",
+                        "React",
+                        "Python",
+                        "Tailwind",
+                        "Node.js",
+                        "Okta",
+                        "JavaScript",
+                        "Git",
+                        "GitLab",
+                        "HTML5",
+                        "CSS3",
+                    ]
+                },
+                {
                     dateStart: 'Feb 2023',
+                    dateEnd: 'Feb 2024',
                     name: 'Solutions',
                     title: 'Frontend Developer',
                     description: [
