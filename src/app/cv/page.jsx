@@ -55,7 +55,7 @@ const page = () => {
                         // "These improvements transformed Gaia from a slow and inefficient tool into a fast, user - friendly, and scalable platform, significantly enhancing productivity and data security.",
                     ],
                     techs: [
-                        "Zusdant",
+                        "Zustand",
                         "NextJS",
                         "React",
                         "Python",
