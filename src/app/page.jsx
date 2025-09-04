@@ -71,7 +71,7 @@ export default function Home() {
         rounded-2xl p-4 text-white
         flex flex-col justify-center items-center
         hover:scale-[105%] transition duration-300 ease-in-out text-center'
-        href='/projects'
+        href='/products'
       >
         <h1 className='font-extrabold text-5xl sm:text-6xl'>my products</h1>
       </Link>

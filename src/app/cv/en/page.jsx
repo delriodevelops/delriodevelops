@@ -33,6 +33,39 @@ const page = () => {
     }, [])
     const experience = [
         {
+            img: "https://play-lh.googleusercontent.com/hVn4Xou41ypnqjBpOtudb2WSntOTnlw5WEfeYDI6L-1wh8iDG4NlGWgMh27W5CJ6eW8a",
+            company: 'Santander',
+            location: 'Málaga, Spain',
+            contract: 'Full Time',
+            remote: 'Hybrid',
+            projects: [
+                {
+                    dateStart: 'Mar 2025',
+                    dateEnd: null,
+                    name: 'Santander Global Tech',
+                    title: 'Full Stack Developer',
+                    description: [
+                        "• Part of the team building an internal wholesale lending application for Banco Santander, using DLX (Digital Loan Exchange) — a *specialized platform for managing the full lifecycle of syndicated and corporate loans*.",
+						"• While I have a technical background, I don't work on traditional frontend development. DLX provides its own UI through an SDK, so my *focus is on implementing business logic* and adapting flows to meet the bank's needs.",
+						"• I work mostly in TypeScript, configuring and extending the DLX SDK to:",
+						"• *Model financial entities* like facilities, tranches, contracts, and participants.",
+						"• Define custom validations, conditions, and workflow logic tailored to Santander.",
+						"• Connect internal components and *manage complex lending scenarios*.",
+						"• Automate repetitive tasks and *optimize business processes*.",
+						"• I also collaborate with non-technical stakeholders to *turn legal and operational requirements into logic* that fits into the DLX ecosystem.",
+						"• What makes this role *unique* is the *exposure to the world of wholesale lending*: syndication structures, participant distribution, role assignment, financial events, and the contractual audit trail — all from a developer's perspective.",
+                    ],
+                    techs: [
+                        "TypeScript",
+                        "DLX SDK",
+                        "Node.js",
+                        "Git",
+                        "JavaScript",
+                    ]
+                }
+            ]
+        },
+        {
             img: "data:image/png;base64,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",
             company: 'Nfq Advisory, Solutions, Outsourcing',
             location: 'Madrid, Spain',
@@ -137,7 +170,7 @@ const page = () => {
         },
     ]
     return (
-        <article className='bg-neutral-100 h-[200vh] w-fit p-4 text-black text-pretty mx-auto'>
+        <article className='bg-neutral-100 h-fit w-fit p-4 text-black text-pretty mx-auto'>
             <section className='bg-lime-500 h-[150px] w-fit rounded-2xl flex mx-auto'>
                 <img src="/me.png" alt="" className='w-[150px] rounded-l-2xl' />
                 <div className='pl-4 pr-8 py-4 flex flex-col content-evenly'>
@@ -190,6 +223,7 @@ const page = () => {
                     <section>
                         <h3 className='text-lg font-bold bg-orange-300 px-4 w-fit rounded-full uppercase'>my products</h3>
                         <ul className='mt-2 ml-2 uppercase'>
+                            <li><a href="https://fainancial.app">fainancial</a></li>
                             <li><a href="https://meshmind.vercel.app">meshmind</a></li>
                             <li><a href="https://escudolealjpt.com">escudo leal jpt</a></li>
                             <li><a href="https://baitme.iamdelrio.com/">baitme</a></li>
