@@ -1,117 +1,217 @@
-<img align="left" height="150" src="https://avatars.githubusercontent.com/u/94133498?v=4"  />
+# Christian Del Río - Scroll-Driven Portfolio
 
-###
+A modern, minimal, scroll-narrative portfolio website built with Next.js, GSAP, and Lenis smooth scroll. The design follows a dark-themed aesthetic with lime-green accents, featuring 6 distinct sections that tell a visual professional story.
 
-<div align="center">
-  <img src="https://raw.githubusercontent.com/maurodesouza/profile-readme-generator/master/src/assets/icons/social/linkedin/default.svg" width="76" height="64" alt="linkedin logo"  />
-  <img src="https://raw.githubusercontent.com/maurodesouza/profile-readme-generator/master/src/assets/icons/social/twitter/default.svg" width="76" height="64" alt="twitter logo"  />
-  <img src="https://raw.githubusercontent.com/maurodesouza/profile-readme-generator/master/src/assets/icons/social/discord/default.svg" width="76" height="64" alt="discord logo"  />
-  <img src="https://raw.githubusercontent.com/maurodesouza/profile-readme-generator/master/src/assets/icons/social/instagram/default.svg" width="76" height="64" alt="instagram logo"  />
-  <img src="https://raw.githubusercontent.com/maurodesouza/profile-readme-generator/master/src/assets/icons/social/twitch/default.svg" width="76" height="64" alt="twitch logo"  />
-</div>
+![Portfolio Preview](/public/portfolio_preview.png)
 
-###
+## ✨ Features
 
-<h2 align="left">Creating optimized technological solutions. Always up to date with the latest trends 👨‍💻🚀💡, learning every day.<br><br>Excited about the future of technology and its possibilities.<br><br>Real-world experience 🤝💼📈 in the professional field, adding value through personal projects.<br><br>Committed to continuous growth and the creation of impactful solutions 🌍📱✨.</h2>
+### Scroll-Driven Narrative (6 Sections)
+1. **Hero/Intro** - Full-screen viewport with animated name, role, and CTAs
+2. **About ("Who I Am")** - Styled narrative with scroll-triggered animations
+3. **Skills/Tech Stack** - Icon grid with hover effects and category grouping
+4. **Featured Projects** - Card layout with modals for detailed project info
+5. **Professional Experience** - Animated vertical timeline
+6. **Contact + CTA** - Contact form with social links and CV download
 
-###
+### Design System
+- **Color Palette**: Minimal dark theme (#0a0a0a) with lime-green accent (#d4ff00)
+- **Typography**: Inter font with clear hierarchy
+- **Layout**: Grid-based, spacious, mobile-first responsive design
 
-<h3 align="left">👩‍💻  About Me</h3>
+### Animations & Interactions
+- Smooth 60fps scroll with Lenis
+- GSAP ScrollTrigger for reveal animations
+- Micro-interactions (hover states, button effects)
+- CSS transforms for GPU-accelerated performance
+- Respects `prefers-reduced-motion` for accessibility
 
-###
+### Performance Optimizations
+- Next.js Image optimization with lazy loading
+- Minimal DOM complexity
+- CSS-based animations (GPU accelerated)
+- Compressed and optimized assets
 
-<p align="left">- Full Stack Developer <br>- 📍 Madrid, Spain.<br>- 🔭 I’m working as a frontend developer at Bosonit in the NFQSolutions product team.</p>
+## 🛠️ Tech Stack
 
-###
+| Category | Technology |
+|----------|------------|
+| Framework | Next.js 14 (App Router) |
+| Styling | CSS3 + Tailwind CSS |
+| Animations | GSAP + ScrollTrigger |
+| Smooth Scroll | Lenis (formerly @studio-freight/lenis) |
+| Icons | Lucide React |
+| Font | Inter (Google Fonts) |
 
-<h3 align="left">🛠 Language and tools</h3>
+## 📦 Installation
 
-###
+```bash
+# Clone the repository
+git clone https://github.com/delriodevelops/portfolio.git
 
-<div align="left">
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/firebase/firebase-plain-wordmark.svg" height="40" alt="firebase logo"  />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-plain-wordmark.svg" height="40" alt="docker logo"  />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/aftereffects/aftereffects-original.svg" height="40" alt="aftereffects logo"  />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/angularjs/angularjs-original.svg" height="40" alt="angularjs logo"  />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/bash/bash-original.svg" height="40" alt="bash logo"  />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/bootstrap/bootstrap-original.svg" height="40" alt="bootstrap logo"  />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg" height="40" alt="css3 logo"  />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/express/express-original.svg" height="40" alt="express logo"  />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/figma/figma-original.svg" height="40" alt="figma logo"  />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg" height="40" alt="git logo"  />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" height="40" alt="github logo"  />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/gitlab/gitlab-original.svg" height="40" alt="gitlab logo"  />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg" height="40" alt="html5 logo"  />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" height="40" alt="javascript logo"  />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linux/linux-original.svg" height="40" alt="linux logo"  />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/markdown/markdown-original.svg" height="40" alt="markdown logo"  />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/materialui/materialui-original.svg" height="40" alt="materialui logo"  />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg" height="40" alt="mongodb logo"  />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg" height="40" alt="mysql logo"  />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg" height="40" alt="nextjs logo"  />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg" height="40" alt="nodejs logo"  />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/npm/npm-original-wordmark.svg" height="40" alt="npm logo"  />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" height="40" alt="react logo"  />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nuxtjs/nuxtjs-original.svg" height="40" alt="nuxtjs logo"  />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/photoshop/photoshop-plain.svg" height="40" alt="photoshop logo"  />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg" height="40" alt="postgresql logo"  />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/premierepro/premierepro-plain.svg" height="40" alt="premierepro logo"  />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/redis/redis-original.svg" height="40" alt="redis logo"  />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/socketio/socketio-original.svg" height="40" alt="socketio logo"  />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/trello/trello-plain.svg" height="40" alt="trello logo"  />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" height="40" alt="typescript logo"  />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/ubuntu/ubuntu-plain.svg" height="40" alt="ubuntu logo"  />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vuejs/vuejs-original.svg" height="40" alt="vuejs logo"  />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vscode/vscode-original.svg" height="40" alt="vscode logo"  />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vuetify/vuetify-original.svg" height="40" alt="vuetify logo"  />
-  <img width="12" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/xd/xd-plain.svg" height="40" alt="xd logo"  />
-</div>
+# Navigate to project directory
+cd portfolio
 
-###
+# Install dependencies
+npm install
 
-<h3 align="left">🔥   My Stats :</h3>
+# Run development server
+npm run dev
+```
 
-###
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-<div align="center">
-  <img src="https://github-readme-stats.vercel.app/api?username=delriodevelops&hide_title=false&hide_rank=false&show_icons=true&include_all_commits=true&count_private=true&disable_animations=false&theme=dracula&locale=en&hide_border=true&order=1" height="250" alt="stats graph"  />
-  <img src="https://github-readme-stats.vercel.app/api/top-langs?username=delriodevelops&locale=en&hide_title=false&layout=compact&card_width=320&langs_count=5&theme=dracula&hide_border=true&order=2" height="250" alt="languages graph"  />
-  <img src="https://streak-stats.demolab.com?user=delriodevelops&locale=en&mode=daily&theme=dracula&hide_border=true&border_radius=5&order=3" height="220" alt="streak graph"  />
-</div>
+## 📁 Project Structure
 
-###
+```
+src/
+├── app/
+│   ├── globals.css      # Design system + custom CSS
+│   ├── layout.jsx       # Root layout with metadata
+│   ├── page.jsx         # Main scroll-driven portfolio page
+│   ├── products/        # Products showcase page
+│   ├── projects/        # Projects showcase page
+│   └── cv/              # CV download routes
+├── components/
+│   ├── chat.jsx         # AI chatbot component
+│   └── product-card.jsx # Product card with image carousel
+public/
+├── me.png               # Profile photo
+├── *.png                # Project screenshots
+└── CV_*.pdf             # Downloadable CVs
+```
+
+## 🎨 Design Decisions
+
+### Why Dark Theme?
+- Reduces eye strain for developers/recruiters viewing portfolios
+- Creates dramatic contrast for accent colors
+- Aligns with modern tech industry aesthetics
+- Feels premium and professional
+
+### Why Lenis for Smooth Scroll?
+- Lightweight alternative to Locomotive Scroll
+- Better performance with less overhead
+- Native feel while maintaining smooth momentum
+- Easy integration with GSAP ScrollTrigger
+
+### Animation Philosophy
+- **Entrance animations**: Fade + translate for professional feel
+- **Staggered reveals**: Sequential timing for grouped elements
+- **Subtle parallax**: Depth without distraction
+- **Interactive micro-states**: Immediate feedback on hover/click
+
+## 🚀 Deployment
+
+### Vercel (Recommended)
+```bash
+# Install Vercel CLI
+npm i -g vercel
+
+# Deploy
+vercel
+```
+
+### Build for Production
+```bash
+npm run build
+npm run start
+```
+
+## ⚙️ Configuration
+
+### Animation Timing
+All animation timing functions use custom cubic-bezier curves defined in CSS:
+```css
+--ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+--ease-in-out-expo: cubic-bezier(0.87, 0, 0.13, 1);
+--ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+```
+
+### Scroll Trigger Settings
+ScrollTrigger configurations in `page.jsx`:
+- `start: 'top 70%'` - Trigger when element is 70% from top
+- `toggleActions: 'play none none reverse'` - Play on enter, reverse on leave
+
+### Lenis Smooth Scroll
+```javascript
+const lenis = new Lenis({
+  duration: 1.2,
+  easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+  smooth: true,
+  smoothTouch: false,
+});
+```
+
+## 📱 Responsive Breakpoints
+
+| Breakpoint | Width | Description |
+|------------|-------|-------------|
+| Mobile | < 768px | Single column, simplified animations |
+| Tablet | 768px - 968px | Two column layouts |
+| Desktop | > 968px | Full experience with all animations |
+
+## ♿ Accessibility
+
+- **Keyboard navigation**: All interactive elements are focusable
+- **Screen reader support**: Semantic HTML + ARIA labels
+- **Reduced motion**: Respects `prefers-reduced-motion` media query
+- **Color contrast**: WCAG 2.1 AA compliant
+- **Touch targets**: Minimum 44x44px on mobile
+
+## 🔧 Customization
+
+### Changing Accent Color
+Update the CSS custom property in `globals.css`:
+```css
+:root {
+  --color-accent: #d4ff00; /* Change this value */
+  --color-accent-hover: #e5ff40;
+  --color-accent-muted: rgba(212, 255, 0, 0.1);
+}
+```
+
+### Adding New Projects
+Edit the `projectsData` array in `page.jsx`:
+```javascript
+{
+  id: 5,
+  title: 'New Project',
+  description: 'Project description',
+  image: '/path/to/image.png',
+  tags: ['Tag1', 'Tag2'],
+  techStack: ['React', 'Node.js'],
+  role: 'Developer',
+  responsibilities: ['Task 1', 'Task 2'],
+  liveUrl: 'https://example.com',
+  githubUrl: 'https://github.com/...',
+}
+```
+
+### Adding Experience Entries
+Edit the `experienceData` array in `page.jsx`:
+```javascript
+{
+  id: 4,
+  company: 'Company Name',
+  role: 'Job Title',
+  period: '2023 - Present',
+  description: 'Brief role description',
+  responsibilities: ['Responsibility 1', 'Responsibility 2'],
+}
+```
+
+## 📄 License
+
+MIT License - feel free to use this as a template for your own portfolio!
+
+## 🤝 Connect
+
+- **Website**: [iamdelrio.com](https://www.iamdelrio.com)
+- **LinkedIn**: [/in/iamdelrio](https://www.linkedin.com/in/iamdelrio)
+- **GitHub**: [/delriodevelops](https://github.com/delriodevelops)
+- **YouTube**: [@iamdelrio](https://www.youtube.com/@iamdelrio)
+
+---
+
+Built with 💛 and lots of ☕
