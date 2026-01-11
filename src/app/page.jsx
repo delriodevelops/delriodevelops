@@ -489,11 +489,10 @@ export default function Home() {
     setIsMenuOpen(false);
   };
 
-  const handleChatSubmit = async (e) => {
-    e.preventDefault();
-    if (!chatInput.trim() || isChatLoading) return;
+  const sendMessage = async (content) => {
+    if (!content.trim() || isChatLoading) return;
 
-    const userMessage = { role: 'user', content: chatInput.trim() };
+    const userMessage = { role: 'user', content: content.trim() };
     const updatedMessages = [...messages, userMessage];
     setMessages(updatedMessages);
     setChatInput('');
@@ -520,6 +519,11 @@ export default function Home() {
     } finally {
       setIsChatLoading(false);
     }
+  };
+
+  const handleChatSubmit = async (e) => {
+    e.preventDefault();
+    sendMessage(chatInput);
   };
 
   return (
@@ -947,6 +951,64 @@ export default function Home() {
               {isChatLoading && (
                 <div className="message message-assistant" style={{ opacity: 0.7 }}>
                   Thinking...
+                </div>
+              )}
+              {messages.length === 1 && !isChatLoading && (
+                <div style={{ marginTop: 'auto', paddingTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <button
+                    onClick={() => sendMessage("What's your experience?")}
+                    style={{
+                      background: 'rgba(255,255,255,0.05)',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      padding: '0.6rem 1rem',
+                      borderRadius: '12px',
+                      color: 'var(--color-text)',
+                      fontSize: '0.85rem',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      transition: 'all 0.2s',
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--color-accent)'; e.currentTarget.style.color = 'white'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = 'var(--color-text)'; }}
+                  >
+                    What&apos;s your experience?
+                  </button>
+                  <button
+                    onClick={() => sendMessage("What's your tech stack?")}
+                    style={{
+                      background: 'rgba(255,255,255,0.05)',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      padding: '0.6rem 1rem',
+                      borderRadius: '12px',
+                      color: 'var(--color-text)',
+                      fontSize: '0.85rem',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      transition: 'all 0.2s',
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--color-accent)'; e.currentTarget.style.color = 'white'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = 'var(--color-text)'; }}
+                  >
+                    What&apos;s your tech stack?
+                  </button>
+                  <button
+                    onClick={() => sendMessage("Let's schedule a call")}
+                    style={{
+                      background: 'rgba(255,255,255,0.05)',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      padding: '0.6rem 1rem',
+                      borderRadius: '12px',
+                      color: 'var(--color-text)',
+                      fontSize: '0.85rem',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      transition: 'all 0.2s',
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--color-accent)'; e.currentTarget.style.color = 'white'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = 'var(--color-text)'; }}
+                  >
+                    Let&apos;s schedule a call
+                  </button>
                 </div>
               )}
             </div>

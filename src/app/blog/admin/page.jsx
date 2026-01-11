@@ -260,7 +260,7 @@ export default function BlogAdminPage() {
                                     <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Slug</label>
                                     <input
                                         type="text"
-                                        className="w-full bg-transparent border-b border-white/20 py-2 font-mono text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors text-gray-400"
+                                        className="w-full bg-transparent border-b border-white/20 py-2 font-mono text-base focus:border-[var(--color-accent)] focus:outline-none transition-colors text-gray-400"
                                         value={formData.slug}
                                         onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
                                         required
@@ -269,7 +269,7 @@ export default function BlogAdminPage() {
                                 <div>
                                     <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Category</label>
                                     <select
-                                        className="w-full bg-black/50 border-b border-white/20 py-2 font-mono text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors text-white appearance-none"
+                                        className="w-full bg-black/50 border-b border-white/20 py-2 font-mono text-base focus:border-[var(--color-accent)] focus:outline-none transition-colors text-white appearance-none"
                                         value={formData.tag}
                                         onChange={(e) => setFormData({ ...formData, tag: e.target.value })}
                                     >
@@ -283,7 +283,7 @@ export default function BlogAdminPage() {
                             <div>
                                 <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Cover Image</label>
                                 <select
-                                    className="w-full bg-black/50 border-b border-white/20 py-2 font-mono text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors text-white appearance-none"
+                                    className="w-full bg-black/50 border-b border-white/20 py-2 font-mono text-base focus:border-[var(--color-accent)] focus:outline-none transition-colors text-white appearance-none"
                                     value={formData.image}
                                     onChange={(e) => setFormData({ ...formData, image: e.target.value })}
                                 >
@@ -308,7 +308,7 @@ export default function BlogAdminPage() {
                             <div>
                                 <label className="block text-xs uppercase tracking-widest text-gray-500 mb-4">Content (Markdown)</label>
                                 <textarea
-                                    className="w-full min-h-[400px] bg-white/5 border border-white/10 rounded-xl p-6 font-mono text-sm leading-relaxed focus:border-[var(--color-accent)] focus:outline-none transition-colors placeholder-white/10 resize-y"
+                                    className="w-full min-h-[400px] bg-white/5 border border-white/10 rounded-xl p-6 font-mono text-base leading-relaxed focus:border-[var(--color-accent)] focus:outline-none transition-colors placeholder-white/10 resize-y"
                                     placeholder="# Write your masterpiece..."
                                     value={formData.content}
                                     onChange={(e) => setFormData({ ...formData, content: e.target.value })}
