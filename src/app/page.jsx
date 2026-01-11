@@ -706,7 +706,7 @@ export default function Home() {
                     <div className="about-stat-label">Products Shipped</div>
                   </div>
                   <div>
-                    <div className="about-stat-number">8<span className="accent">+</span></div>
+                    <div className="about-stat-number">5<span className="accent">+</span></div>
                     <div className="about-stat-label">Years Coding</div>
                   </div>
                   <div>
