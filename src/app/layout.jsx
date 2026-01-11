@@ -8,45 +8,38 @@ const inter = Inter({
 });
 
 export const metadata = {
-  title: 'Christian Del Río | Full Stack Developer & AI Enthusiast',
+  title: 'Christian Del Río | Engineer & Builder',
   description:
-    'Full Stack Developer crafting innovative digital solutions. Specializing in AI-powered applications, modern web development, and creating delightful user experiences. Based in Madrid, Spain.',
+    'Full Stack Engineer & Product Builder. Crafting monumental digital experiences with AI and modern web tech. Specializing in SaaS, interactive design, and innovative solutions. Based in Madrid.',
   keywords: [
     'Full Stack Developer',
-    'Web Developer',
-    'AI Developer',
+    'Software Engineer',
+    'Indie Hacker',
+    'AI Engineer',
     'React',
     'Next.js',
-    'Node.js',
-    'TypeScript',
+    'Creative Developer',
     'Madrid',
     'Portfolio',
+    'SaaS',
   ],
   authors: [{ name: 'Christian Del Río', url: 'https://www.iamdelrio.com' }],
   creator: 'Christian Del Río',
   openGraph: {
-    title: 'Christian Del Río | Full Stack Developer & AI Enthusiast',
+    title: 'Christian Del Río | Engineer & Builder',
     description:
-      'Full Stack Developer crafting innovative digital solutions. Specializing in AI-powered applications, modern web development, and creating delightful user experiences.',
+      'Full Stack Engineer & Product Builder. Crafting monumental digital experiences with AI and modern web tech.',
     url: 'https://www.iamdelrio.com',
-    siteName: 'iamdelrio',
+    siteName: 'Christian Del Río',
     type: 'website',
     locale: 'en_US',
-    images: [
-      {
-        url: '/portfolio_preview.png',
-        width: 1920,
-        height: 1080,
-        alt: 'Christian Del Río - Full Stack Developer Portfolio',
-      },
-    ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Christian Del Río | Full Stack Developer & AI Enthusiast',
+    title: 'Christian Del Río | Engineer & Builder',
     description:
-      'Full Stack Developer crafting innovative digital solutions. Specializing in AI-powered applications and modern web development.',
-    images: ['/portfolio_preview.png'],
+      'Full Stack Engineer & Product Builder. Crafting monumental digital experiences with AI and modern web tech.',
+    creator: '@iamdelrio',
   },
   robots: {
     index: true,
@@ -59,6 +52,7 @@ export const metadata = {
       'max-snippet': -1,
     },
   },
+
   verification: {
     google: 'your-google-verification-code',
   },
@@ -77,7 +71,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={inter.variable}>
       <head>
-        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>

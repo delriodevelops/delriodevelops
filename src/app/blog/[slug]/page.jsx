@@ -4,6 +4,8 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowLeft, Calendar, Clock, Share2, Twitter, Linkedin } from 'lucide-react';
+import gsap from 'gsap';
+import { useEffect, useRef } from 'react';
 
 // Same posts data (in production, fetch from API/CMS)
 const allPosts = [
@@ -12,6 +14,8 @@ const allPosts = [
         title: 'Why I Build in Public',
         excerpt: 'The journey from corporate developer to indie hacker, and why transparency matters more than ever.',
         content: `Building in public has completely changed how I approach product development. When I left my corporate job to become an indie hacker, I knew I needed to do things differently.
+
+![My Setup](/meshmind/1.png)
 
 ## The Fear of Sharing
 
@@ -182,51 +186,77 @@ function parseMarkdown(content) {
         // Headers
         if (line.startsWith('## ')) {
             if (inList && currentList.length > 0) {
-                elements.push(<ul key={`list-${index}`} style={{ marginBottom: 'var(--space-lg)' }}>{currentList}</ul>);
+                elements.push(<ul key={`list-${index}`} style={{ marginBottom: '2rem', paddingLeft: '1.5rem', color: '#ccc' }}>{currentList}</ul>);
                 currentList = [];
                 inList = false;
             }
-            elements.push(<h2 key={index}>{line.replace('## ', '')}</h2>);
+            elements.push(<h2 key={index} style={{ fontSize: '2rem', marginTop: '3rem', marginBottom: '1.5rem', color: '#fff' }}>{line.replace('## ', '')}</h2>);
         } else if (line.startsWith('### ')) {
             if (inList && currentList.length > 0) {
-                elements.push(<ul key={`list-${index}`} style={{ marginBottom: 'var(--space-lg)' }}>{currentList}</ul>);
+                elements.push(<ul key={`list-${index}`} style={{ marginBottom: '2rem', paddingLeft: '1.5rem', color: '#ccc' }}>{currentList}</ul>);
                 currentList = [];
                 inList = false;
             }
-            elements.push(<h3 key={index}>{line.replace('### ', '')}</h3>);
+            elements.push(<h3 key={index} style={{ fontSize: '1.5rem', marginTop: '2rem', marginBottom: '1rem', color: '#fff' }}>{line.replace('### ', '')}</h3>);
+        } else if (line.startsWith('![')) {
+            // Images
+            if (inList && currentList.length > 0) {
+                elements.push(<ul key={`list-${index}`} style={{ marginBottom: '2rem', paddingLeft: '1.5rem', color: '#ccc' }}>{currentList}</ul>);
+                currentList = [];
+                inList = false;
+            }
+            const match = line.match(/!\[(.*?)\]\((.*?)\)/);
+            if (match) {
+                const alt = match[1];
+                const src = match[2];
+                elements.push(
+                    <div key={index} style={{ margin: '3rem 0', width: '100%' }}>
+                        <div style={{ borderRadius: '4px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }}>
+                            <Image
+                                src={src}
+                                alt={alt}
+                                width={800}
+                                height={450}
+                                style={{ width: '100%', height: 'auto', display: 'block' }}
+                            />
+                        </div>
+                        {alt && <p style={{ textAlign: 'center', color: '#888', fontSize: '0.85rem', marginTop: '1rem', fontFamily: 'var(--font-mono)' }}>{alt}</p>}
+                    </div>
+                );
+            }
         } else if (line.startsWith('- ')) {
             inList = true;
-            const content = line.replace('- ', '').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            const content = line.replace('- ', '').replace(/\*\*(.*?)\*\*/g, '<strong style="color: #fff">$1</strong>');
             currentList.push(
-                <li key={index} dangerouslySetInnerHTML={{ __html: content }} />
+                <li key={index} style={{ marginBottom: '0.5rem', lineHeight: 1.6 }} dangerouslySetInnerHTML={{ __html: content }} />
             );
         } else if (line.match(/^\d+\./)) {
             inList = true;
-            const content = line.replace(/^\d+\.\s*/, '').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            const content = line.replace(/^\d+\.\s*/, '').replace(/\*\*(.*?)\*\*/g, '<strong style="color: #fff">$1</strong>');
             currentList.push(
-                <li key={index} dangerouslySetInnerHTML={{ __html: content }} />
+                <li key={index} style={{ marginBottom: '0.5rem', lineHeight: 1.6 }} dangerouslySetInnerHTML={{ __html: content }} />
             );
         } else if (line.trim() === '') {
             if (inList && currentList.length > 0) {
-                elements.push(<ul key={`list-${index}`} style={{ marginBottom: 'var(--space-lg)', paddingLeft: 'var(--space-xl)' }}>{currentList}</ul>);
+                elements.push(<ul key={`list-${index}`} style={{ marginBottom: '2rem', paddingLeft: '1.5rem', color: '#ccc' }}>{currentList}</ul>);
                 currentList = [];
                 inList = false;
             }
         } else if (line.trim()) {
             if (inList && currentList.length > 0) {
-                elements.push(<ul key={`list-${index}`} style={{ marginBottom: 'var(--space-lg)', paddingLeft: 'var(--space-xl)' }}>{currentList}</ul>);
+                elements.push(<ul key={`list-${index}`} style={{ marginBottom: '2rem', paddingLeft: '1.5rem', color: '#ccc' }}>{currentList}</ul>);
                 currentList = [];
                 inList = false;
             }
-            const content = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            const content = line.replace(/\*\*(.*?)\*\*/g, '<strong style="color: #fff">$1</strong>');
             elements.push(
-                <p key={index} dangerouslySetInnerHTML={{ __html: content }} />
+                <p key={index} style={{ marginBottom: '1.5rem', lineHeight: 1.8, color: '#aaa', fontSize: '1.1rem' }} dangerouslySetInnerHTML={{ __html: content }} />
             );
         }
     });
 
     if (currentList.length > 0) {
-        elements.push(<ul key="final-list" style={{ marginBottom: 'var(--space-lg)', paddingLeft: 'var(--space-xl)' }}>{currentList}</ul>);
+        elements.push(<ul key="final-list" style={{ marginBottom: '2rem', paddingLeft: '1.5rem', color: '#ccc' }}>{currentList}</ul>);
     }
 
     return elements;
@@ -235,13 +265,23 @@ function parseMarkdown(content) {
 export default function BlogPostPage() {
     const params = useParams();
     const post = allPosts.find((p) => p.slug === params.slug);
+    const contentRef = useRef(null);
+
+    useEffect(() => {
+        if (contentRef.current) {
+            gsap.fromTo(contentRef.current,
+                { opacity: 0, y: 30 },
+                { opacity: 1, y: 0, duration: 1, ease: 'power3.out', delay: 0.2 }
+            );
+        }
+    }, []);
 
     if (!post) {
         return (
-            <div className="blog-post" style={{ textAlign: 'center' }}>
-                <h1>Post not found</h1>
-                <Link href="/blog" className="btn btn-primary" style={{ marginTop: 'var(--space-xl)' }}>
-                    Back to blog
+            <div className="container" style={{ textAlign: 'center', padding: '20vh 0' }}>
+                <h1 style={{ fontSize: '3rem', marginBottom: '2rem' }}>Post not found</h1>
+                <Link href="/blog" style={{ color: 'var(--color-accent)', textDecoration: 'underline' }}>
+                    Back to thoughts
                 </Link>
             </div>
         );
@@ -250,134 +290,134 @@ export default function BlogPostPage() {
     const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
 
     return (
-        <article style={{ minHeight: '100vh', background: 'var(--color-bg)' }}>
+        <article style={{ minHeight: '100vh', background: 'var(--color-bg)', overflowX: 'hidden' }}>
             {/* Header */}
-            <div className="container" style={{ paddingTop: 'var(--space-6xl)' }}>
+            <div className="container" style={{ paddingTop: '15vh' }}>
                 <Link
                     href="/blog"
                     style={{
                         display: 'inline-flex',
                         alignItems: 'center',
-                        gap: 'var(--space-sm)',
-                        color: 'var(--color-text-muted)',
+                        gap: '0.8rem',
+                        color: '#666',
                         textDecoration: 'none',
-                        fontSize: '0.875rem',
-                        marginBottom: 'var(--space-2xl)',
-                        transition: 'color 0.3s',
+                        fontSize: '0.9rem',
+                        letterSpacing: '0.05em',
+                        marginBottom: '4rem',
+                        textTransform: 'uppercase',
+                        transition: 'color 0.3s ease',
                     }}
-                    onMouseEnter={(e) => (e.target.style.color = 'var(--color-accent)')}
-                    onMouseLeave={(e) => (e.target.style.color = 'var(--color-text-muted)')}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--color-accent)')}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = '#666')}
                 >
                     <ArrowLeft size={16} />
-                    Back to blog
+                    Back to thoughts
                 </Link>
+
+                <div className="blog-post-header" style={{ maxWidth: '900px', margin: '0 auto' }}>
+                    <div style={{
+                        display: 'flex',
+                        gap: '2rem',
+                        alignItems: 'center',
+                        marginBottom: '2rem',
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: '0.9rem',
+                        color: '#666',
+                        borderBottom: '1px solid rgba(255,255,255,0.1)',
+                        paddingBottom: '1rem'
+                    }}>
+                        <span style={{ color: 'var(--color-accent)' }}>{post.tag}</span>
+                        <span>{new Date(post.date).toLocaleDateString()}</span>
+                        <span>{post.readTime}</span>
+                    </div>
+
+                    <h1 style={{
+                        fontSize: 'clamp(2.5rem, 5vw, 4.5rem)',
+                        lineHeight: 1.1,
+                        fontWeight: 700,
+                        marginBottom: '3rem',
+                        letterSpacing: '-0.02em',
+                        background: 'linear-gradient(to right, #fff, #888)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                    }}>
+                        {post.title}
+                    </h1>
+                </div>
             </div>
 
             {/* Hero Image */}
-            <div style={{ width: '100%', maxWidth: '1000px', margin: '0 auto', padding: '0 var(--space-xl)' }}>
+            <div className="container" style={{ maxWidth: '1200px' }}>
                 <div
                     style={{
+                        position: 'relative',
                         width: '100%',
                         aspectRatio: '21/9',
-                        borderRadius: '24px',
+                        borderRadius: '0',
                         overflow: 'hidden',
-                        marginBottom: 'var(--space-3xl)',
+                        marginBottom: '6rem',
+                        border: '1px solid rgba(255,255,255,0.1)'
                     }}
                 >
                     <Image
                         src={post.image}
                         alt={post.title}
-                        width={1000}
-                        height={430}
-                        quality={90}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        fill
+                        priority
+                        style={{ objectFit: 'cover', opacity: 0.8 }}
                     />
+                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, var(--color-bg), transparent 30%)' }} />
                 </div>
             </div>
 
             {/* Content */}
-            <div className="blog-post">
-                <header className="blog-post-header">
-                    <div className="blog-post-meta">
-                        <span
-                            style={{
-                                color: 'var(--color-accent)',
-                                fontWeight: '600',
-                                textTransform: 'uppercase',
-                                letterSpacing: '0.1em',
-                            }}
-                        >
-                            {post.tag}
-                        </span>
-                        <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-xs)' }}>
-                            <Calendar size={14} />
-                            {new Date(post.date).toLocaleDateString('en-US', {
-                                month: 'long',
-                                day: 'numeric',
-                                year: 'numeric',
-                            })}
-                        </span>
-                        <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-xs)' }}>
-                            <Clock size={14} />
-                            {post.readTime}
-                        </span>
+            <div ref={contentRef} className="container" style={{ maxWidth: '800px', paddingBottom: '10vh' }}>
+                <div className="blog-content" style={{ fontSize: '1.1rem' }}>
+                    {parseMarkdown(post.content)}
+                </div>
+
+                {/* Footer / Share */}
+                <div style={{
+                    marginTop: '6rem',
+                    paddingTop: '3rem',
+                    borderTop: '1px solid rgba(255,255,255,0.1)',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                }}>
+                    <div style={{ color: '#666', fontSize: '0.9rem' }}>
+                        Thanks for reading.
                     </div>
 
-                    <h1 className="blog-post-title">{post.title}</h1>
-
-                    <p style={{ fontSize: '1.25rem', color: 'var(--color-text-secondary)', maxWidth: '700px', margin: '0 auto' }}>
-                        {post.excerpt}
-                    </p>
-                </header>
-
-                <div className="blog-post-content">{parseMarkdown(post.content)}</div>
-
-                {/* Share */}
-                <div
-                    style={{
-                        marginTop: 'var(--space-4xl)',
-                        paddingTop: 'var(--space-2xl)',
-                        borderTop: '1px solid var(--color-border)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        flexWrap: 'wrap',
-                        gap: 'var(--space-lg)',
-                    }}
-                >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-sm)', color: 'var(--color-text-muted)' }}>
-                        <Share2 size={18} />
-                        <span>Share this post</span>
-                    </div>
-                    <div style={{ display: 'flex', gap: 'var(--space-sm)' }}>
+                    <div style={{ display: 'flex', gap: '1.5rem' }}>
                         <a
                             href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(shareUrl)}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="social-link"
-                            aria-label="Share on Twitter"
+                            style={{ color: '#666', transition: 'all 0.3s ease' }}
+                            onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--color-accent)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.color = '#666'; e.currentTarget.style.transform = 'translateY(0)'; }}
                         >
-                            <Twitter size={18} />
+                            <Twitter size={20} />
                         </a>
                         <a
                             href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="social-link"
-                            aria-label="Share on LinkedIn"
+                            style={{ color: '#666', transition: 'all 0.3s ease' }}
+                            onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--color-accent)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.color = '#666'; e.currentTarget.style.transform = 'translateY(0)'; }}
                         >
-                            <Linkedin size={18} />
+                            <Linkedin size={20} />
                         </a>
                     </div>
                 </div>
-            </div>
 
-            {/* Back to blog */}
-            <div className="container" style={{ paddingBottom: 'var(--space-6xl)', textAlign: 'center' }}>
-                <Link href="/blog" className="btn btn-secondary">
-                    <ArrowLeft size={18} />
-                    All posts
-                </Link>
+                <div style={{ marginTop: '4rem', textAlign: 'center' }}>
+                    <Link href="/blog" className="magnetic-btn">
+                        Read More Articles
+                    </Link>
+                </div>
             </div>
         </article>
     );

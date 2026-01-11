@@ -31,7 +31,6 @@ import {
   Rocket,
   Zap,
   Coffee,
-  Twitter,
 } from 'lucide-react';
 
 // Register GSAP plugins
@@ -196,8 +195,6 @@ export default function Home() {
   const [chatInput, setChatInput] = useState('');
   const [isChatLoading, setIsChatLoading] = useState(false);
   const chatMessagesRef = useRef(null);
-  const experienceListRef = useRef(null);
-  const experienceGlowRef = useRef(null);
 
   const lenisRef = useRef(null);
 
@@ -447,39 +444,6 @@ export default function Home() {
       });
     };
   };
-
-
-
-  useEffect(() => {
-    const list = experienceListRef.current;
-    const glow = experienceGlowRef.current;
-
-    if (!list || !glow) return;
-
-    const moveGlow = (e) => {
-      const rect = list.getBoundingClientRect();
-      const y = e.clientY - rect.top;
-
-      gsap.to(glow, {
-        y: y,
-        opacity: 1,
-        duration: 0.2,
-        ease: 'power2.out'
-      });
-    };
-
-    const hideGlow = () => {
-      gsap.to(glow, { opacity: 0, duration: 0.5 });
-    };
-
-    list.addEventListener('mousemove', moveGlow);
-    list.addEventListener('mouseleave', hideGlow);
-
-    return () => {
-      list.removeEventListener('mousemove', moveGlow);
-      list.removeEventListener('mouseleave', hideGlow);
-    };
-  }, []);
 
   const scrollToSection = (href) => {
     const element = document.querySelector(href);
@@ -795,10 +759,7 @@ export default function Home() {
           </div>
 
           <div className="container-wide">
-            <div className="experience-list" ref={experienceListRef} style={{ position: 'relative' }}>
-              <div className="experience-timeline">
-                <div className="experience-timeline-glow" ref={experienceGlowRef} />
-              </div>
+            <div className="experience-list">
               {experienceData.map((exp) => (
                 <div
                   key={exp.id}
@@ -809,13 +770,11 @@ export default function Home() {
                   <div className="experience-content">
                     <h3 className="experience-company">{exp.company}</h3>
                     <h4 className="experience-role">{exp.role}</h4>
-                    <div className="experience-details-wrapper">
-                      <ul className="experience-details">
-                        {exp.responsibilities.map((resp, i) => (
-                          <li key={i}>{resp}</li>
-                        ))}
-                      </ul>
-                    </div>
+                    <ul className="experience-details">
+                      {exp.responsibilities.map((resp, i) => (
+                        <li key={i}>{resp}</li>
+                      ))}
+                    </ul>
                   </div>
                 </div>
               ))}
@@ -824,68 +783,117 @@ export default function Home() {
         </section>
 
         {/* ==================== BLOG SECTION ==================== */}
-        <section id="blog" className="section">
-          <div className="container" style={{ marginBottom: '4rem' }}>
-            <span className="section-label">Writing</span>
-            <h2 className="title-monumental">THOUGHTS</h2>
-          </div>
+        <section id="blog" className="section" style={{ background: 'var(--color-bg)' }}>
+          <div className="container">
+            <div className="projects-header">
+              <div>
+                <span className="section-label">Blog</span>
+                <h2>Thoughts & learnings</h2>
+              </div>
+              <Link href="/blog" className="btn btn-secondary">
+                All posts
+                <ArrowUpRight size={18} />
+              </Link>
+            </div>
 
-          <div className="container-wide">
-            <div className="blog-list">
-              {blogPosts.map((post) => (
+            <div className="blog-grid">
+              {blogPosts.map((post, i) => (
                 <Link
                   key={post.slug}
                   href={`/blog/${post.slug}`}
-                  className="blog-item"
+                  className="blog-card"
+                  style={{ opacity: 0, transform: 'translateY(40px)' }}
                 >
-                  <div className="blog-item-meta">
-                    <span className="blog-item-date">
-                      {new Date(post.date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
-                    </span>
+                  <div className="blog-card-image">
+                    <Image
+                      src={post.image}
+                      alt={post.title}
+                      width={600}
+                      height={340}
+                      quality={80}
+                    />
                   </div>
-                  <h3 className="blog-item-title">{post.title}</h3>
-                  <div className="blog-item-arrow">
-                    <ArrowUpRight size={24} />
+                  <div className="blog-card-content">
+                    <div className="blog-card-meta">
+                      <span className="blog-card-tag">{post.tag}</span>
+                      <span>{new Date(post.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                    </div>
+                    <h3 className="blog-card-title">{post.title}</h3>
+                    <p className="blog-card-excerpt">{post.excerpt}</p>
+                    <span className="blog-card-read">
+                      Read more <ArrowRight size={14} />
+                    </span>
                   </div>
                 </Link>
               ))}
-            </div>
-
-            <div style={{ marginTop: '4rem', display: 'flex', justifyContent: 'center' }}>
-              <Link href="/blog" className="magnetic-btn">
-                Read All Articles
-              </Link>
             </div>
           </div>
         </section>
 
         {/* ==================== CONTACT SECTION ==================== */}
-        <section id="contact" className="section contact-section">
+        <section id="contact" className="contact section">
           <div className="container">
-            <span className="section-label">Connect</span>
-            <h2 className="title-monumental">GET IN TOUCH</h2>
+            <div className="contact-grid">
+              <div className="contact-info" style={{ opacity: 0, transform: 'translateX(-60px)' }}>
+                <span className="section-label">Get in touch</span>
+                <h2 className="contact-title">
+                  Let&apos;s build<br />
+                  <span style={{ color: 'var(--color-accent)' }}>something great.</span>
+                </h2>
 
-            <div className="contact-container">
-              <a href="mailto:hello@iamdelrio.com" className="contact-email-massive">
-                hello@iamdelrio.com
-              </a>
+                <p className="contact-description">
+                  Have a project in mind? Want to collaborate or just say hi?
+                  I&apos;d love to hear from you.
+                </p>
 
-              <div className="contact-actions">
-                <div className="social-links-large">
-                  <a href="https://linkedin.com/in/iamdelrio" target="_blank" rel="noopener noreferrer" className="social-btn">
-                    <Linkedin size={24} />
-                    <span>LinkedIn</span>
+                <div className="contact-links">
+                  <a href="mailto:hello@iamdelrio.com" className="contact-link">
+                    <Mail size={20} />
+                    hello@iamdelrio.com
                   </a>
-                  <a href="https://github.com/delriodevelops" target="_blank" rel="noopener noreferrer" className="social-btn">
-                    <Github size={24} />
-                    <span>GitHub</span>
+                </div>
+
+                <div className="social-links">
+                  <a href="https://www.linkedin.com/in/iamdelrio" target="_blank" rel="noopener noreferrer" className="social-link" aria-label="LinkedIn">
+                    <Linkedin size={20} />
                   </a>
-                  <a href="https://twitter.com/iamdelrio" target="_blank" rel="noopener noreferrer" className="social-btn">
-                    <Twitter size={24} />
-                    <span>Twitter</span>
+                  <a href="https://github.com/delriodevelops" target="_blank" rel="noopener noreferrer" className="social-link" aria-label="GitHub">
+                    <Github size={20} />
+                  </a>
+                  <a href="https://www.youtube.com/@iamdelrio" target="_blank" rel="noopener noreferrer" className="social-link" aria-label="YouTube">
+                    <Youtube size={20} />
+                  </a>
+                </div>
+
+                <div style={{ marginTop: 'var(--space-2xl)' }}>
+                  <a href="/cv/en" className="btn btn-primary">
+                    <Download size={18} />
+                    Download CV
                   </a>
                 </div>
               </div>
+
+              <form className="contact-form" style={{ opacity: 0, transform: 'translateX(60px)' }} onSubmit={(e) => e.preventDefault()}>
+                <div className="form-group">
+                  <label htmlFor="name" className="form-label">Name</label>
+                  <input type="text" id="name" className="form-input" placeholder="Your name" required />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="email" className="form-label">Email</label>
+                  <input type="email" id="email" className="form-input" placeholder="your@email.com" required />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="message" className="form-label">Message</label>
+                  <textarea id="message" className="form-input form-textarea" placeholder="Tell me about your project..." required />
+                </div>
+
+                <button type="submit" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
+                  Send message
+                  <ArrowRight size={18} />
+                </button>
+              </form>
             </div>
           </div>
         </section>
@@ -894,15 +902,13 @@ export default function Home() {
         <footer className="footer">
           <div className="container">
             <div className="footer-content">
-              <div className="footer-left">
-                <p>© {new Date().getFullYear()} Christian Del Río</p>
-                <p className="footer-sub">Engineer & Builder</p>
-              </div>
-              <div className="footer-nav">
-                <Link href="#work">Work</Link>
-                <Link href="#about">About</Link>
-                <Link href="#blog">Writing</Link>
-                <Link href="/products">Products</Link>
+              <p className="footer-text">
+                © {new Date().getFullYear()} Christian Del Río. Built with passion.
+              </p>
+              <div className="footer-links">
+                <Link href="/blog" className="footer-link">Blog</Link>
+                <Link href="/products" className="footer-link">Products</Link>
+                <Link href="/blog/admin" className="footer-link">Admin</Link>
               </div>
             </div>
           </div>
