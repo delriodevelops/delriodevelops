@@ -884,7 +884,7 @@ export default function Home() {
                     <Github size={24} />
                     <span>GitHub</span>
                   </a>
-                  <a href="https://twitter.com/iamdelrio" target="_blank" rel="noopener noreferrer" className="social-btn">
+                  <a href="https://twitter.com/chrissdelrio" target="_blank" rel="noopener noreferrer" className="social-btn">
                     <Twitter size={24} />
                     <span>Twitter</span>
                   </a>
