@@ -1,72 +1,78 @@
 'use client';
-
-import { useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowLeft, ArrowUpRight, Rocket } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight, Rocket, Loader2 } from 'lucide-react';
 import gsap from 'gsap';
+import { getAllProjects } from '../../lib/services/projects';
 
-const products = [
+// Fallback products just in case
+const fallbackProducts = [
 	{
 		id: 1,
 		number: '01',
 		name: 'Fainancial',
-		description: 'Transform complex earnings calls into actionable insights instantly.',
+		description: 'AI Financial Analysis',
 		images: ['/fainancial/1.png'],
 		href: 'https://fainancial.app/',
 		tags: ['AI', 'Finance', 'SaaS'],
-		wip: true,
-		featured: true,
-	},
-	{
-		id: 2,
-		number: '02',
-		name: 'MeshMind',
-		description: 'Visual AI reasoning builder for complex problem solving.',
-		images: ['/meshmind/1.png'],
-		href: 'https://meshmind.vercel.app/',
-		tags: ['AI', 'Productivity'],
-		featured: true,
-	},
-	{
-		id: 3,
-		number: '03',
-		name: 'Baitme',
-		description: 'A/B test your YouTube thumbnails and titles.',
-		images: ['/baitme/1.png'],
-		href: 'https://baitme.iamdelrio.com/',
-		tags: ['Creator Tools', 'Analytics'],
-	},
-	{
-		id: 4,
-		number: '04',
-		name: 'Escudo Leal',
-		description: 'Professional landing page for a security company.',
-		images: ['/escudolealjpt/1.png'],
-		href: 'https://www.escudolealjpt.com',
-		tags: ['Landing Page', 'Client Work'],
+		type: 'Product',
 	},
 ];
 
 export default function ProductsPage() {
+	const [products, setProducts] = useState([]);
+	const [isLoading, setIsLoading] = useState(true);
 	const listRef = useRef(null);
 	const revealRef = useRef(null);
 
+	// Fetch filtered products from Firebase
 	useEffect(() => {
-		// Match the logic from the main page for consistency
+		const fetchProducts = async () => {
+			try {
+				const firebaseProjects = await getAllProjects();
+				if (firebaseProjects.length > 0) {
+					const formattedProducts = firebaseProjects.map((project, index) => ({
+						id: project.id,
+						number: String(index + 1).padStart(2, '0'),
+						name: project.name || project.title,
+						description: project.description,
+						images: project.image ? [project.image] : [],
+						href: project.href || project.liveUrl,
+						tags: project.tags || [],
+						wip: project.wip,
+						category: project.type || project.category || (project.tags && project.tags.includes('Product') ? 'Product' : 'Project'),
+					})).filter(p => p.category.toUpperCase() === 'PRODUCT'); // Show only Products
+
+					setProducts(formattedProducts);
+				} else {
+					setProducts(fallbackProducts);
+				}
+			} catch (error) {
+				console.error('Error fetching products:', error);
+				setProducts(fallbackProducts);
+			}
+			setIsLoading(false);
+		};
+
+		fetchProducts();
+	}, []);
+
+	// Animation logic
+	useEffect(() => {
+		if (isLoading) return;
+
 		const items = document.querySelectorAll('.project-item');
 		const reveal = revealRef.current;
-		const revealInner = reveal?.querySelector('.reveal-inner');
 		const revealImg = reveal?.querySelector('img');
 
 		if (!reveal || !items.length) return;
 
-		// Move reveal following mouse
 		const moveReveal = (e) => {
 			gsap.to(reveal, {
 				x: e.clientX,
 				y: e.clientY,
-				duration: 0.1, // Quick follow
+				duration: 0.1,
 				ease: 'power2.out'
 			});
 		};
@@ -99,7 +105,7 @@ export default function ProductsPage() {
 		return () => {
 			window.removeEventListener('mousemove', moveReveal);
 		};
-	}, []);
+	}, [products, isLoading]);
 
 	return (
 		<div style={{ minHeight: '100vh', background: 'var(--color-bg)', overflowX: 'hidden' }}>
@@ -217,11 +223,9 @@ export default function ProductsPage() {
 			<section className="container" style={{ paddingBottom: '15vh' }}>
 				<div ref={listRef} className="projects-list">
 					{products.map((product) => (
-						<a
+						<Link
 							key={product.id}
-							href={product.href}
-							target="_blank"
-							rel="noopener noreferrer"
+							href={`/projects/${product.id}`}
 							className="project-item"
 							data-img={product.images[0]}
 							style={{
@@ -249,7 +253,7 @@ export default function ProductsPage() {
 								<span style={{ fontSize: '1.2rem', color: '#444' }}>{product.number}</span>
 							</div>
 							<ArrowUpRight className="project-arrow" size={32} color="var(--color-accent)" style={{ opacity: 0.5 }} />
-						</a>
+						</Link>
 					))}
 					<div style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }} />
 				</div>

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ArrowUpRight, Loader2 } from 'lucide-react';
 import gsap from 'gsap';
-import { getAllProjects } from '../../lib/services/projects-cached';
+import { getAllProjects } from '../../lib/services/projects';
 
 // Fallback static projects for when Firebase is not configured
 const fallbackProjects = [
@@ -63,7 +63,7 @@ export default function ProjectsPage() {
                         ...project,
                         number: String(index + 1).padStart(2, '0'),
                         category: project.type || project.category || (project.tags && project.tags.includes('Product') ? 'Product' : 'Project'),
-                    }));
+                    })).filter(p => p.category.toUpperCase() !== 'PRODUCT'); // Show only Projects, hide Products
                     setProjects(formattedProjects);
                 } else {
                     // Use fallback if no Firebase projects
@@ -266,11 +266,9 @@ export default function ProjectsPage() {
                 ) : (
                     <div ref={listRef} className="projects-list">
                         {projects.map((project) => (
-                            <a
+                            <Link
                                 key={project.id}
-                                href={project.href}
-                                target="_blank"
-                                rel="noopener noreferrer"
+                                href={`/projects/${project.id}`}
                                 className="project-item"
                                 data-img={project.image}
                                 style={{
@@ -297,7 +295,7 @@ export default function ProjectsPage() {
                                     <span style={{ fontSize: '1.2rem', color: '#444' }}>{project.number} — {(project.category || 'PROJECT').toUpperCase()}</span>
                                 </div>
                                 <ArrowUpRight className="project-arrow" size={32} color="var(--color-accent)" style={{ opacity: 0.5 }} />
-                            </a>
+                            </Link>
                         ))}
                         <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }} />
                     </div>
