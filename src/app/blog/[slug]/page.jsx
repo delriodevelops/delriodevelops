@@ -3,12 +3,19 @@
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, Calendar, Clock, Share2, Twitter, Linkedin } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, Share2, Twitter, Linkedin, Loader2, ArrowUp } from 'lucide-react';
 import gsap from 'gsap';
-import { useEffect, useRef } from 'react';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useEffect, useRef, useState } from 'react';
+import { getPostBySlug } from '../../../lib/services/blog-cached';
 
-// Same posts data (in production, fetch from API/CMS)
-const allPosts = [
+// Register GSAP plugins
+if (typeof window !== 'undefined') {
+    gsap.registerPlugin(ScrollTrigger);
+}
+
+// Fallback posts data for when Firebase is not configured
+const fallbackPosts = [
     {
         slug: 'building-in-public',
         title: 'Why I Build in Public',
@@ -82,207 +89,384 @@ Products that don't leverage AI will feel outdated. The good news? It's never be
         image: '/fainancial/2.png',
         readTime: '4 min read',
     },
-    {
-        slug: 'solopreneur-stack',
-        title: 'My Solopreneur Tech Stack 2024',
-        excerpt: 'The tools and technologies I use to ship products fast as a one-person team.',
-        content: `As a solobuilder, choosing the right tools is crucial. Here's my complete stack for 2024.
-
-## Frontend
-
-- **Next.js 14** - The backbone of everything I build
-- **TypeScript** - Non-negotiable for maintainability
-- **Tailwind CSS** - Rapid styling without context switching
-- **Framer Motion** - Beautiful animations
-
-## Backend
-
-- **Next.js API Routes** - Serverless and simple
-- **PostgreSQL** (via Supabase) - For structured data
-- **Firebase** - For real-time features and auth
-
-## AI & ML
-
-- **OpenAI API** - GPT-4 for complex tasks
-- **Deepseek** - Cost-effective alternative
-- **LangChain** - For AI orchestration
-
-## Infrastructure
-
-- **Vercel** - Deploy in seconds
-- **Cloudflare** - DNS and protection
-- **Resend** - Transactional emails
-
-## Productivity
-
-- **Cursor** - AI-powered IDE
-- **Linear** - Issue tracking
-- **Notion** - Documentation
-- **Figma** - Design (when needed)
-
-## Why This Stack?
-
-It optimizes for one thing: **shipping speed**. As a solo founder, I can't afford to spend weeks on infrastructure. This stack lets me go from idea to deployed MVP in days, not months.
-
-The best stack is the one you know well. Don't chase trends—master your tools.`,
-        tag: 'Tools',
-        date: '2023-12-20',
-        image: '/meshmind/3.png',
-        readTime: '6 min read',
-    },
-    {
-        slug: 'from-employee-to-founder',
-        title: 'From Employee to Founder: My Story',
-        excerpt: 'The scary, exciting, and rewarding journey of quitting my job to build products.',
-        content: `Two years ago, I handed in my resignation. It was the scariest and best decision of my life.
-
-## The Corporate Life
-
-I spent 4 years as a software engineer at various companies. Good salary, good benefits, good colleagues. But something was missing.
-
-Every night, I'd come home and work on side projects. I'd dream about products I wanted to build. I'd imagine what it would be like to be my own boss.
-
-## The Tipping Point
-
-The pandemic changed everything. Remote work showed me that I didn't need an office to be productive. If anything, I was MORE productive at home.
-
-I started a side project that gained some traction. Nothing huge, but enough to validate that I could build something people wanted.
-
-## Making the Leap
-
-I saved 12 months of runway. Then I quit.
-
-The first month was euphoric. The second month, fear crept in. By the third month, I had shipped my first product.
-
-## Lessons Learned
-
-1. **You need less money than you think** - Lifestyle creep is real
-2. **The fear never goes away** - You just learn to work with it
-3. **Community is everything** - Other indie hackers keep you sane
-4. **Small wins matter** - Celebrate every milestone
-
-## Would I Do It Again?
-
-Absolutely. Even if I had to go back to employment tomorrow, this experience has been invaluable. I've grown more as a developer, marketer, and human being in 2 years than in my entire corporate career.
-
-If you're on the fence, here's my advice: start building while employed. Validate your idea. Save some money. Then make the leap.
-
-The water's warm. Come join us.`,
-        tag: 'Personal',
-        date: '2023-12-01',
-        image: '/cityswipe.png',
-        readTime: '7 min read',
-    },
 ];
 
-function parseMarkdown(content) {
-    // Simple markdown parser for rendering
-    const lines = content.split('\n');
-    const elements = [];
-    let currentList = [];
-    let inList = false;
+// Custom animated markdown component
+function AnimatedMarkdown({ content }) {
+    const containerRef = useRef(null);
 
-    lines.forEach((line, index) => {
-        // Headers
-        if (line.startsWith('## ')) {
-            if (inList && currentList.length > 0) {
-                elements.push(<ul key={`list-${index}`} style={{ marginBottom: '2rem', paddingLeft: '1.5rem', color: '#ccc' }}>{currentList}</ul>);
-                currentList = [];
-                inList = false;
-            }
-            elements.push(<h2 key={index} style={{ fontSize: '2rem', marginTop: '3rem', marginBottom: '1.5rem', color: '#fff' }}>{line.replace('## ', '')}</h2>);
-        } else if (line.startsWith('### ')) {
-            if (inList && currentList.length > 0) {
-                elements.push(<ul key={`list-${index}`} style={{ marginBottom: '2rem', paddingLeft: '1.5rem', color: '#ccc' }}>{currentList}</ul>);
-                currentList = [];
-                inList = false;
-            }
-            elements.push(<h3 key={index} style={{ fontSize: '1.5rem', marginTop: '2rem', marginBottom: '1rem', color: '#fff' }}>{line.replace('### ', '')}</h3>);
-        } else if (line.startsWith('![')) {
-            // Images
-            if (inList && currentList.length > 0) {
-                elements.push(<ul key={`list-${index}`} style={{ marginBottom: '2rem', paddingLeft: '1.5rem', color: '#ccc' }}>{currentList}</ul>);
-                currentList = [];
-                inList = false;
-            }
-            const match = line.match(/!\[(.*?)\]\((.*?)\)/);
-            if (match) {
-                const alt = match[1];
-                const src = match[2];
+    useEffect(() => {
+        if (!containerRef.current) return;
+
+        // Get all animate-on-scroll elements
+        const elements = containerRef.current.querySelectorAll('.animate-element');
+
+        elements.forEach((element, index) => {
+            gsap.fromTo(element,
+                {
+                    opacity: 0,
+                    y: 40,
+                    filter: 'blur(10px)'
+                },
+                {
+                    opacity: 1,
+                    y: 0,
+                    filter: 'blur(0px)',
+                    duration: 0.8,
+                    ease: 'power3.out',
+                    scrollTrigger: {
+                        trigger: element,
+                        start: 'top 85%',
+                        end: 'top 60%',
+                        toggleActions: 'play none none reverse',
+                    }
+                }
+            );
+        });
+
+        // Animate horizontal rules
+        const hrs = containerRef.current.querySelectorAll('.animate-hr');
+        hrs.forEach((hr) => {
+            gsap.fromTo(hr,
+                { scaleX: 0 },
+                {
+                    scaleX: 1,
+                    duration: 1,
+                    ease: 'power3.inOut',
+                    scrollTrigger: {
+                        trigger: hr,
+                        start: 'top 85%',
+                    }
+                }
+            );
+        });
+
+        return () => {
+            ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+        };
+    }, [content]);
+
+    // Parse markdown to React elements with custom styles
+    const parseMarkdown = (text) => {
+        if (!text) return null;
+
+        const lines = text.split('\n');
+        const elements = [];
+        let currentList = [];
+        let inList = false;
+        let listType = 'ul';
+
+        lines.forEach((line, index) => {
+            // H1 Headers - Huge editorial style
+            if (line.startsWith('# ')) {
+                if (inList && currentList.length > 0) {
+                    elements.push(
+                        <ul key={`list-${index}`} className="animate-element blog-list">
+                            {currentList}
+                        </ul>
+                    );
+                    currentList = [];
+                    inList = false;
+                }
                 elements.push(
-                    <div key={index} style={{ margin: '3rem 0', width: '100%' }}>
-                        <div style={{ borderRadius: '4px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }}>
-                            <Image
-                                src={src}
-                                alt={alt}
-                                width={800}
-                                height={450}
-                                style={{ width: '100%', height: 'auto', display: 'block' }}
-                            />
-                        </div>
-                        {alt && <p style={{ textAlign: 'center', color: '#888', fontSize: '0.85rem', marginTop: '1rem', fontFamily: 'var(--font-mono)' }}>{alt}</p>}
-                    </div>
+                    <h1 key={index} className="animate-element blog-h1">
+                        {line.replace('# ', '')}
+                    </h1>
                 );
             }
-        } else if (line.startsWith('- ')) {
-            inList = true;
-            const content = line.replace('- ', '').replace(/\*\*(.*?)\*\*/g, '<strong style="color: #fff">$1</strong>');
-            currentList.push(
-                <li key={index} style={{ marginBottom: '0.5rem', lineHeight: 1.6 }} dangerouslySetInnerHTML={{ __html: content }} />
-            );
-        } else if (line.match(/^\d+\./)) {
-            inList = true;
-            const content = line.replace(/^\d+\.\s*/, '').replace(/\*\*(.*?)\*\*/g, '<strong style="color: #fff">$1</strong>');
-            currentList.push(
-                <li key={index} style={{ marginBottom: '0.5rem', lineHeight: 1.6 }} dangerouslySetInnerHTML={{ __html: content }} />
-            );
-        } else if (line.trim() === '') {
-            if (inList && currentList.length > 0) {
-                elements.push(<ul key={`list-${index}`} style={{ marginBottom: '2rem', paddingLeft: '1.5rem', color: '#ccc' }}>{currentList}</ul>);
-                currentList = [];
-                inList = false;
+            // H2 Headers - Large with accent line
+            else if (line.startsWith('## ')) {
+                if (inList && currentList.length > 0) {
+                    elements.push(
+                        <ul key={`list-${index}`} className="animate-element blog-list">
+                            {currentList}
+                        </ul>
+                    );
+                    currentList = [];
+                    inList = false;
+                }
+                elements.push(
+                    <h2 key={index} className="animate-element blog-h2">
+                        <span className="blog-h2-accent" />
+                        {line.replace('## ', '')}
+                    </h2>
+                );
             }
-        } else if (line.trim()) {
-            if (inList && currentList.length > 0) {
-                elements.push(<ul key={`list-${index}`} style={{ marginBottom: '2rem', paddingLeft: '1.5rem', color: '#ccc' }}>{currentList}</ul>);
-                currentList = [];
-                inList = false;
+            // H3 Headers
+            else if (line.startsWith('### ')) {
+                if (inList && currentList.length > 0) {
+                    elements.push(
+                        <ul key={`list-${index}`} className="animate-element blog-list">
+                            {currentList}
+                        </ul>
+                    );
+                    currentList = [];
+                    inList = false;
+                }
+                elements.push(
+                    <h3 key={index} className="animate-element blog-h3">
+                        {line.replace('### ', '')}
+                    </h3>
+                );
             }
-            const content = line.replace(/\*\*(.*?)\*\*/g, '<strong style="color: #fff">$1</strong>');
+            // Images
+            else if (line.startsWith('![')) {
+                if (inList && currentList.length > 0) {
+                    elements.push(
+                        <ul key={`list-${index}`} className="animate-element blog-list">
+                            {currentList}
+                        </ul>
+                    );
+                    currentList = [];
+                    inList = false;
+                }
+                const match = line.match(/!\[(.*?)\]\((.*?)\)/);
+                if (match) {
+                    const alt = match[1];
+                    const src = match[2];
+                    elements.push(
+                        <figure key={index} className="animate-element blog-figure">
+                            <div className="blog-image-wrapper">
+                                <Image
+                                    src={src}
+                                    alt={alt}
+                                    width={1200}
+                                    height={675}
+                                    className="blog-image"
+                                />
+                            </div>
+                            {alt && <figcaption className="blog-figcaption">{alt}</figcaption>}
+                        </figure>
+                    );
+                }
+            }
+            // Horizontal rule
+            else if (line.trim() === '---') {
+                elements.push(<hr key={index} className="animate-hr blog-hr" />);
+            }
+            // Blockquote
+            else if (line.startsWith('> ')) {
+                elements.push(
+                    <blockquote key={index} className="animate-element blog-blockquote">
+                        {formatInlineStyles(line.replace('> ', ''))}
+                    </blockquote>
+                );
+            }
+            // Unordered list items
+            else if (line.startsWith('- ')) {
+                inList = true;
+                listType = 'ul';
+                currentList.push(
+                    <li key={index} className="blog-list-item">
+                        {formatInlineStyles(line.replace('- ', ''))}
+                    </li>
+                );
+            }
+            // Ordered list items
+            else if (line.match(/^\d+\. /)) {
+                inList = true;
+                listType = 'ol';
+                currentList.push(
+                    <li key={index} className="blog-list-item">
+                        {formatInlineStyles(line.replace(/^\d+\. /, ''))}
+                    </li>
+                );
+            }
+            // Empty line - end list or add spacing
+            else if (line.trim() === '') {
+                if (inList && currentList.length > 0) {
+                    const ListTag = listType === 'ol' ? 'ol' : 'ul';
+                    elements.push(
+                        <ListTag key={`list-${index}`} className="animate-element blog-list">
+                            {currentList}
+                        </ListTag>
+                    );
+                    currentList = [];
+                    inList = false;
+                }
+            }
+            // Regular paragraph
+            else if (line.trim()) {
+                if (inList && currentList.length > 0) {
+                    const ListTag = listType === 'ol' ? 'ol' : 'ul';
+                    elements.push(
+                        <ListTag key={`list-${index}`} className="animate-element blog-list">
+                            {currentList}
+                        </ListTag>
+                    );
+                    currentList = [];
+                    inList = false;
+                }
+                elements.push(
+                    <p key={index} className="animate-element blog-paragraph">
+                        {formatInlineStyles(line)}
+                    </p>
+                );
+            }
+        });
+
+        // Close any remaining list
+        if (currentList.length > 0) {
+            const ListTag = listType === 'ol' ? 'ol' : 'ul';
             elements.push(
-                <p key={index} style={{ marginBottom: '1.5rem', lineHeight: 1.8, color: '#aaa', fontSize: '1.1rem' }} dangerouslySetInnerHTML={{ __html: content }} />
+                <ListTag key="final-list" className="animate-element blog-list">
+                    {currentList}
+                </ListTag>
             );
         }
-    });
 
-    if (currentList.length > 0) {
-        elements.push(<ul key="final-list" style={{ marginBottom: '2rem', paddingLeft: '1.5rem', color: '#ccc' }}>{currentList}</ul>);
-    }
+        return elements;
+    };
 
-    return elements;
+    // Format inline styles like bold, italic, code, links
+    const formatInlineStyles = (text) => {
+        // Split by inline elements and preserve them
+        const parts = [];
+        let remaining = text;
+        let keyCounter = 0;
+
+        // Process inline code first
+        while (remaining.includes('`')) {
+            const start = remaining.indexOf('`');
+            const end = remaining.indexOf('`', start + 1);
+            if (end === -1) break;
+
+            if (start > 0) {
+                parts.push(formatBoldItalic(remaining.slice(0, start), keyCounter++));
+            }
+            parts.push(
+                <code key={`code-${keyCounter++}`} className="blog-inline-code">
+                    {remaining.slice(start + 1, end)}
+                </code>
+            );
+            remaining = remaining.slice(end + 1);
+        }
+
+        if (remaining) {
+            parts.push(formatBoldItalic(remaining, keyCounter));
+        }
+
+        return parts.length > 0 ? parts : text;
+    };
+
+    const formatBoldItalic = (text, key) => {
+        // Handle bold
+        const boldRegex = /\*\*(.*?)\*\*/g;
+        const parts = text.split(boldRegex);
+
+        return parts.map((part, i) => {
+            if (i % 2 === 1) {
+                return <strong key={`bold-${key}-${i}`} className="blog-bold">{part}</strong>;
+            }
+            return part;
+        });
+    };
+
+    return (
+        <div ref={containerRef} className="blog-content-wrapper">
+            {parseMarkdown(content)}
+        </div>
+    );
 }
 
 export default function BlogPostPage() {
     const params = useParams();
-    const post = allPosts.find((p) => p.slug === params.slug);
+    const [post, setPost] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [scrollProgress, setScrollProgress] = useState(0);
+    const [showScrollTop, setShowScrollTop] = useState(false);
+    const heroRef = useRef(null);
     const contentRef = useRef(null);
 
     useEffect(() => {
-        if (contentRef.current) {
-            gsap.fromTo(contentRef.current,
-                { opacity: 0, y: 30 },
-                { opacity: 1, y: 0, duration: 1, ease: 'power3.out', delay: 0.2 }
-            );
+        const fetchPost = async () => {
+            try {
+                const firebasePost = await getPostBySlug(params.slug);
+                if (firebasePost) {
+                    setPost({
+                        ...firebasePost,
+                        date: firebasePost.createdAt || new Date().toISOString(),
+                    });
+                } else {
+                    const staticPost = fallbackPosts.find((p) => p.slug === params.slug);
+                    setPost(staticPost || null);
+                }
+            } catch (error) {
+                console.error('Error fetching post:', error);
+                const staticPost = fallbackPosts.find((p) => p.slug === params.slug);
+                setPost(staticPost || null);
+            }
+            setIsLoading(false);
+        };
+
+        fetchPost();
+    }, [params.slug]);
+
+    // Hero animation
+    useEffect(() => {
+        if (!isLoading && heroRef.current) {
+            const tl = gsap.timeline();
+
+            tl.fromTo('.hero-tag',
+                { opacity: 0, y: 20 },
+                { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }
+            )
+                .fromTo('.hero-title',
+                    { opacity: 0, y: 50, filter: 'blur(20px)' },
+                    { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1, ease: 'power3.out' },
+                    '-=0.3'
+                )
+                .fromTo('.hero-meta',
+                    { opacity: 0, y: 20 },
+                    { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
+                    '-=0.5'
+                )
+                .fromTo('.hero-image',
+                    { opacity: 0, scale: 1.1 },
+                    { opacity: 1, scale: 1, duration: 1.2, ease: 'power3.out' },
+                    '-=0.6'
+                );
         }
+    }, [isLoading, post]);
+
+    // Scroll progress
+    useEffect(() => {
+        const handleScroll = () => {
+            const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = (window.scrollY / totalHeight) * 100;
+            setScrollProgress(progress);
+            setShowScrollTop(window.scrollY > 500);
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
     }, []);
+
+    const scrollToTop = () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    if (isLoading) {
+        return (
+            <div className="min-h-screen bg-black flex items-center justify-center">
+                <div className="text-center">
+                    <Loader2 className="w-12 h-12 animate-spin text-[var(--color-accent)] mx-auto mb-4" />
+                    <p className="text-gray-500 font-mono uppercase tracking-widest text-sm">Loading Article...</p>
+                </div>
+            </div>
+        );
+    }
 
     if (!post) {
         return (
-            <div className="container" style={{ textAlign: 'center', padding: '20vh 0' }}>
-                <h1 style={{ fontSize: '3rem', marginBottom: '2rem' }}>Post not found</h1>
-                <Link href="/blog" style={{ color: 'var(--color-accent)', textDecoration: 'underline' }}>
-                    Back to thoughts
-                </Link>
+            <div className="min-h-screen bg-black flex items-center justify-center">
+                <div className="text-center">
+                    <h1 className="text-6xl font-bold mb-4">404</h1>
+                    <p className="text-gray-500 mb-8 font-mono">Article not found</p>
+                    <Link href="/blog" className="magnetic-btn">
+                        Back to thoughts
+                    </Link>
+                </div>
             </div>
         );
     }
@@ -290,135 +474,305 @@ export default function BlogPostPage() {
     const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
 
     return (
-        <article style={{ minHeight: '100vh', background: 'var(--color-bg)', overflowX: 'hidden' }}>
-            {/* Header */}
-            <div className="container" style={{ paddingTop: '15vh' }}>
-                <Link
-                    href="/blog"
-                    style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '0.8rem',
-                        color: '#666',
-                        textDecoration: 'none',
-                        fontSize: '0.9rem',
-                        letterSpacing: '0.05em',
-                        marginBottom: '4rem',
-                        textTransform: 'uppercase',
-                        transition: 'color 0.3s ease',
-                    }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--color-accent)')}
-                    onMouseLeave={(e) => (e.currentTarget.style.color = '#666')}
-                >
-                    <ArrowLeft size={16} />
-                    Back to thoughts
-                </Link>
-
-                <div className="blog-post-header" style={{ maxWidth: '900px', margin: '0 auto' }}>
-                    <div style={{
-                        display: 'flex',
-                        gap: '2rem',
-                        alignItems: 'center',
-                        marginBottom: '2rem',
-                        fontFamily: 'var(--font-mono)',
-                        fontSize: '0.9rem',
-                        color: '#666',
-                        borderBottom: '1px solid rgba(255,255,255,0.1)',
-                        paddingBottom: '1rem'
-                    }}>
-                        <span style={{ color: 'var(--color-accent)' }}>{post.tag}</span>
-                        <span>{new Date(post.date).toLocaleDateString()}</span>
-                        <span>{post.readTime}</span>
-                    </div>
-
-                    <h1 style={{
-                        fontSize: 'clamp(2.5rem, 5vw, 4.5rem)',
-                        lineHeight: 1.1,
-                        fontWeight: 700,
-                        marginBottom: '3rem',
-                        letterSpacing: '-0.02em',
-                        background: 'linear-gradient(to right, #fff, #888)',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                    }}>
-                        {post.title}
-                    </h1>
-                </div>
-            </div>
-
-            {/* Hero Image */}
-            <div className="container" style={{ maxWidth: '1200px' }}>
+        <>
+            {/* Progress Bar */}
+            <div className="fixed top-0 left-0 right-0 h-1 bg-white/5 z-50">
                 <div
-                    style={{
-                        position: 'relative',
-                        width: '100%',
-                        aspectRatio: '21/9',
-                        borderRadius: '0',
-                        overflow: 'hidden',
-                        marginBottom: '6rem',
-                        border: '1px solid rgba(255,255,255,0.1)'
-                    }}
-                >
-                    <Image
-                        src={post.image}
-                        alt={post.title}
-                        fill
-                        priority
-                        style={{ objectFit: 'cover', opacity: 0.8 }}
-                    />
-                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, var(--color-bg), transparent 30%)' }} />
-                </div>
+                    className="h-full bg-gradient-to-r from-[var(--color-accent)] to-white transition-all duration-150"
+                    style={{ width: `${scrollProgress}%` }}
+                />
             </div>
 
-            {/* Content */}
-            <div ref={contentRef} className="container" style={{ maxWidth: '800px', paddingBottom: '10vh' }}>
-                <div className="blog-content" style={{ fontSize: '1.1rem' }}>
-                    {parseMarkdown(post.content)}
+            {/* Scroll to Top Button */}
+            <button
+                onClick={scrollToTop}
+                className={`fixed bottom-8 right-8 z-50 p-4 rounded-full bg-[var(--color-accent)] text-black transition-all duration-300 hover:scale-110 ${showScrollTop ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'
+                    }`}
+            >
+                <ArrowUp size={20} />
+            </button>
+
+            <article className="min-h-screen bg-black text-white relative overflow-hidden">
+                {/* Decorative Elements */}
+                <div className="fixed top-0 right-0 w-1/2 h-screen pointer-events-none opacity-30">
+                    <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-[var(--color-accent)] rounded-full filter blur-[150px]" />
+                    <div className="absolute bottom-1/4 right-1/3 w-64 h-64 bg-purple-500 rounded-full filter blur-[120px]" />
                 </div>
 
-                {/* Footer / Share */}
-                <div style={{
-                    marginTop: '6rem',
-                    paddingTop: '3rem',
-                    borderTop: '1px solid rgba(255,255,255,0.1)',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center'
-                }}>
-                    <div style={{ color: '#666', fontSize: '0.9rem' }}>
-                        Thanks for reading.
-                    </div>
-
-                    <div style={{ display: 'flex', gap: '1.5rem' }}>
-                        <a
-                            href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(shareUrl)}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{ color: '#666', transition: 'all 0.3s ease' }}
-                            onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--color-accent)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-                            onMouseLeave={(e) => { e.currentTarget.style.color = '#666'; e.currentTarget.style.transform = 'translateY(0)'; }}
+                {/* Hero Section */}
+                <header ref={heroRef} className="relative pt-32 pb-16 px-6">
+                    <div className="max-w-4xl mx-auto">
+                        {/* Back Link */}
+                        <Link
+                            href="/blog"
+                            className="inline-flex items-center gap-2 text-gray-500 hover:text-[var(--color-accent)] transition-colors uppercase tracking-widest text-xs mb-12 group"
                         >
-                            <Twitter size={20} />
-                        </a>
-                        <a
-                            href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{ color: '#666', transition: 'all 0.3s ease' }}
-                            onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--color-accent)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-                            onMouseLeave={(e) => { e.currentTarget.style.color = '#666'; e.currentTarget.style.transform = 'translateY(0)'; }}
-                        >
-                            <Linkedin size={20} />
-                        </a>
+                            <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
+                            Back to thoughts
+                        </Link>
+
+                        {/* Tag */}
+                        <div className="hero-tag mb-6">
+                            <span className="inline-block px-4 py-2 text-xs font-mono uppercase tracking-widest bg-[var(--color-accent)]/10 text-[var(--color-accent)] border border-[var(--color-accent)]/30 rounded-full">
+                                {post.tag}
+                            </span>
+                        </div>
+
+                        {/* Title */}
+                        <h1 className="hero-title text-5xl md:text-7xl lg:text-8xl font-bold leading-[0.9] tracking-tight mb-8">
+                            {post.title}
+                        </h1>
+
+                        {/* Meta */}
+                        <div className="hero-meta flex flex-wrap items-center gap-6 text-gray-500 font-mono text-sm">
+                            <div className="flex items-center gap-2">
+                                <Calendar size={14} />
+                                {new Date(post.date).toLocaleDateString('en-US', {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric'
+                                })}
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Clock size={14} />
+                                {post.readTime}
+                            </div>
+                        </div>
+                    </div>
+                </header>
+
+                {/* Hero Image */}
+                <div className="hero-image relative w-full max-w-6xl mx-auto px-6 mb-20">
+                    <div className="relative aspect-[21/9] rounded-2xl overflow-hidden border border-white/10">
+                        <Image
+                            src={post.image}
+                            alt={post.title}
+                            fill
+                            priority
+                            className="object-cover"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                     </div>
                 </div>
 
-                <div style={{ marginTop: '4rem', textAlign: 'center' }}>
-                    <Link href="/blog" className="magnetic-btn">
-                        Read More Articles
-                    </Link>
+                {/* Content */}
+                <div ref={contentRef} className="relative max-w-3xl mx-auto px-6 pb-32">
+                    {/* Excerpt */}
+                    <p className="text-xl md:text-2xl text-gray-400 leading-relaxed mb-16 border-l-4 border-[var(--color-accent)] pl-6">
+                        {post.excerpt}
+                    </p>
+
+                    {/* Main Content */}
+                    <AnimatedMarkdown content={post.content} />
+
+                    {/* Footer */}
+                    <footer className="mt-24 pt-12 border-t border-white/10">
+                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+                            <div>
+                                <p className="text-gray-400 mb-2">Thanks for reading.</p>
+                                <p className="text-sm text-gray-600 font-mono">Share this article:</p>
+                            </div>
+
+                            <div className="flex gap-4">
+                                <a
+                                    href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(shareUrl)}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="p-4 rounded-full border border-white/10 text-gray-400 hover:text-[var(--color-accent)] hover:border-[var(--color-accent)] transition-all hover:scale-110"
+                                >
+                                    <Twitter size={20} />
+                                </a>
+                                <a
+                                    href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="p-4 rounded-full border border-white/10 text-gray-400 hover:text-[var(--color-accent)] hover:border-[var(--color-accent)] transition-all hover:scale-110"
+                                >
+                                    <Linkedin size={20} />
+                                </a>
+                            </div>
+                        </div>
+
+                        <div className="mt-16 text-center">
+                            <Link href="/blog" className="magnetic-btn">
+                                Read More Articles
+                            </Link>
+                        </div>
+                    </footer>
                 </div>
-            </div>
-        </article>
+            </article>
+
+            {/* Custom Blog Styles */}
+            <style jsx global>{`
+                .blog-content-wrapper {
+                    --accent: var(--color-accent, #00ff88);
+                }
+
+                .blog-h1 {
+                    font-size: clamp(2.5rem, 5vw, 4rem);
+                    font-weight: 800;
+                    line-height: 1.1;
+                    margin: 3rem 0 1.5rem;
+                    letter-spacing: -0.03em;
+                    background: linear-gradient(135deg, #fff 0%, #888 100%);
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                }
+
+                .blog-h2 {
+                    position: relative;
+                    font-size: clamp(1.8rem, 4vw, 2.5rem);
+                    font-weight: 700;
+                    line-height: 1.2;
+                    margin: 4rem 0 1.5rem;
+                    padding-left: 1.5rem;
+                    color: #fff;
+                }
+
+                .blog-h2-accent {
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    bottom: 0;
+                    width: 4px;
+                    background: linear-gradient(to bottom, var(--accent), transparent);
+                    border-radius: 2px;
+                }
+
+                .blog-h3 {
+                    font-size: clamp(1.3rem, 3vw, 1.6rem);
+                    font-weight: 600;
+                    line-height: 1.3;
+                    margin: 2.5rem 0 1rem;
+                    color: #e0e0e0;
+                }
+
+                .blog-paragraph {
+                    font-size: 1.15rem;
+                    line-height: 1.9;
+                    color: #a0a0a0;
+                    margin-bottom: 1.5rem;
+                }
+
+                .blog-bold {
+                    color: #fff;
+                    font-weight: 600;
+                }
+
+                .blog-inline-code {
+                    font-family: 'JetBrains Mono', monospace;
+                    font-size: 0.9em;
+                    padding: 0.2em 0.5em;
+                    background: rgba(255, 255, 255, 0.08);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: 6px;
+                    color: var(--accent);
+                }
+
+                .blog-list {
+                    margin: 1.5rem 0 2rem;
+                    padding-left: 0;
+                    list-style: none;
+                }
+
+                .blog-list-item {
+                    position: relative;
+                    padding-left: 2rem;
+                    margin-bottom: 0.75rem;
+                    font-size: 1.1rem;
+                    line-height: 1.8;
+                    color: #a0a0a0;
+                }
+
+                .blog-list-item::before {
+                    content: '';
+                    position: absolute;
+                    left: 0;
+                    top: 0.75rem;
+                    width: 8px;
+                    height: 8px;
+                    background: var(--accent);
+                    border-radius: 50%;
+                }
+
+                ol.blog-list {
+                    counter-reset: list-counter;
+                }
+
+                ol.blog-list .blog-list-item {
+                    counter-increment: list-counter;
+                }
+
+                ol.blog-list .blog-list-item::before {
+                    content: counter(list-counter);
+                    width: auto;
+                    height: auto;
+                    background: none;
+                    font-family: 'JetBrains Mono', monospace;
+                    font-size: 0.85rem;
+                    font-weight: 600;
+                    color: var(--accent);
+                    top: 0;
+                }
+
+                .blog-blockquote {
+                    position: relative;
+                    margin: 2.5rem 0;
+                    padding: 1.5rem 2rem;
+                    background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0) 100%);
+                    border-left: 3px solid var(--accent);
+                    border-radius: 0 12px 12px 0;
+                    font-size: 1.2rem;
+                    font-style: italic;
+                    color: #c0c0c0;
+                }
+
+                .blog-figure {
+                    margin: 3rem -2rem;
+                    padding: 0;
+                }
+
+                @media (min-width: 768px) {
+                    .blog-figure {
+                        margin: 3rem -4rem;
+                    }
+                }
+
+                .blog-image-wrapper {
+                    position: relative;
+                    border-radius: 16px;
+                    overflow: hidden;
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                }
+
+                .blog-image {
+                    width: 100%;
+                    height: auto;
+                    display: block;
+                    transition: transform 0.6s ease;
+                }
+
+                .blog-figure:hover .blog-image {
+                    transform: scale(1.02);
+                }
+
+                .blog-figcaption {
+                    text-align: center;
+                    font-family: 'JetBrains Mono', monospace;
+                    font-size: 0.85rem;
+                    color: #666;
+                    margin-top: 1rem;
+                    padding: 0 1rem;
+                }
+
+                .blog-hr {
+                    border: none;
+                    height: 1px;
+                    background: linear-gradient(to right, transparent, rgba(255,255,255,0.2), transparent);
+                    margin: 4rem 0;
+                    transform-origin: center;
+                }
+            `}</style>
+        </>
     );
 }

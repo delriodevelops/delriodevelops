@@ -2,12 +2,14 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
-import { ArrowLeft, ArrowUpRight, Search } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight, Search, Loader2 } from 'lucide-react';
 import gsap from 'gsap';
+import { getAllPosts } from '../../lib/services/blog-cached';
 
-// Sample blog posts data (in a real app, this would come from a database or CMS)
-const allPosts = [
+const tags = ['All', 'Indie Hacking', 'AI', 'Tools', 'Personal', 'Tutorial', 'Product'];
+
+// Fallback static posts for when Firebase is not configured
+const fallbackPosts = [
     {
         slug: 'building-in-public',
         title: 'Why I Build in Public',
@@ -46,15 +48,42 @@ const allPosts = [
     },
 ];
 
-const tags = ['All', 'Indie Hacking', 'AI', 'Tools', 'Personal'];
-
 export default function BlogPage() {
     const [selectedTag, setSelectedTag] = useState('All');
     const [searchQuery, setSearchQuery] = useState('');
+    const [posts, setPosts] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
     const listRef = useRef(null);
     const revealRef = useRef(null);
 
-    const filteredPosts = allPosts.filter((post) => {
+    // Fetch posts from Firebase on mount
+    useEffect(() => {
+        const fetchPosts = async () => {
+            try {
+                const firebasePosts = await getAllPosts();
+                if (firebasePosts.length > 0) {
+                    // Transform Firebase data to match expected format
+                    const formattedPosts = firebasePosts.map(post => ({
+                        ...post,
+                        date: post.createdAt || new Date().toISOString(),
+                    }));
+                    setPosts(formattedPosts);
+                } else {
+                    // Use fallback if no Firebase posts
+                    setPosts(fallbackPosts);
+                }
+            } catch (error) {
+                console.error('Error fetching posts:', error);
+                // Use fallback on error
+                setPosts(fallbackPosts);
+            }
+            setIsLoading(false);
+        };
+
+        fetchPosts();
+    }, []);
+
+    const filteredPosts = posts.filter((post) => {
         const matchesTag = selectedTag === 'All' || post.tag === selectedTag;
         const matchesSearch =
             post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -63,6 +92,8 @@ export default function BlogPage() {
     });
 
     useEffect(() => {
+        if (isLoading) return;
+
         const items = document.querySelectorAll('.blog-item');
         const reveal = revealRef.current;
         const revealImg = reveal?.querySelector('img');
@@ -107,7 +138,7 @@ export default function BlogPage() {
         return () => {
             window.removeEventListener('mousemove', moveReveal);
         };
-    }, [filteredPosts]); // Re-run when list changes
+    }, [filteredPosts, isLoading]);
 
     return (
         <div style={{ minHeight: '100vh', background: 'var(--color-bg)', overflowX: 'hidden' }}>
@@ -239,75 +270,97 @@ export default function BlogPage() {
 
             {/* Blog List - Monumental Style */}
             <section className="container" style={{ paddingBottom: '15vh' }}>
-                <div ref={listRef} className="blog-list-container">
-                    {filteredPosts.length > 0 ? (
-                        filteredPosts.map((post) => (
-                            <Link
-                                key={post.slug}
-                                href={`/blog/${post.slug}`}
-                                className="blog-item"
-                                data-img={post.image}
-                                style={{
-                                    display: 'grid',
-                                    gridTemplateColumns: '1fr 3fr auto',
-                                    gap: '2rem',
-                                    alignItems: 'center',
-                                    padding: '4rem 0',
-                                    borderTop: '1px solid rgba(255,255,255,0.1)',
-                                    textDecoration: 'none',
-                                    position: 'relative',
-                                    transition: 'padding-left 0.3s ease',
-                                }}
-                                onMouseEnter={(e) => {
-                                    e.currentTarget.style.paddingLeft = '2rem';
-                                    e.currentTarget.querySelector('.blog-title').style.color = 'var(--color-accent)';
-                                    const arrow = e.currentTarget.querySelector('.blog-arrow');
-                                    if (arrow) {
-                                        arrow.style.transform = 'rotate(0deg) scale(1.2)';
-                                        arrow.style.color = 'var(--color-accent)';
-                                    }
-                                }}
-                                onMouseLeave={(e) => {
-                                    e.currentTarget.style.paddingLeft = '0';
-                                    e.currentTarget.querySelector('.blog-title').style.color = '#fff';
-                                    const arrow = e.currentTarget.querySelector('.blog-arrow');
-                                    if (arrow) {
-                                        arrow.style.transform = 'rotate(45deg)';
-                                        arrow.style.color = '#888';
-                                    }
-                                }}
-                            >
-                                <div style={{ fontFamily: 'var(--font-mono)', color: '#666', fontSize: '0.9rem' }}>
-                                    {new Date(post.date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
-                                </div>
-                                <div>
-                                    <h3 className="blog-title" style={{
-                                        fontSize: 'clamp(1.5rem, 3vw, 2.5rem)',
-                                        margin: '0 0 0.5rem 0',
-                                        transition: 'color 0.3s ease'
-                                    }}>
-                                        {post.title}
-                                    </h3>
-                                    <p style={{ margin: 0, color: '#888', maxWidth: '600px' }}>{post.excerpt}</p>
-                                </div>
-                                <ArrowUpRight
-                                    className="blog-arrow"
-                                    size={32}
-                                    color="#888"
+                {isLoading ? (
+                    <div style={{ textAlign: 'center', padding: '8rem 0' }}>
+                        <Loader2
+                            size={32}
+                            style={{
+                                color: 'var(--color-accent)',
+                                animation: 'spin 1s linear infinite',
+                                marginBottom: '1rem'
+                            }}
+                        />
+                        <p style={{ color: '#666', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '0.8rem' }}>
+                            Loading posts...
+                        </p>
+                        <style jsx>{`
+                            @keyframes spin {
+                                from { transform: rotate(0deg); }
+                                to { transform: rotate(360deg); }
+                            }
+                        `}</style>
+                    </div>
+                ) : (
+                    <div ref={listRef} className="blog-list-container">
+                        {filteredPosts.length > 0 ? (
+                            filteredPosts.map((post) => (
+                                <Link
+                                    key={post.slug}
+                                    href={`/blog/${post.slug}`}
+                                    className="blog-item"
+                                    data-img={post.image}
                                     style={{
-                                        transform: 'rotate(45deg)',
-                                        transition: 'all 0.3s ease'
+                                        display: 'grid',
+                                        gridTemplateColumns: '1fr 3fr auto',
+                                        gap: '2rem',
+                                        alignItems: 'center',
+                                        padding: '4rem 0',
+                                        borderTop: '1px solid rgba(255,255,255,0.1)',
+                                        textDecoration: 'none',
+                                        position: 'relative',
+                                        transition: 'padding-left 0.3s ease',
                                     }}
-                                />
-                            </Link>
-                        ))
-                    ) : (
-                        <div style={{ textAlign: 'center', padding: '4rem 0', color: '#666' }}>
-                            No articles found matching your criteria.
-                        </div>
-                    )}
-                    <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }} />
-                </div>
+                                    onMouseEnter={(e) => {
+                                        e.currentTarget.style.paddingLeft = '2rem';
+                                        e.currentTarget.querySelector('.blog-title').style.color = 'var(--color-accent)';
+                                        const arrow = e.currentTarget.querySelector('.blog-arrow');
+                                        if (arrow) {
+                                            arrow.style.transform = 'rotate(0deg) scale(1.2)';
+                                            arrow.style.color = 'var(--color-accent)';
+                                        }
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.currentTarget.style.paddingLeft = '0';
+                                        e.currentTarget.querySelector('.blog-title').style.color = '#fff';
+                                        const arrow = e.currentTarget.querySelector('.blog-arrow');
+                                        if (arrow) {
+                                            arrow.style.transform = 'rotate(45deg)';
+                                            arrow.style.color = '#888';
+                                        }
+                                    }}
+                                >
+                                    <div style={{ fontFamily: 'var(--font-mono)', color: '#666', fontSize: '0.9rem' }}>
+                                        {new Date(post.date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                                    </div>
+                                    <div>
+                                        <h3 className="blog-title" style={{
+                                            fontSize: 'clamp(1.5rem, 3vw, 2.5rem)',
+                                            margin: '0 0 0.5rem 0',
+                                            transition: 'color 0.3s ease'
+                                        }}>
+                                            {post.title}
+                                        </h3>
+                                        <p style={{ margin: 0, color: '#888', maxWidth: '600px' }}>{post.excerpt}</p>
+                                    </div>
+                                    <ArrowUpRight
+                                        className="blog-arrow"
+                                        size={32}
+                                        color="#888"
+                                        style={{
+                                            transform: 'rotate(45deg)',
+                                            transition: 'all 0.3s ease'
+                                        }}
+                                    />
+                                </Link>
+                            ))
+                        ) : (
+                            <div style={{ textAlign: 'center', padding: '4rem 0', color: '#666' }}>
+                                No articles found matching your criteria.
+                            </div>
+                        )}
+                        <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }} />
+                    </div>
+                )}
             </section>
         </div>
     );

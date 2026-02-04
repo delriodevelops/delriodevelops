@@ -1,12 +1,13 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
-import Image from 'next/image';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, ArrowUpRight } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight, Loader2 } from 'lucide-react';
 import gsap from 'gsap';
+import { getAllProjects } from '../../lib/services/projects-cached';
 
-const projects = [
+// Fallback static projects for when Firebase is not configured
+const fallbackProjects = [
     {
         id: 1,
         number: '01',
@@ -46,14 +47,43 @@ const projects = [
 ];
 
 export default function ProjectsPage() {
+    const [projects, setProjects] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
     const listRef = useRef(null);
     const revealRef = useRef(null);
 
+    // Fetch projects from Firebase on mount
     useEffect(() => {
-        // Match the logic from the main page for consistency
+        const fetchProjects = async () => {
+            try {
+                const firebaseProjects = await getAllProjects();
+                if (firebaseProjects.length > 0) {
+                    // Add number formatting
+                    const formattedProjects = firebaseProjects.map((project, index) => ({
+                        ...project,
+                        number: String(index + 1).padStart(2, '0'),
+                    }));
+                    setProjects(formattedProjects);
+                } else {
+                    // Use fallback if no Firebase projects
+                    setProjects(fallbackProjects);
+                }
+            } catch (error) {
+                console.error('Error fetching projects:', error);
+                // Use fallback on error
+                setProjects(fallbackProjects);
+            }
+            setIsLoading(false);
+        };
+
+        fetchProjects();
+    }, []);
+
+    useEffect(() => {
+        if (isLoading) return;
+
         const items = document.querySelectorAll('.project-item');
         const reveal = revealRef.current;
-        const revealInner = reveal?.querySelector('.reveal-inner');
         const revealImg = reveal?.querySelector('img');
 
         if (!reveal || !items.length) return;
@@ -63,7 +93,7 @@ export default function ProjectsPage() {
             gsap.to(reveal, {
                 x: e.clientX,
                 y: e.clientY,
-                duration: 0.1, // Quick follow
+                duration: 0.1,
                 ease: 'power2.out'
             });
         };
@@ -96,7 +126,7 @@ export default function ProjectsPage() {
         return () => {
             window.removeEventListener('mousemove', moveReveal);
         };
-    }, []);
+    }, [projects, isLoading]);
 
     return (
         <div style={{ minHeight: '100vh', background: 'var(--color-bg)', overflowX: 'hidden' }}>
@@ -212,45 +242,66 @@ export default function ProjectsPage() {
 
             {/* Projects List - Monumental Style */}
             <section className="container" style={{ paddingBottom: '15vh' }}>
-                <div ref={listRef} className="projects-list">
-                    {projects.map((project) => (
-                        <a
-                            key={project.id}
-                            href={project.href}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="project-item"
-                            data-img={project.image}
+                {isLoading ? (
+                    <div style={{ textAlign: 'center', padding: '8rem 0' }}>
+                        <Loader2
+                            size={32}
                             style={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                padding: '4rem 0',
-                                borderTop: '1px solid rgba(255,255,255,0.1)',
-                                textDecoration: 'none',
-                                position: 'relative',
+                                color: 'var(--color-accent)',
+                                animation: 'spin 1s linear infinite',
+                                marginBottom: '1rem'
                             }}
-                        >
-                            <div>
-                                <h3 className="project-title" style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}>
-                                    {project.name}
-                                </h3>
-                                <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem', color: '#666', fontFamily: 'monospace', textTransform: 'uppercase' }}>
-                                    {project.tags.map((tag, i) => (
-                                        <span key={i}>{i > 0 && ' / '}{tag}</span>
-                                    ))}
+                        />
+                        <p style={{ color: '#666', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '0.8rem' }}>
+                            Loading projects...
+                        </p>
+                        <style jsx>{`
+                            @keyframes spin {
+                                from { transform: rotate(0deg); }
+                                to { transform: rotate(360deg); }
+                            }
+                        `}</style>
+                    </div>
+                ) : (
+                    <div ref={listRef} className="projects-list">
+                        {projects.map((project) => (
+                            <a
+                                key={project.id}
+                                href={project.href}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="project-item"
+                                data-img={project.image}
+                                style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    padding: '4rem 0',
+                                    borderTop: '1px solid rgba(255,255,255,0.1)',
+                                    textDecoration: 'none',
+                                    position: 'relative',
+                                }}
+                            >
+                                <div>
+                                    <h3 className="project-title" style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}>
+                                        {project.name}
+                                    </h3>
+                                    <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem', color: '#666', fontFamily: 'monospace', textTransform: 'uppercase' }}>
+                                        {project.tags?.map((tag, i) => (
+                                            <span key={i}>{i > 0 && ' / '}{tag}</span>
+                                        ))}
+                                    </div>
                                 </div>
-                            </div>
-                            <div style={{ textAlign: 'right', display: 'none', md: 'block' }} className="project-meta-right">
-                                <span style={{ fontSize: '1.2rem', color: '#444' }}>{project.number}</span>
-                            </div>
-                            <ArrowUpRight className="project-arrow" size={32} color="var(--color-accent)" style={{ opacity: 0.5 }} />
-                        </a>
-                    ))}
-                    <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }} />
-                </div>
+                                <div style={{ textAlign: 'right', display: 'none', md: 'block' }} className="project-meta-right">
+                                    <span style={{ fontSize: '1.2rem', color: '#444' }}>{project.number}</span>
+                                </div>
+                                <ArrowUpRight className="project-arrow" size={32} color="var(--color-accent)" style={{ opacity: 0.5 }} />
+                            </a>
+                        ))}
+                        <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }} />
+                    </div>
+                )}
             </section>
-
         </div>
     );
 }

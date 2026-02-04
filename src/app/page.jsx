@@ -6,6 +6,8 @@ import Link from 'next/link';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from '@studio-freight/lenis';
+import { getAllProjects } from '../lib/services/projects-cached';
+import { getAllPosts } from '../lib/services/blog-cached';
 import {
   Github,
   Linkedin,
@@ -63,8 +65,8 @@ const skillsCategories = [
   }
 ];
 
-// Projects data
-const projectsData = [
+// Fallback projects data
+const fallbackProjectsData = [
   {
     id: 1,
     number: '01',
@@ -142,8 +144,8 @@ const experienceData = [
   }
 ];
 
-// Blog posts (sample data)
-const blogPosts = [
+// Fallback blog posts
+const fallbackBlogPosts = [
   {
     slug: 'building-in-public',
     title: 'Why I Build in Public',
@@ -188,6 +190,9 @@ export default function Home() {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [projects, setProjects] = useState(fallbackProjectsData);
+  const [totalProjects, setTotalProjects] = useState(fallbackProjectsData.length);
+  const [blogPosts, setBlogPosts] = useState(fallbackBlogPosts);
 
   // Chat state
   const [messages, setMessages] = useState([
@@ -246,6 +251,71 @@ export default function Home() {
       chatMessagesRef.current.scrollTop = chatMessagesRef.current.scrollHeight;
     }
   }, [messages]);
+
+  // Fetch projects from Firebase
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const firebaseProjects = await getAllProjects();
+        console.log('Firebase projects:', firebaseProjects);
+        if (firebaseProjects && firebaseProjects.length > 0) {
+          setTotalProjects(firebaseProjects.length);
+          // Format projects for display - only show featured or first 4
+          const featuredProjects = firebaseProjects
+            .filter(p => p.featured)
+            .slice(0, 4);
+
+          // If no featured, take first 4
+          const displayProjects = featuredProjects.length > 0
+            ? featuredProjects
+            : firebaseProjects.slice(0, 4);
+
+          const formattedProjects = displayProjects.map((project, index) => ({
+            id: project.id,
+            number: String(index + 1).padStart(2, '0'),
+            title: project.name,
+            description: project.description,
+            image: project.image,
+            tags: project.tags || [],
+            liveUrl: project.href,
+            featured: project.featured,
+          }));
+          setProjects(formattedProjects);
+        }
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+        // Keep using fallback data
+      }
+    };
+
+    fetchProjects();
+  }, []);
+
+  // Fetch blog posts from Firebase
+  useEffect(() => {
+    const fetchBlogPosts = async () => {
+      try {
+        const firebasePosts = await getAllPosts();
+        if (firebasePosts && firebasePosts.length > 0) {
+          // Take first 3 posts for homepage
+          const displayPosts = firebasePosts.slice(0, 3).map(post => ({
+            slug: post.slug,
+            title: post.title,
+            excerpt: post.excerpt,
+            tag: post.tag,
+            date: post.createdAt || post.date || new Date().toISOString(),
+            image: post.image,
+          }));
+          setBlogPosts(displayPosts);
+        }
+      } catch (error) {
+        console.error('Error fetching blog posts:', error);
+        // Keep using fallback data
+      }
+    };
+
+    fetchBlogPosts();
+  }, []);
 
   const initAnimations = () => {
     // Hero animations with stagger
@@ -702,11 +772,11 @@ export default function Home() {
 
                 <div className="about-stats">
                   <div>
-                    <div className="about-stat-number">4<span className="accent">+</span></div>
+                    <div className="about-stat-number">{totalProjects}<span className="accent">+</span></div>
                     <div className="about-stat-label">Products Shipped</div>
                   </div>
                   <div>
-                    <div className="about-stat-number">5<span className="accent">+</span></div>
+                    <div className="about-stat-number">{new Date().getFullYear() - 2021}<span className="accent">+</span></div>
                     <div className="about-stat-label">Years Coding</div>
                   </div>
                   <div>
@@ -756,7 +826,7 @@ export default function Home() {
           </div>
 
           <div className="projects-list">
-            {projectsData.map((project) => (
+            {projects.map((project) => (
               <a
                 key={project.id}
                 href={project.liveUrl}
