@@ -123,7 +123,7 @@ export default function ProductsPage() {
 			>
 				<div className="reveal-inner" style={{ width: '100%', height: '100%' }}>
 					<img
-						src=""
+						src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
 						alt="Project Preview"
 						style={{ width: '100%', height: '100%', objectFit: 'cover' }}
 					/>

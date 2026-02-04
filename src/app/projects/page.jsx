@@ -62,6 +62,7 @@ export default function ProjectsPage() {
                     const formattedProjects = firebaseProjects.map((project, index) => ({
                         ...project,
                         number: String(index + 1).padStart(2, '0'),
+                        category: project.type || project.category || (project.tags && project.tags.includes('Product') ? 'Product' : 'Project'),
                     }));
                     setProjects(formattedProjects);
                 } else {
@@ -150,7 +151,7 @@ export default function ProjectsPage() {
             >
                 <div className="reveal-inner" style={{ width: '100%', height: '100%' }}>
                     <img
-                        src=""
+                        src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
                         alt="Project Preview"
                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />
@@ -293,7 +294,7 @@ export default function ProjectsPage() {
                                     </div>
                                 </div>
                                 <div style={{ textAlign: 'right', display: 'none', md: 'block' }} className="project-meta-right">
-                                    <span style={{ fontSize: '1.2rem', color: '#444' }}>{project.number}</span>
+                                    <span style={{ fontSize: '1.2rem', color: '#444' }}>{project.number} — {(project.category || 'PROJECT').toUpperCase()}</span>
                                 </div>
                                 <ArrowUpRight className="project-arrow" size={32} color="var(--color-accent)" style={{ opacity: 0.5 }} />
                             </a>

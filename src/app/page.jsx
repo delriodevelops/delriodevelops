@@ -257,7 +257,6 @@ export default function Home() {
     const fetchProjects = async () => {
       try {
         const firebaseProjects = await getAllProjects();
-        console.log('Firebase projects:', firebaseProjects);
         if (firebaseProjects && firebaseProjects.length > 0) {
           setTotalProjects(firebaseProjects.length);
           // Format projects for display - only show featured or first 4
@@ -277,6 +276,7 @@ export default function Home() {
             description: project.description,
             image: project.image,
             tags: project.tags || [],
+            category: project.type || project.category || (project.tags && project.tags.includes('Product') ? 'Product' : 'Project'),
             liveUrl: project.href,
             featured: project.featured,
           }));
@@ -836,7 +836,7 @@ export default function Home() {
               >
                 <div className="container">
                   <div className="project-meta">
-                    <span>{project.number}</span>
+                    <span>{project.number} — {(project.category || 'PROJECT').toUpperCase()}</span>
                     <span>{project.tags.join(' / ')}</span>
                   </div>
                   <h3 className="project-title">{project.title}</h3>
