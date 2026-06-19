@@ -9,7 +9,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { getProjectById } from '../../../lib/services/projects';
 
-// Register GSAP plugins
+// Register GSAP plugins POYA
 if (typeof window !== 'undefined') {
     gsap.registerPlugin(ScrollTrigger);
 }
