@@ -12,12 +12,26 @@ const firebaseConfig = {
     appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Initialize Firebase only if not already initialized
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+// Check if Firebase config is available (env vars may be missing at build time)
+const hasConfig = firebaseConfig.apiKey && firebaseConfig.projectId;
 
-export const auth = getAuth(app);
-export const googleProvider = new GoogleAuthProvider();
-export const db = getFirestore(app);
-export const storage = getStorage(app);
+let app = null;
+let auth = null;
+let googleProvider = null;
+let db = null;
+let storage = null;
 
+if (hasConfig) {
+    try {
+        app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+        auth = getAuth(app);
+        googleProvider = new GoogleAuthProvider();
+        db = getFirestore(app);
+        storage = getStorage(app);
+    } catch (error) {
+        console.warn('Firebase initialization failed:', error.message);
+    }
+}
+
+export { auth, googleProvider, db, storage };
 export default app;
