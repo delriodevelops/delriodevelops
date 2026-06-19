@@ -7,7 +7,7 @@ import { ArrowLeft, Calendar, Clock, Share2, Twitter, Linkedin, Loader2, ArrowUp
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useEffect, useRef, useState } from 'react';
-import { getPostBySlug } from '../../../lib/services/blog-cached';
+import { getPostBySlug } from '../../../lib/services/blog';
 
 // Register GSAP plugins
 if (typeof window !== 'undefined') {

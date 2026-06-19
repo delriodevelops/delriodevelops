@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ArrowUpRight, Search, Loader2 } from 'lucide-react';
 import gsap from 'gsap';
-import { getAllPosts } from '../../lib/services/blog-cached';
+import { getAllPosts } from '../../lib/services/blog';
 
 const tags = ['All', 'Indie Hacking', 'AI', 'Tools', 'Personal', 'Tutorial', 'Product'];
 

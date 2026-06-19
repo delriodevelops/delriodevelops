@@ -7,7 +7,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from '@studio-freight/lenis';
 import { getAllProjects } from '../lib/services/projects';
-import { getAllPosts } from '../lib/services/blog-cached';
+import { getAllPosts } from '../lib/services/blog';
 import {
   Github,
   Linkedin,

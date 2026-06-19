@@ -36,7 +36,7 @@ A modern, minimal, scroll-narrative portfolio website built with Next.js, GSAP, 
 
 | Category | Technology |
 |----------|------------|
-| Framework | Next.js 14 (App Router) |
+| Framework | Next.js 16 (App Router) |
 | Styling | CSS3 + Tailwind CSS |
 | Animations | GSAP + ScrollTrigger |
 | Smooth Scroll | Lenis (formerly @studio-freight/lenis) |
@@ -103,16 +103,31 @@ public/
 
 ## 🚀 Deployment
 
-### Vercel (Recommended)
+### Cloudflare Pages (Recommended)
 ```bash
-# Install Vercel CLI
-npm i -g vercel
+# Build for Cloudflare
+npm run cf:build
 
-# Deploy
-vercel
+# Preview locally
+npm run cf:preview
+
+# Deploy to Cloudflare
+npm run cf:deploy
 ```
 
-### Build for Production
+Alternatively, connect your GitHub repository to Cloudflare Pages:
+1. Go to [Cloudflare Dashboard](https://dash.cloudflare.com/) → Workers & Pages
+2. Create a new project → Connect Git repository
+3. Set build command: `npm run cf:build`
+4. Set output directory: `.open-next`
+5. Add environment variables in Settings (see `.dev.vars` for reference)
+
+### Local Development
+```bash
+npm run dev
+```
+
+### Build for Production (Standard Next.js)
 ```bash
 npm run build
 npm run start
