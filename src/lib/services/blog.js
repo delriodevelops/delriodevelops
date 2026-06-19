@@ -55,12 +55,12 @@ export async function getPostBySlug(slug) {
 
         if (snapshot.empty) return null;
 
-        const doc = snapshot.docs[0];
+        const docSnap = snapshot.docs[0];
         return {
-            id: doc.id,
-            ...doc.data(),
-            createdAt: doc.data().createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
-            updatedAt: doc.data().updatedAt?.toDate?.()?.toISOString() || new Date().toISOString(),
+            id: docSnap.id,
+            ...docSnap.data(),
+            createdAt: docSnap.data().createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
+            updatedAt: docSnap.data().updatedAt?.toDate?.()?.toISOString() || new Date().toISOString(),
         };
     } catch (error) {
         console.error('Error fetching post:', error);
