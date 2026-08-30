@@ -15,12 +15,22 @@ const AUTHORIZED_EMAILS = [
     process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'iamdelrioo@gmail.com',
 ];
 
+/**
+ * `auth` is null whenever the NEXT_PUBLIC_FIREBASE_* vars are missing — see
+ * lib/firebase.js, which already degrades rather than throwing. Every entry
+ * point below has to respect that: passing null into onAuthStateChanged threw
+ * a hard TypeError and took the whole /admin route down in local development.
+ */
+const isConfigured = Boolean(auth);
+
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(isConfigured);
     const [isAuthorized, setIsAuthorized] = useState(false);
 
     useEffect(() => {
+        if (!auth) return undefined;
+
         const unsubscribe = onAuthStateChanged(auth, (user) => {
             if (user) {
                 const authorized = AUTHORIZED_EMAILS.includes(user.email);
@@ -37,6 +47,10 @@ export function AuthProvider({ children }) {
     }, []);
 
     const signIn = async () => {
+        if (!auth || !googleProvider) {
+            throw new Error('Authentication is not configured on this deployment.');
+        }
+
         try {
             const result = await signInWithPopup(auth, googleProvider);
             const authorized = AUTHORIZED_EMAILS.includes(result.user.email);
@@ -54,6 +68,8 @@ export function AuthProvider({ children }) {
     };
 
     const signOut = async () => {
+        if (!auth) return;
+
         try {
             await firebaseSignOut(auth);
         } catch (error) {
@@ -63,7 +79,7 @@ export function AuthProvider({ children }) {
     };
 
     return (
-        <AuthContext.Provider value={{ user, loading, isAuthorized, signIn, signOut }}>
+        <AuthContext.Provider value={{ user, loading, isAuthorized, isConfigured, signIn, signOut }}>
             {children}
         </AuthContext.Provider>
     );

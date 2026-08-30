@@ -39,7 +39,7 @@ const blogTags = ['Indie Hacking', 'AI', 'Tools', 'Personal', 'Tutorial', 'Produ
 const projectTypes = ['Product', 'Side Project', 'Experiment'];
 
 export default function AdminDashboard() {
-    const { user, loading: authLoading, isAuthorized, signIn, signOut } = useAuth();
+    const { user, loading: authLoading, isAuthorized, isConfigured, signIn, signOut } = useAuth();
     const [activeTab, setActiveTab] = useState('blog');
     const [posts, setPosts] = useState([]);
     const [projects, setProjects] = useState([]);
@@ -357,7 +357,14 @@ export default function AdminDashboard() {
     };
 
     if (authLoading || !user || !isAuthorized) {
-        return <AuthGate loading={authLoading} authError={authError} onSignIn={handleSignIn} />;
+        return (
+            <AuthGate
+                loading={authLoading}
+                authError={authError}
+                isConfigured={isConfigured}
+                onSignIn={handleSignIn}
+            />
+        );
     }
 
     // Main dashboard

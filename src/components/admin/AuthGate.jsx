@@ -11,7 +11,7 @@ import { ArrowLeft, Loader2 } from 'lucide-react';
  * and Storage security rules (see FIREBASE_SETUP.md), which check the signed-in
  * user's email server-side. Never treat a client-side check as protection.
  */
-export default function AuthGate({ loading, authError, onSignIn }) {
+export default function AuthGate({ loading, authError, isConfigured = true, onSignIn }) {
   if (loading) {
     return (
       <div className="ed-root ed-gate">
@@ -34,9 +34,18 @@ export default function AuthGate({ loading, authError, onSignIn }) {
           Control
         </h1>
 
-        <p className="ed-mono" style={{ marginBottom: '2rem' }}>Authentication required</p>
+        <p className="ed-mono" style={{ marginBottom: '2rem' }}>
+          {isConfigured
+            ? 'Authentication required'
+            : 'Firebase is not configured on this environment'}
+        </p>
 
-        <button type="button" onClick={onSignIn} className="ed-btn ed-btn--solid">
+        <button
+          type="button"
+          onClick={onSignIn}
+          className="ed-btn ed-btn--solid"
+          disabled={!isConfigured}
+        >
           <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
             <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
             <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />

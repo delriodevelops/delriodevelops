@@ -1176,6 +1176,10 @@ body:has(.ed-root) { background: var(--paper, #efece5); }
 .ed-btn--danger { border-color: var(--signal); color: var(--signal); }
 .ed-btn--danger:hover { background: var(--signal); color: #fff; }
 
+.ed-btn:disabled { opacity: 0.4; cursor: default; }
+.ed-btn:disabled:hover { background: transparent; color: var(--ink); }
+.ed-btn--solid:disabled:hover { background: var(--ink); color: var(--paper); }
+
 /* ==================== ADMIN ====================
    An internal tool, so it stays plain: same type and rules as the public
    pages, but sized for dense forms rather than for reading. */
