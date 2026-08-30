@@ -1,0 +1,1644 @@
+/* ============================================================================
+   EDITORIAL DESIGN SYSTEM
+
+   Two worlds, one page. Employed work is institutional — rigid, small, set on
+   paper. Then the page inverts to full-bleed ink and the self-shipped products
+   get room to breathe, overlap and misbehave. The split does the storytelling;
+   the section labels stay literal so nobody has to decode a metaphor.
+
+   Rules that keep it out of template territory:
+   - No two sections share a layout. Tables are for data only.
+   - Scale contrast is extreme: 11px marginalia against 14vw display.
+   - Things overlap. Type sits on images, images hang into margins.
+   - Nothing is hidden on load; scroll effects are progressive enhancement.
+   ========================================================================= */
+
+.ed-root {
+  --paper: #efece5;
+  --ink: #14120f;
+  --grey-1: #6f6a60;
+  --grey-2: #a49d90;
+  --rule: rgba(20, 18, 15, 0.18);
+  --signal: #ff3b12;
+
+  --bg: var(--paper);
+  --fg: var(--ink);
+
+  --display: var(--ed-font-display), Impact, sans-serif;
+  --sans: var(--ed-font-sans), system-ui, sans-serif;
+  --mono: var(--ed-font-mono), ui-monospace, monospace;
+  --serif: var(--ed-font-serif), Georgia, serif;
+
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --gutter: clamp(1rem, 2.5vw, 2.25rem);
+  --margin-rail: clamp(2.25rem, 5vw, 4.5rem);
+
+  position: relative;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--sans);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Kept so the page paints edge to edge; the elements this used to switch off
+   (noise overlay, custom cursor, floating chat bubble) no longer exist. */
+body:has(.ed-root) { background: var(--paper, #efece5); }
+
+.ed-root *, .ed-root *::before, .ed-root *::after { box-sizing: border-box; }
+.ed-root a { color: inherit; text-decoration: none; }
+.ed-root h1, .ed-root h2, .ed-root h3, .ed-root p, .ed-root figure {
+  margin: 0; font-weight: inherit; letter-spacing: inherit; line-height: inherit;
+}
+.ed-root ul { margin: 0; padding: 0; list-style: none; }
+
+/* ==================== PRIMITIVES ==================== */
+
+.ed-mono {
+  font-family: var(--mono);
+  font-size: 0.6875rem;
+  line-height: 1.3;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--grey-1);
+}
+
+.ed-mono--fg { color: var(--fg); }
+.ed-mono--signal { color: var(--signal); }
+
+.ed-bleed { width: 100%; }
+
+.ed-page {
+  max-width: 1680px;
+  margin: 0 auto;
+  padding-inline: var(--gutter);
+}
+
+/* The outer rail carries section numbers and running heads, like a printed
+   page. It is what makes the layout read as art-directed rather than centred. */
+.ed-rail {
+  position: absolute;
+  top: 0;
+  left: var(--gutter);
+  height: 100%;
+  width: var(--margin-rail);
+  pointer-events: none;
+}
+
+.ed-rail-vertical {
+  position: sticky;
+  top: 5rem;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) { .ed-rail { display: none; } }
+
+/* ==================== COVER ==================== */
+.ed-cover {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-block: 1.25rem 1.75rem;
+  overflow: hidden;
+}
+
+.ed-cover-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.ed-cover-nav { display: flex; gap: 1.5rem; }
+
+.ed-cover-nav a { position: relative; transition: color 140ms var(--ease); }
+.ed-cover-nav a::after {
+  content: '';
+  position: absolute; left: 0; bottom: -4px;
+  width: 100%; height: 1px; background: var(--signal);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 320ms var(--ease);
+}
+.ed-cover-nav a:hover, .ed-cover-nav a:focus-visible { color: var(--signal); }
+.ed-cover-nav a:hover::after, .ed-cover-nav a:focus-visible::after { transform: scaleX(1); }
+
+/* The monumental block. Deliberately oversized and optically cropped at the
+   right edge — the crop is the point, so the wrapper clips instead of the
+   viewport scrolling. */
+.ed-cover-type {
+  position: relative;
+  margin-left: var(--margin-rail);
+  padding: clamp(1rem, 3vh, 2.25rem) 0;
+}
+
+.ed-name {
+  font-family: var(--display);
+  font-variation-settings: 'wdth' 88, 'opsz' 48;
+  font-weight: 800;
+  font-size: clamp(3.25rem, min(13.5vw, 23svh), 14rem);
+  line-height: 0.8;
+  letter-spacing: -0.045em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.ed-name span { display: block; }
+
+/* Second line hangs left of the first: a small optical break in the axis. */
+.ed-name .ed-name-2 {
+  margin-left: clamp(1.5rem, 7vw, 7rem);
+  position: relative;
+}
+
+.ed-name .ed-outline {
+  color: transparent;
+  -webkit-text-stroke: clamp(1px, 0.14vw, 2px) var(--fg);
+}
+
+.ed-name .ed-accent { color: var(--signal); }
+
+.ed-cover-foot {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1.5rem 2rem;
+  align-items: end;
+  padding-top: 1rem;
+  border-top: 1px solid var(--rule);
+}
+
+.ed-cover-blurb {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(1.15rem, 2.1vw, 1.9rem);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  max-width: 22ch;
+}
+
+/* A hairline data table, set like a specimen caption. */
+.ed-specs {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 0.3rem 1.5rem;
+  align-items: baseline;
+  justify-self: end;
+  text-align: right;
+}
+
+.ed-specs dt { color: var(--grey-1); }
+.ed-specs dd {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  color: var(--fg);
+  text-transform: none;
+}
+
+@media (max-width: 760px) {
+  .ed-cover-foot { grid-template-columns: 1fr; }
+  .ed-specs { justify-self: start; text-align: left; }
+  .ed-cover-nav { display: none; }
+
+  /* A forced 100svh on a tall phone left ~400px of dead air above the name.
+     Let the content set the height instead, and let the type grow into it. */
+  .ed-cover { min-height: auto; padding-block: 1.25rem clamp(2rem, 6vh, 3rem); }
+
+  .ed-cover-type {
+    margin-left: 0;
+    padding-block: clamp(3rem, 13vh, 6rem) clamp(3rem, 11vh, 5rem);
+  }
+
+  .ed-name { font-size: clamp(3rem, 17.5vw, 7rem); }
+  .ed-name .ed-name-2 { margin-left: clamp(0.75rem, 4vw, 2.5rem); }
+}
+
+/* ==================== STATEMENT — asymmetric, offset ==================== */
+.ed-statement-wrap {
+  position: relative;
+  padding-block: clamp(5rem, 14vh, 10rem);
+  border-top: 1px solid var(--rule);
+}
+
+.ed-statement-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--gutter);
+}
+
+/* Starts at column 4, not column 1. The empty left third is deliberate. */
+.ed-statement {
+  grid-column: 4 / 12;
+  font-family: var(--display);
+  font-variation-settings: 'wdth' 96, 'opsz' 32;
+  font-size: clamp(1.6rem, 3.5vw, 3.4rem);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  font-weight: 500;
+}
+
+.ed-statement em {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 1.1em;
+  letter-spacing: -0.015em;
+}
+
+.ed-statement .ed-dim { color: var(--grey-2); }
+
+.ed-statement-note {
+  grid-column: 2 / 4;
+  align-self: start;
+  padding-top: 0.75rem;
+}
+
+@media (max-width: 900px) {
+  .ed-statement { grid-column: 1 / -1; }
+  .ed-statement-note { grid-column: 1 / -1; padding-top: 0; padding-bottom: 1.25rem; }
+}
+
+/* ==================== DAY ==================== */
+.ed-day { position: relative; padding-bottom: clamp(4rem, 10vh, 8rem); }
+
+.ed-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: clamp(2rem, 5vh, 3.5rem);
+}
+
+.ed-section-head h2 {
+  font-family: var(--display);
+  font-variation-settings: 'wdth' 90;
+  font-size: clamp(1.5rem, 3vw, 2.6rem);
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+/* --- Experience: hanging periods in the margin, like footnotes ---------- */
+.ed-exp { margin-left: var(--margin-rail); }
+
+.ed-exp-item {
+  display: grid;
+  grid-template-columns: minmax(0, 9rem) minmax(0, 1fr);
+  gap: 1.5rem;
+  padding: 1.4rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.ed-exp-period { padding-top: 0.35rem; }
+
+.ed-exp-company {
+  font-family: var(--display);
+  font-variation-settings: 'wdth' 92;
+  font-size: clamp(1.35rem, 2.4vw, 2rem);
+  letter-spacing: -0.03em;
+  line-height: 1;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.ed-exp-role {
+  font-size: 0.95rem;
+  margin-top: 0.5rem;
+  color: var(--fg);
+}
+
+.ed-exp-role span { color: var(--grey-1); }
+
+.ed-exp-techs {
+  font-family: var(--mono);
+  font-size: 0.6875rem;
+  color: var(--grey-1);
+  margin-top: 0.6rem;
+  letter-spacing: 0.04em;
+}
+
+@media (max-width: 760px) {
+  .ed-exp { margin-left: 0; }
+  .ed-exp-item { grid-template-columns: 1fr; gap: 0.5rem; }
+}
+
+/* --- Stack: a specimen index, set in columns ---------------------------
+   Ran as a single block of running text before, which buried the category
+   names mid-paragraph and read as a wall. Columns give each discipline its
+   own axis and stay distinct from the rows above and the spreads below. */
+.ed-stack {
+  margin-left: var(--margin-rail);
+  margin-top: clamp(3rem, 8vh, 5rem);
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-top: 1px solid var(--rule);
+}
+
+.ed-stack-col {
+  padding: 1.1rem 1.25rem 1.5rem;
+  border-left: 1px solid var(--rule);
+  min-width: 0;
+}
+
+.ed-stack-col:last-child { border-right: 1px solid var(--rule); }
+
+.ed-stack-num { display: block; margin-bottom: 0.9rem; }
+
+.ed-stack-title {
+  font-family: var(--display);
+  font-variation-settings: 'wdth' 88;
+  font-size: clamp(1rem, 1.5vw, 1.35rem);
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  text-transform: uppercase;
+  font-weight: 700;
+  margin-bottom: 0.9rem;
+  min-height: 2.1em;
+}
+
+.ed-stack-list li {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.01em;
+  color: var(--grey-1);
+  padding: 0.45rem 0;
+  border-top: 1px solid var(--rule);
+  transition: color 140ms var(--ease), padding-left 200ms var(--ease);
+}
+
+.ed-stack-col:hover .ed-stack-list li { color: var(--fg); }
+.ed-stack-list li:hover { padding-left: 0.4rem; color: var(--signal); }
+
+@media (max-width: 900px) {
+  .ed-stack { margin-left: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ed-stack-col:nth-child(2) { border-right: 1px solid var(--rule); }
+  .ed-stack-col:nth-child(n + 3) { border-top: 1px solid var(--rule); }
+  .ed-stack-title { min-height: 0; }
+}
+
+@media (max-width: 460px) {
+  .ed-stack-col { padding-inline: 0.85rem; }
+  .ed-stack-list li { font-size: 0.7rem; }
+}
+
+/* ==================== THE TURN — full-bleed inversion ==================== */
+.ed-night {
+  --bg: var(--ink);
+  --fg: #f3f0e9;
+  --rule: rgba(243, 240, 233, 0.2);
+  --grey-1: #918a7e;
+  --grey-2: #6d675d;
+
+  position: relative;
+  background: var(--bg);
+  color: var(--fg);
+  padding: clamp(4rem, 12vh, 9rem) 0 clamp(4rem, 10vh, 7rem);
+  /* Full-bleed out of the centred page container. */
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  padding-inline: max(var(--gutter), calc(50vw - 840px + var(--gutter)));
+}
+
+.ed-night-marker {
+  display: flex;
+  align-items: baseline;
+  gap: 1.25rem;
+  padding-bottom: clamp(2rem, 6vh, 4rem);
+}
+
+.ed-night-marker h2 {
+  font-family: var(--display);
+  font-variation-settings: 'wdth' 78;
+  font-size: clamp(3rem, 11vw, 10rem);
+  line-height: 0.85;
+  letter-spacing: -0.05em;
+  text-transform: uppercase;
+  font-weight: 800;
+}
+
+.ed-night-marker .ed-outline {
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--fg);
+}
+
+/* --- Products as spreads, alternating and overlapping ------------------ */
+.ed-spread {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--gutter);
+  align-items: center;
+  padding: clamp(2.5rem, 7vh, 5rem) 0;
+  border-top: 1px solid var(--rule);
+}
+
+.ed-spread-figure {
+  position: relative;
+  grid-row: 1;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border-radius: 2px;
+  background: #241f19;
+}
+
+.ed-spread-figure img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transform: scale(1.02);
+  transition: transform 700ms var(--ease), filter 700ms var(--ease);
+  filter: saturate(0.9);
+}
+
+.ed-spread:hover .ed-spread-figure img {
+  transform: scale(1.06);
+  filter: saturate(1.08);
+}
+
+.ed-spread-body { grid-row: 1; position: relative; z-index: 2; }
+
+/* Alternation is driven by data-side rather than :nth-child, because the
+   section marker is also a child and was shifting the parity by one. */
+.ed-spread[data-side='left'] .ed-spread-figure { grid-column: 1 / 8; }
+.ed-spread[data-side='left'] .ed-spread-body   { grid-column: 5 / 13; }
+
+.ed-spread[data-side='right'] .ed-spread-figure { grid-column: 6 / 13; }
+.ed-spread[data-side='right'] .ed-spread-body   { grid-column: 1 / 9; text-align: right; }
+
+.ed-spread-title {
+  font-family: var(--display);
+  font-variation-settings: 'wdth' 84;
+  font-size: clamp(2.25rem, 6.5vw, 5.75rem);
+  line-height: 0.86;
+  letter-spacing: -0.045em;
+  text-transform: uppercase;
+  font-weight: 800;
+  /* Mix-blend keeps the overlapping type legible over the screenshot. */
+  mix-blend-mode: difference;
+  color: #fff;
+  transition: color 260ms var(--ease);
+}
+
+.ed-spread:hover .ed-spread-title { color: var(--signal); }
+
+.ed-spread-desc {
+  font-size: clamp(0.95rem, 1.2vw, 1.1rem);
+  line-height: 1.45;
+  color: var(--grey-1);
+  max-width: 34ch;
+  margin-top: 1rem;
+}
+
+/* Only the title is allowed over the screenshot — mix-blend-mode keeps it
+   legible there. Body copy is inset past the image edge instead. The inset
+   sits on this wrapper because .ed-spread-desc carries a max-width, and
+   border-box padding would have eaten into it. */
+.ed-spread-detail { margin-top: 0.25rem; }
+
+.ed-spread[data-side='left'] .ed-spread-detail { padding-left: 40%; }
+.ed-spread[data-side='right'] .ed-spread-detail { padding-right: 40%; }
+
+.ed-spread[data-side='right'] .ed-spread-desc { margin-left: auto; }
+
+.ed-spread-meta {
+  display: flex;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+  margin-top: 1.1rem;
+  align-items: baseline;
+}
+
+.ed-spread[data-side='right'] .ed-spread-meta { justify-content: flex-end; }
+
+.ed-spread-index {
+  position: absolute;
+  top: clamp(1.5rem, 4vh, 3rem);
+  font-family: var(--mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  color: var(--grey-2);
+}
+
+.ed-spread[data-side='left'] .ed-spread-index { right: 0; }
+.ed-spread[data-side='right'] .ed-spread-index { left: 0; }
+
+.ed-spread-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 2px;
+  transition: color 140ms var(--ease), border-color 140ms var(--ease);
+}
+
+.ed-spread:hover .ed-spread-cta { color: var(--signal); border-color: var(--signal); }
+
+@media (max-width: 900px) {
+  .ed-spread { gap: 1rem; padding: 2.25rem 0; }
+  /* Explicit rows for all three children: left to auto-placement the index
+     landed in a single 1/12-wide column below the copy and wrapped to three
+     lines. */
+  .ed-spread-index {
+    position: static;
+    grid-column: 1 / -1; grid-row: 1;
+    margin-bottom: 0.5rem;
+  }
+  .ed-spread[data-side] .ed-spread-figure { grid-column: 1 / -1; grid-row: 2; }
+  .ed-spread[data-side] .ed-spread-body {
+    grid-column: 1 / -1; grid-row: 3; text-align: left;
+  }
+  .ed-spread[data-side='right'] .ed-spread-desc { margin-left: 0; }
+  .ed-spread[data-side='right'] .ed-spread-meta { justify-content: flex-start; }
+  .ed-spread[data-side] .ed-spread-detail { padding-left: 0; padding-right: 0; }
+  .ed-spread-title { mix-blend-mode: normal; color: var(--fg); }
+}
+
+/* ==================== WRITING ====================
+   A fourth layout axis: a sticky rubric in the left columns against a list of
+   oversized titles on the right. Distinct from the experience rows, the
+   product spreads and the stack columns. */
+.ed-writing { position: relative; padding-block: clamp(3rem, 8vh, 6rem); }
+
+.ed-writing-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--gutter);
+}
+
+.ed-writing-rubric {
+  grid-column: 1 / 4;
+  position: sticky;
+  top: 3rem;
+  align-self: start;
+}
+
+.ed-writing-rubric h2 {
+  font-family: var(--display);
+  font-variation-settings: 'wdth' 88;
+  font-size: clamp(1.5rem, 2.6vw, 2.4rem);
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+}
+
+.ed-writing-list { grid-column: 4 / 13; border-top: 1px solid var(--rule); }
+
+.ed-post {
+  display: block;
+  padding: 1.5rem 0;
+  border-bottom: 1px solid var(--rule);
+  transition: padding-left 260ms var(--ease);
+}
+
+.ed-post:hover, .ed-post:focus-visible { padding-left: 0.75rem; }
+
+.ed-post-meta {
+  display: flex;
+  gap: 1.25rem;
+  align-items: baseline;
+  margin-bottom: 0.6rem;
+}
+
+.ed-post-title {
+  font-family: var(--display);
+  font-variation-settings: 'wdth' 92;
+  font-size: clamp(1.4rem, 3vw, 2.4rem);
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+  font-weight: 700;
+  transition: color 140ms var(--ease);
+  text-wrap: balance;
+}
+
+.ed-post:hover .ed-post-title, .ed-post:focus-visible .ed-post-title { color: var(--signal); }
+
+.ed-post-excerpt {
+  margin-top: 0.6rem;
+  color: var(--grey-1);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  max-width: 58ch;
+}
+
+@media (max-width: 900px) {
+  .ed-writing-rubric { grid-column: 1 / -1; position: static; margin-bottom: 1.5rem; }
+  .ed-writing-list { grid-column: 1 / -1; }
+}
+
+/* ==================== MASTHEAD + INDEX ====================
+   Shared by /blog, /projects and /products. */
+.ed-masthead {
+  padding-block: clamp(5rem, 13vh, 9rem) clamp(1.5rem, 4vh, 2.5rem);
+  border-bottom: 1px solid var(--rule);
+}
+
+.ed-masthead-title {
+  font-family: var(--display);
+  font-variation-settings: 'wdth' 82;
+  font-size: clamp(3rem, 13vw, 12rem);
+  line-height: 0.85;
+  letter-spacing: -0.05em;
+  text-transform: uppercase;
+  font-weight: 800;
+  margin-block: clamp(1rem, 3vh, 2rem) clamp(1rem, 3vh, 1.75rem);
+}
+
+.ed-masthead-lede {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(1.1rem, 2vw, 1.7rem);
+  line-height: 1.25;
+  max-width: 34ch;
+  color: var(--grey-1);
+}
+
+.ed-index-page { padding-bottom: clamp(4rem, 12vh, 8rem); }
+
+.ed-index-row {
+  display: grid;
+  grid-template-columns: 3.5rem minmax(0, 7fr) minmax(0, 4fr);
+  gap: 1.5rem;
+  align-items: start;
+  padding: 1.75rem 0;
+  border-bottom: 1px solid var(--rule);
+  transition: padding-left 260ms var(--ease);
+}
+
+.ed-index-row:hover, .ed-index-row:focus-visible { padding-left: 0.75rem; }
+
+.ed-index-row-title {
+  font-family: var(--display);
+  font-variation-settings: 'wdth' 92;
+  font-size: clamp(1.35rem, 2.8vw, 2.2rem);
+  line-height: 1.03;
+  letter-spacing: -0.035em;
+  font-weight: 700;
+  transition: color 140ms var(--ease);
+  text-wrap: balance;
+}
+
+.ed-index-row:hover .ed-index-row-title { color: var(--signal); }
+
+.ed-index-row-excerpt {
+  margin-top: 0.55rem;
+  color: var(--grey-1);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  max-width: 62ch;
+}
+
+.ed-index-row-side { text-align: right; padding-top: 0.35rem; }
+
+@media (max-width: 760px) {
+  .ed-index-row { grid-template-columns: 2.5rem minmax(0, 1fr); gap: 0.5rem 1rem; }
+  .ed-index-row-side { grid-column: 2 / 3; text-align: left; padding-top: 0; }
+}
+
+/* ==================== ARTICLE ====================
+   One measured column. No entrance animation, no gradient text, no blur orbs
+   — the job here is to be read. */
+.ed-article { padding-bottom: clamp(4rem, 12vh, 8rem); }
+
+.ed-article-head {
+  padding-block: clamp(4.5rem, 12vh, 8rem) clamp(1.5rem, 4vh, 2.5rem);
+}
+
+.ed-article-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: clamp(1.5rem, 4vh, 2.5rem);
+  transition: color 140ms var(--ease);
+}
+
+.ed-article-back:hover, .ed-article-back:focus-visible { color: var(--signal); }
+
+.ed-article-title {
+  font-family: var(--display);
+  font-variation-settings: 'wdth' 90;
+  font-size: clamp(2.1rem, 6vw, 4.75rem);
+  line-height: 0.98;
+  letter-spacing: -0.04em;
+  font-weight: 700;
+  margin-block: 1rem;
+  max-width: 18ch;
+  text-wrap: balance;
+}
+
+.ed-article-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  padding-block: 1rem;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+
+.ed-article-figure {
+  margin-block: clamp(2rem, 6vh, 3.5rem);
+  aspect-ratio: 21 / 9;
+  overflow: hidden;
+  background: var(--paper-2, #e4e0d8);
+}
+
+.ed-article-figure img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.ed-article-lede {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(1.25rem, 2.4vw, 1.9rem);
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  max-width: 30ch;
+  margin-block: clamp(2rem, 5vh, 3rem);
+}
+
+/* The reading column. 68ch is the measure everything below is set against. */
+.ed-prose { max-width: 68ch; }
+
+.ed-prose p {
+  font-size: 1.0625rem;
+  line-height: 1.68;
+  color: #2e2a24;
+  margin-block: 0 1.35rem;
+}
+
+.ed-prose h2 {
+  font-family: var(--display);
+  font-variation-settings: 'wdth' 92;
+  font-size: clamp(1.5rem, 3vw, 2.1rem);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  font-weight: 700;
+  margin-block: 2.75rem 1rem;
+}
+
+.ed-prose h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  margin-block: 2rem 0.75rem;
+}
+
+.ed-prose h1 {
+  font-family: var(--display);
+  font-variation-settings: 'wdth' 88;
+  font-size: clamp(1.9rem, 4vw, 2.8rem);
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+  font-weight: 700;
+  margin-block: 3rem 1.1rem;
+}
+
+.ed-prose ul, .ed-prose ol { margin-block: 0 1.5rem; padding: 0; }
+
+.ed-prose li {
+  position: relative;
+  padding-left: 1.6rem;
+  margin-bottom: 0.5rem;
+  font-size: 1.0625rem;
+  line-height: 1.62;
+  color: #2e2a24;
+}
+
+.ed-prose ul li::before {
+  content: '';
+  position: absolute;
+  left: 0.15rem;
+  top: 0.72em;
+  width: 5px;
+  height: 1px;
+  background: var(--signal);
+}
+
+.ed-prose ol { counter-reset: ed-count; }
+.ed-prose ol li { counter-increment: ed-count; }
+.ed-prose ol li::before {
+  content: counter(ed-count, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  font-family: var(--mono);
+  font-size: 0.6875rem;
+  color: var(--signal);
+  top: 0.25em;
+}
+
+.ed-prose blockquote {
+  margin: 2rem 0;
+  padding-left: 1.25rem;
+  border-left: 2px solid var(--signal);
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.3rem;
+  line-height: 1.35;
+  color: var(--ink);
+}
+
+.ed-prose code {
+  font-family: var(--mono);
+  font-size: 0.86em;
+  background: rgba(20, 18, 15, 0.06);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  padding: 0.1em 0.35em;
+}
+
+.ed-prose strong { font-weight: 600; color: var(--ink); }
+
+/* Links in body copy were indistinguishable from the surrounding text. */
+.ed-prose a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--signal);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+  transition: color 140ms var(--ease), text-decoration-thickness 140ms var(--ease);
+}
+
+.ed-prose a:hover,
+.ed-prose a:focus-visible {
+  color: var(--signal);
+  text-decoration-thickness: 2px;
+}
+
+.ed-prose hr {
+  border: 0;
+  border-top: 1px solid var(--rule);
+  margin-block: 2.75rem;
+}
+
+/* Figures break the measure — the one place the reading column is allowed to
+   widen, so images read as plates rather than inline thumbnails. */
+.ed-prose figure {
+  margin-block: 2.5rem;
+  width: min(100%, 68ch);
+}
+
+@media (min-width: 1100px) {
+  .ed-prose figure { width: calc(100% + 12rem); }
+}
+
+.ed-prose figure img {
+  width: 100%;
+  height: auto;
+  display: block;
+  background: var(--paper-2, #e4e0d8);
+}
+
+.ed-prose figcaption {
+  font-family: var(--mono);
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--grey-1);
+  margin-top: 0.6rem;
+}
+
+.ed-article-foot {
+  max-width: 68ch;
+  margin-top: clamp(3rem, 8vh, 5rem);
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--rule);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.ed-share { display: flex; gap: 1.5rem; }
+
+.ed-share a { transition: color 140ms var(--ease); }
+.ed-share a:hover, .ed-share a:focus-visible { color: var(--signal); }
+
+/* Reading progress. One hairline, no gradient. */
+.ed-progress {
+  position: fixed;
+  top: 0; left: 0;
+  height: 2px;
+  background: var(--signal);
+  z-index: 60;
+  transition: width 90ms linear;
+}
+
+/* ==================== 404 ====================
+   The number is the whole page. No glitch loop, no blur orbs. */
+.ed-404 {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-block: 1.25rem 1.75rem;
+  overflow: hidden;
+}
+
+.ed-404-number {
+  font-family: var(--display);
+  font-variation-settings: 'wdth' 76;
+  font-size: clamp(7rem, min(38vw, 52svh), 30rem);
+  line-height: 0.78;
+  letter-spacing: -0.05em;
+  font-weight: 800;
+  color: transparent;
+  -webkit-text-stroke: clamp(1px, 0.16vw, 3px) var(--ink);
+  margin-left: var(--margin-rail);
+  transition: color 400ms var(--ease), -webkit-text-stroke-color 400ms var(--ease);
+}
+
+.ed-404-number:hover {
+  color: var(--signal);
+  -webkit-text-stroke-color: var(--signal);
+}
+
+.ed-404-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1.5rem 2rem;
+  align-items: end;
+  padding-top: 1rem;
+  border-top: 1px solid var(--rule);
+}
+
+.ed-404-copy {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(1.15rem, 2.1vw, 1.9rem);
+  line-height: 1.2;
+  max-width: 24ch;
+}
+
+.ed-404-actions { display: flex; gap: 1.5rem; flex-wrap: wrap; justify-self: end; }
+
+@media (max-width: 760px) {
+  .ed-404-number { margin-left: 0; }
+  .ed-404-body { grid-template-columns: 1fr; }
+  .ed-404-actions { justify-self: start; }
+}
+
+/* ==================== CASE STUDY (project detail) ==================== */
+.ed-case { padding-bottom: clamp(4rem, 12vh, 8rem); }
+
+.ed-case-head { padding-block: clamp(4.5rem, 12vh, 8rem) clamp(1.5rem, 4vh, 2.5rem); }
+
+.ed-case-title {
+  font-family: var(--display);
+  font-variation-settings: 'wdth' 84;
+  font-size: clamp(2.5rem, 9vw, 8rem);
+  line-height: 0.88;
+  letter-spacing: -0.05em;
+  text-transform: uppercase;
+  font-weight: 800;
+  margin-block: 1rem;
+  text-wrap: balance;
+}
+
+/* Facts sit in a hairline table under the title: dates, stack, links. */
+.ed-case-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 1.25rem 2rem;
+  padding-block: 1.25rem;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+
+.ed-case-fact dt { color: var(--grey-1); margin-bottom: 0.45rem; }
+.ed-case-fact dd { margin: 0; font-size: 0.95rem; line-height: 1.4; }
+
+.ed-case-lede {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(1.25rem, 2.6vw, 2.1rem);
+  line-height: 1.28;
+  letter-spacing: -0.01em;
+  max-width: 28ch;
+  margin-block: clamp(2rem, 6vh, 3.5rem);
+}
+
+.ed-case-body { max-width: 68ch; }
+
+/* Gallery plates alternate full-bleed and inset so a long case study has some
+   rhythm rather than a uniform column of screenshots. */
+.ed-case-gallery { margin-top: clamp(2.5rem, 7vh, 4.5rem); display: grid; gap: clamp(1rem, 3vh, 2rem); }
+
+.ed-plate { overflow: hidden; background: var(--paper-2, #e4e0d8); position: relative; }
+
+.ed-plate img { width: 100%; height: auto; display: block; }
+
+.ed-plate-caption {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.55rem;
+}
+
+@media (min-width: 1000px) {
+  .ed-case-gallery { grid-template-columns: repeat(6, 1fr); }
+  .ed-case-gallery figure:nth-child(3n + 1) { grid-column: 1 / -1; }
+  .ed-case-gallery figure:nth-child(3n + 2) { grid-column: 1 / 4; }
+  .ed-case-gallery figure:nth-child(3n + 3) { grid-column: 4 / -1; }
+}
+
+/* ==================== CV ====================
+   Reads as a printed document: one column, hairline rules, hanging dates.
+   The screen version and the print version are the same layout. */
+.ed-cv { max-width: 54rem; padding-block: clamp(3.5rem, 10vh, 6rem) clamp(3rem, 8vh, 5rem); }
+
+.ed-cv-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1.5rem 2rem;
+  align-items: end;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--ink);
+}
+
+.ed-cv-name {
+  font-family: var(--display);
+  font-variation-settings: 'wdth' 88;
+  font-size: clamp(2rem, 5.5vw, 3.5rem);
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+  font-weight: 800;
+}
+
+.ed-cv-role { font-size: 1.05rem; margin-top: 0.5rem; color: var(--grey-1); }
+
+.ed-cv-contact { display: flex; flex-direction: column; gap: 0.35rem; text-align: right; }
+
+.ed-cv-contact a { transition: color 140ms var(--ease); }
+.ed-cv-contact a:hover { color: var(--signal); }
+
+.ed-cv-section { padding-block: clamp(1.5rem, 4vh, 2.25rem); border-bottom: 1px solid var(--rule); }
+
+.ed-cv-section > h2 {
+  font-family: var(--mono);
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--grey-1);
+  margin-bottom: 1.1rem;
+}
+
+.ed-cv-entry {
+  display: grid;
+  grid-template-columns: minmax(0, 10rem) minmax(0, 1fr);
+  gap: 0.5rem 1.5rem;
+  padding-block: 0.9rem;
+}
+
+.ed-cv-entry + .ed-cv-entry { border-top: 1px solid var(--rule); }
+
+.ed-cv-entry-company { font-size: 1.05rem; font-weight: 500; letter-spacing: -0.015em; }
+.ed-cv-entry-role { color: var(--grey-1); font-size: 0.95rem; margin-top: 0.2rem; }
+
+.ed-cv-bullets { margin-top: 0.7rem; }
+
+.ed-cv-bullets li {
+  position: relative;
+  padding-left: 1.1rem;
+  margin-bottom: 0.4rem;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: #33302a;
+}
+
+.ed-cv-bullets li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.68em;
+  width: 5px;
+  height: 1px;
+  background: var(--signal);
+}
+
+/* `*emphasis*` markers from the profile data. */
+.ed-cv-bullets mark { background: none; color: var(--ink); font-weight: 600; }
+
+.ed-cv-tags { display: flex; flex-wrap: wrap; gap: 0.3rem 0.9rem; margin-top: 0.6rem; }
+.ed-cv-tags span { font-family: var(--mono); font-size: 0.6875rem; color: var(--grey-1); }
+
+.ed-cv-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: 1.5rem 2rem; }
+
+@media (max-width: 640px) {
+  .ed-cv-head { grid-template-columns: 1fr; }
+  .ed-cv-contact { text-align: left; }
+  .ed-cv-entry { grid-template-columns: 1fr; }
+}
+
+@media print {
+  .ed-assistant,
+  .ed-cv-download { display: none !important; }
+  .ed-root { background: #fff; }
+  .ed-cv { max-width: none; padding: 0; }
+  .ed-cv-section { break-inside: avoid; }
+  .ed-cv-entry { break-inside: avoid; }
+}
+
+/* ==================== BUTTONS ==================== */
+.ed-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border: 1px solid var(--ink);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  transition: background-color 160ms var(--ease), color 160ms var(--ease),
+              border-color 160ms var(--ease);
+}
+
+.ed-btn:hover, .ed-btn:focus-visible { background: var(--ink); color: var(--paper); }
+
+.ed-btn--solid { background: var(--ink); color: var(--paper); }
+.ed-btn--solid:hover, .ed-btn--solid:focus-visible {
+  background: var(--signal); border-color: var(--signal); color: #fff;
+}
+
+.ed-btn--danger { border-color: var(--signal); color: var(--signal); }
+.ed-btn--danger:hover { background: var(--signal); color: #fff; }
+
+/* ==================== ADMIN ====================
+   An internal tool, so it stays plain: same type and rules as the public
+   pages, but sized for dense forms rather than for reading. */
+.ed-admin { padding-block: clamp(3rem, 8vh, 5rem) clamp(4rem, 10vh, 7rem); }
+
+.ed-admin-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--ink);
+  margin-bottom: 2rem;
+}
+
+.ed-admin-title {
+  font-family: var(--display);
+  font-variation-settings: 'wdth' 86;
+  font-size: clamp(1.75rem, 4vw, 3rem);
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+  font-weight: 800;
+}
+
+.ed-admin-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+
+.ed-field { display: block; margin-bottom: 1.1rem; }
+
+.ed-field > span {
+  display: block;
+  font-family: var(--mono);
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--grey-1);
+  margin-bottom: 0.4rem;
+}
+
+.ed-input,
+.ed-textarea,
+.ed-select {
+  width: 100%;
+  background: transparent;
+  border: 1px solid var(--rule);
+  padding: 0.6rem 0.7rem;
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 140ms var(--ease);
+}
+
+.ed-textarea { min-height: 8rem; resize: vertical; font-family: var(--mono); font-size: 0.875rem; }
+.ed-input:focus, .ed-textarea:focus, .ed-select:focus { border-color: var(--ink); }
+
+.ed-admin-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.ed-admin-row-title { font-size: 1rem; letter-spacing: -0.015em; }
+
+.ed-admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 0 2rem; }
+
+.ed-admin-shell { min-height: 100svh; padding-block: 1rem 6rem; }
+
+.ed-label {
+  display: block;
+  font-family: var(--mono);
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--grey-1);
+  margin-bottom: 0.4rem;
+}
+
+.ed-input--title {
+  font-family: var(--display);
+  font-variation-settings: 'wdth' 90;
+  font-size: clamp(1.4rem, 3vw, 2.1rem);
+  letter-spacing: -0.03em;
+  font-weight: 700;
+  border: 0;
+  border-bottom: 1px solid var(--rule);
+  padding-inline: 0;
+}
+
+.ed-input--mono { font-family: var(--mono); font-size: 0.875rem; }
+
+.ed-input::placeholder, .ed-textarea::placeholder { color: var(--grey-2); }
+
+.ed-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.65rem;
+  border: 1px solid var(--rule);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background-color 160ms var(--ease), color 160ms var(--ease),
+              border-color 160ms var(--ease);
+}
+
+.ed-icon-btn:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+.ed-icon-btn--danger { color: var(--signal); border-color: var(--signal); }
+.ed-icon-btn--danger:hover { background: var(--signal); color: #fff; }
+
+.ed-icon-plain {
+  background: none;
+  border: 0;
+  color: var(--grey-1);
+  cursor: pointer;
+  transition: color 140ms var(--ease);
+}
+
+.ed-icon-plain:hover { color: var(--signal); }
+
+.ed-admin-subhead {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.ed-admin-panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.ed-tabs {
+  display: flex;
+  gap: 0;
+  width: fit-content;
+  margin-bottom: 2.5rem;
+  border: 1px solid var(--rule);
+}
+
+.ed-tab {
+  background: transparent;
+  border: 0;
+  border-right: 1px solid var(--rule);
+  color: var(--grey-1);
+  cursor: pointer;
+  transition: background-color 140ms var(--ease), color 140ms var(--ease);
+}
+
+.ed-tab:last-child { border-right: 0; }
+.ed-tab:hover { color: var(--ink); }
+.ed-tab.is-active { background: var(--ink); color: var(--paper); }
+
+.ed-empty {
+  text-align: center;
+  padding-block: 5rem;
+  border: 1px dashed var(--rule);
+}
+
+.ed-admin-statusbar {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: color-mix(in srgb, var(--paper) 92%, transparent);
+  backdrop-filter: blur(8px);
+  border-top: 1px solid var(--rule);
+  padding-block: 0.85rem;
+  z-index: 50;
+}
+
+.ed-admin-row {
+  display: block;
+  padding: 1.25rem 0;
+  border-bottom: 1px solid var(--rule);
+  transition: padding-left 200ms var(--ease);
+}
+
+.ed-admin-row:hover { padding-left: 0.6rem; }
+
+.ed-admin-row-title {
+  font-family: var(--display);
+  font-variation-settings: 'wdth' 90;
+  font-size: clamp(1.2rem, 2.4vw, 1.9rem);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  font-weight: 700;
+  transition: color 140ms var(--ease);
+}
+
+.ed-admin-row:hover .ed-admin-row-title { color: var(--signal); }
+
+.ed-thumb { border: 1px solid var(--rule); background: var(--paper-2, #e4e0d8); }
+
+.ed-thumb-tag {
+  background: color-mix(in srgb, var(--ink) 78%, transparent);
+  color: var(--paper);
+  padding: 0.2rem 0.4rem;
+}
+
+.ed-thumb-remove {
+  background: var(--signal);
+  color: #fff;
+  border: 0;
+  padding: 0.3rem;
+  cursor: pointer;
+  line-height: 0;
+}
+
+.ed-pill {
+  font-family: var(--mono);
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 0.2rem 0.45rem;
+}
+
+.ed-hairline { height: 1px; background: var(--rule); }
+.ed-spin { color: var(--signal); }
+.ed-checkbox { accent-color: var(--signal); }
+
+.ed-gate {
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--gutter);
+}
+
+.ed-editor-preview { border: 1px solid var(--rule); background: var(--paper); }
+.ed-editor-foot { border-top: 1px solid var(--rule); }
+
+.ed-gate-card {
+  width: min(28rem, 100%);
+  border: 1px solid var(--rule);
+  padding: clamp(1.75rem, 5vw, 3rem);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* ==================== ASSISTANT ==================== */
+.ed-assistant { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 70; }
+
+.ed-assistant-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.1rem;
+  background: var(--ink);
+  color: var(--paper);
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  transition: background-color 160ms var(--ease), color 160ms var(--ease);
+}
+
+.ed-assistant-toggle:hover { background: var(--signal); border-color: var(--signal); color: #fff; }
+
+.ed-assistant-panel {
+  position: absolute;
+  bottom: calc(100% + 0.6rem);
+  right: 0;
+  width: min(23rem, calc(100vw - 3rem));
+  height: min(30rem, calc(100svh - 8rem));
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.ed-assistant-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.ed-assistant-close {
+  background: none;
+  border: 0;
+  cursor: pointer;
+  color: var(--grey-1);
+  padding: 0.25rem;
+  transition: color 140ms var(--ease);
+}
+
+.ed-assistant-close:hover { color: var(--signal); }
+
+.ed-assistant-log {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.ed-msg { font-size: 0.875rem; line-height: 1.5; max-width: 92%; }
+
+.ed-msg--user {
+  align-self: flex-end;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 0.5rem 0.75rem;
+}
+
+.ed-msg--assistant { align-self: flex-start; color: var(--ink); }
+
+.ed-msg--error { align-self: flex-start; color: var(--signal); }
+
+.ed-assistant-form {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border-top: 1px solid var(--rule);
+}
+
+.ed-assistant-input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: 1px solid var(--rule);
+  padding: 0.55rem 0.7rem;
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 1rem; /* 16px keeps iOS from zooming the viewport on focus */
+  outline: none;
+  transition: border-color 140ms var(--ease);
+}
+
+.ed-assistant-input:focus { border-color: var(--ink); }
+
+.ed-assistant-send {
+  background: var(--ink);
+  color: var(--paper);
+  border: 0;
+  padding: 0 0.9rem;
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  transition: background-color 160ms var(--ease);
+}
+
+.ed-assistant-send:hover:not(:disabled) { background: var(--signal); }
+.ed-assistant-send:disabled { opacity: 0.4; cursor: default; }
+
+/* ==================== CONTACT ==================== */
+.ed-contact {
+  position: relative;
+  padding-block: clamp(5rem, 15vh, 11rem) clamp(2rem, 5vh, 4rem);
+  overflow: hidden;
+}
+
+.ed-contact-mail {
+  display: block;
+  font-family: var(--display);
+  font-variation-settings: 'wdth' 82;
+  font-size: clamp(2.2rem, 9.5vw, 9rem);
+  line-height: 0.88;
+  letter-spacing: -0.05em;
+  text-transform: uppercase;
+  font-weight: 800;
+  margin: clamp(1.5rem, 4vh, 3rem) 0;
+  transition: color 260ms var(--ease);
+  word-break: break-word;
+}
+
+.ed-contact-mail:hover, .ed-contact-mail:focus-visible { color: var(--signal); }
+
+.ed-contact-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1.5rem 2rem;
+  flex-wrap: wrap;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--rule);
+}
+
+.ed-socials { display: flex; gap: 1.75rem; flex-wrap: wrap; }
+
+.ed-socials a { position: relative; padding-bottom: 2px; transition: color 140ms var(--ease); }
+.ed-socials a::after {
+  content: '';
+  position: absolute; left: 0; bottom: 0;
+  width: 100%; height: 1px; background: currentColor;
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 320ms var(--ease);
+}
+.ed-socials a:hover, .ed-socials a:focus-visible { color: var(--signal); }
+.ed-socials a:hover::after, .ed-socials a:focus-visible::after { transform: scaleX(1); }
+
+/* ==================== SCROLL ENHANCEMENT ====================
+   Progressive only. Everything above is already visible and correctly placed;
+   these rules just add depth where the browser supports scroll timelines. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .ed-spread-figure img {
+      animation: ed-parallax linear both;
+      animation-timeline: view();
+      animation-range: entry 0% exit 100%;
+    }
+
+    @keyframes ed-parallax {
+      from { transform: scale(1.14) translateY(-2.5%); }
+      to   { transform: scale(1.14) translateY(2.5%); }
+    }
+
+    /* Hover still wins over the parallax keyframes. */
+    .ed-spread:hover .ed-spread-figure img { animation-play-state: paused; }
+
+    .ed-night-marker h2 {
+      animation: ed-drift linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 45%;
+    }
+
+    @keyframes ed-drift {
+      from { transform: translateX(-3vw); opacity: 0.55; }
+      to   { transform: translateX(0); opacity: 1; }
+    }
+  }
+}
+
+/* ==================== A11Y ==================== */
+.ed-root :focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+.ed-skip {
+  position: absolute; left: -9999px; top: 0; z-index: 100;
+  background: var(--ink); color: var(--paper);
+  padding: 0.75rem 1.25rem;
+  font-family: var(--mono); font-size: 0.75rem;
+}
+.ed-skip:focus { left: 1rem; top: 1rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ed-root *, .ed-root *::before, .ed-root *::after {
+    transition-duration: 0.01ms !important;
+    animation: none !important;
+  }
+  .ed-spread-figure img { transform: none; }
+}

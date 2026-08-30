@@ -1,116 +1,93 @@
 import { ImageResponse } from 'next/og';
+import { OG, FAMILY, loadOgFonts } from '../lib/og';
 
-export const alt = 'Christian del Río - Software Engineer & Indie Hacker';
-export const size = {
-    width: 1200,
-    height: 600,
-};
+export const alt = 'Christian Del Río — Engineer & Builder';
+export const size = { width: 1200, height: 600 };
 export const contentType = 'image/png';
 
 export default async function Image() {
-    const accentColor = '#ccff00';
-    const accentGlow = 'rgba(204, 255, 0, 0.15)';
+  const fonts = await loadOgFonts();
 
-    return new ImageResponse(
-        (
-            <div
-                style={{
-                    background: '#0a0a0a',
-                    width: '100%',
-                    height: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontFamily: 'sans-serif',
-                    position: 'relative',
-                    overflow: 'hidden',
-                }}
-            >
-                {/* Background */}
-                <div
-                    style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        background: 'linear-gradient(to bottom right, #1a1a1a, #050505)',
-                    }}
-                />
+  return new ImageResponse(
+    (
+      <div
+        style={{
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          background: OG.paper,
+          color: OG.ink,
+          padding: '44px 52px',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            paddingBottom: 20,
+            borderBottom: `2px solid ${OG.rule}`,
+            fontFamily: FAMILY.mono,
+            fontSize: 19,
+            letterSpacing: '0.14em',
+            textTransform: 'uppercase',
+            color: OG.grey,
+          }}
+        >
+          <span>Christian Del Río</span>
+          <span>iamdelrio.com</span>
+        </div>
 
-                {/* Accent Glow */}
-                <div
-                    style={{
-                        position: 'absolute',
-                        top: '50%',
-                        left: '50%',
-                        transform: 'translate(-50%, -50%)',
-                        width: '500px',
-                        height: '500px',
-                        background: `radial-gradient(circle, ${accentGlow} 0%, transparent 70%)`,
-                        opacity: 0.6,
-                    }}
-                />
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <div
+            style={{
+              display: 'flex',
+              fontFamily: FAMILY.display,
+              fontSize: 132,
+              lineHeight: 0.94,
+              letterSpacing: '-0.05em',
+              textTransform: 'uppercase',
+            }}
+          >
+            Christian
+          </div>
+          <div
+            style={{
+              display: 'flex',
+              fontFamily: FAMILY.display,
+              fontSize: 132,
+              lineHeight: 0.94,
+              letterSpacing: '-0.05em',
+              textTransform: 'uppercase',
+              marginLeft: 64,
+            }}
+          >
+            <span style={{ color: OG.grey }}>Del&nbsp;</span>
+            <span style={{ color: OG.signal }}>Río</span>
+          </div>
+        </div>
 
-                {/* Corner decorations */}
-                <div style={{ position: 'absolute', top: 40, left: 40, width: 25, height: 2, background: accentColor }} />
-                <div style={{ position: 'absolute', top: 40, left: 40, width: 2, height: 25, background: accentColor }} />
-                <div style={{ position: 'absolute', bottom: 40, right: 40, width: 25, height: 2, background: accentColor }} />
-                <div style={{ position: 'absolute', bottom: 40, right: 40, width: 2, height: 25, background: accentColor }} />
-
-                {/* Name */}
-                <div style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    gap: 0,
-                    transform: 'translateY(-10px)',
-                }}>
-                    <div style={{
-                        fontSize: 110,
-                        fontWeight: 900,
-                        color: '#ededed',
-                        textTransform: 'uppercase',
-                        lineHeight: 0.85,
-                        letterSpacing: '-0.06em',
-                    }}>
-                        CHRISTIAN
-                    </div>
-                    <div style={{
-                        fontSize: 110,
-                        fontWeight: 900,
-                        color: '#ededed',
-                        textTransform: 'uppercase',
-                        lineHeight: 0.85,
-                        letterSpacing: '-0.06em',
-                    }}>
-                        DEL RÍO
-                    </div>
-                </div>
-
-                {/* Subtitle */}
-                <div
-                    style={{
-                        display: 'flex',
-                        fontSize: 22,
-                        marginTop: 35,
-                        color: '#888',
-                        letterSpacing: '0.35em',
-                        textTransform: 'uppercase',
-                        fontWeight: 600,
-                        alignItems: 'center',
-                        gap: 16,
-                    }}
-                >
-                    <span>Engineer</span>
-                    <div style={{ width: 5, height: 5, background: accentColor, borderRadius: '50%' }} />
-                    <span>Builder</span>
-                </div>
-            </div>
-        ),
-        {
-            ...size,
-        }
-    );
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            paddingTop: 20,
+            borderTop: `2px solid ${OG.rule}`,
+            fontFamily: FAMILY.mono,
+            fontSize: 19,
+            letterSpacing: '0.14em',
+            textTransform: 'uppercase',
+            color: OG.grey,
+          }}
+        >
+          <span>Engineer · Indie hacker</span>
+          <span style={{ color: OG.signal }}>Available</span>
+        </div>
+      </div>
+    ),
+    { ...size, fonts }
+  );
 }
