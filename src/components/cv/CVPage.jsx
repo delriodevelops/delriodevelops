@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { identity, socials, companies, products, about } from '../../data/profile';
+import { identity, socials, companies, products, about, skillsCategories } from '../../data/profile';
 import { formatDuration } from '../../lib/dates';
 
 /**
@@ -15,13 +15,13 @@ import { formatDuration } from '../../lib/dates';
 
 const COPY = {
   en: {
-    speak: 'Languages', code: 'I code', use: 'I use', products: 'My products',
+    speak: 'Languages', code: 'I code', ai: 'AI', use: 'I use', products: 'My products',
     about: 'About', experience: 'Experience', technologies: 'Stack',
     present: 'Present', download: 'Download PDF', print: 'Print', back: 'Back to site',
     role: 'Curriculum vitae',
   },
   es: {
-    speak: 'Idiomas', code: 'Programo', use: 'Utilizo', products: 'Mis productos',
+    speak: 'Idiomas', code: 'Programo', ai: 'IA', use: 'Utilizo', products: 'Mis productos',
     about: 'Sobre mí', experience: 'Experiencia', technologies: 'Tecnologías',
     present: 'Actualidad', download: 'Descargar PDF', print: 'Imprimir', back: 'Volver al sitio',
     role: 'Currículum',
@@ -34,7 +34,8 @@ const PDF = {
 };
 
 const CODE_SKILLS = ['JavaScript', 'TypeScript', 'React', 'Next.js', 'Vue', 'Angular', 'Python', 'Tailwind'];
-const TOOL_SKILLS = ['Git', 'GitHub', 'GitLab', 'npm', 'Node', 'Docker', 'PostgreSQL', 'Firebase'];
+const TOOL_SKILLS = ['Git', 'GitHub', 'GitLab', 'npm', 'Node', 'Docker', 'PostgreSQL', 'Firebase', 'Cloudflare Workers'];
+const AI_SKILLS = skillsCategories.find((category) => category.id === 'ai').tools;
 
 /** Renders `*emphasis*` markers from the profile data. */
 function Highlighted({ text }) {
@@ -135,26 +136,33 @@ export default function CVPage({ lang = 'en' }) {
         </Group>
 
         <Group title={t.products}>
-          <div className="ed-cv-cols">
-            {products.map((product) => (
+          {products.map((product) => (
+            <div key={product.name} style={{ paddingBlock: '0.4rem', maxWidth: '72ch' }}>
               <a
-                key={product.name}
                 href={product.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="ed-cv-entry-company"
-                style={{ display: 'block', paddingBlock: '0.3rem' }}
               >
                 {product.name} <span className="ed-mono">↗</span>
               </a>
-            ))}
-          </div>
+              {product.description && (
+                <p className="ed-cv-entry-role" style={{ lineHeight: 1.5 }}>{product.description[lang]}</p>
+              )}
+            </div>
+          ))}
         </Group>
 
         <div className="ed-cv-cols" style={{ paddingTop: '1.5rem' }}>
           <Group title={t.code}>
             <div className="ed-cv-tags">
               {CODE_SKILLS.map((skill) => <span key={skill}>{skill}</span>)}
+            </div>
+          </Group>
+
+          <Group title={t.ai}>
+            <div className="ed-cv-tags">
+              {AI_SKILLS.map((skill) => <span key={skill}>{skill}</span>)}
             </div>
           </Group>
 

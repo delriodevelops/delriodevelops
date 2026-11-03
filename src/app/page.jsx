@@ -57,7 +57,7 @@ export default async function Page() {
     url: identity.site,
     email: `mailto:${identity.email}`,
     jobTitle: identity.role.en,
-    address: { '@type': 'PostalAddress', addressLocality: 'Málaga', addressCountry: 'ES' },
+    address: { '@type': 'PostalAddress', addressLocality: 'Madrid', addressCountry: 'ES' },
     sameAs: [socials.linkedin, socials.github, socials.twitter],
     worksFor: { '@type': 'Organization', name: companies[0].company },
   };

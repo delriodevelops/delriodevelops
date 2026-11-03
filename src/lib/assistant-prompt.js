@@ -81,7 +81,9 @@ Tech Stack:
 ${formatSkills()}
 
 Products built independently:
-${products.map((product) => `- ${product.name} (${product.url})`).join('\n')}
+${products
+  .map((product) => `- ${product.name} (${product.url})${product.description ? `: ${product.description.en}` : ''}`)
+  .join('\n')}
 
 Work Approach:
 Builds complete products from scratch across every phase: ideation, development, deployment and monetisation. Interested in emerging technologies, especially AI.

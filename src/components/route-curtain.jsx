@@ -86,6 +86,7 @@ export default function RouteCurtain() {
   return (
     <div
       ref={rootRef}
+      className="route-curtain"
       aria-hidden="true"
       style={{
         position: 'fixed',

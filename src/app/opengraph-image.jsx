@@ -38,7 +38,7 @@ export default async function Image() {
           }}
         >
           <span>Christian Del Río</span>
-          <span>Málaga · 36.7°N</span>
+          <span>Madrid · 40.4°N</span>
         </div>
 
         {/* The name, set the way the site cover sets it */}

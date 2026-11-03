@@ -1141,12 +1141,22 @@ body:has(.ed-root) { background: var(--paper, #efece5); }
 
 @media print {
   .ed-assistant,
+  .route-curtain,
   .ed-cv-download { display: none !important; }
-  .ed-root { background: #fff; }
-  .ed-cv { max-width: none; padding: 0; }
-  .ed-cv-section { break-inside: avoid; }
-  .ed-cv-entry { break-inside: avoid; }
+  html, body, .ed-root { background: #fff; }
+  .ed-cv { max-width: none; padding: 0; zoom: 0.74; }
+  /* Only bullets and headings resist breaks: avoiding a break inside a whole
+     section or job entry left half-empty pages before every long one. */
+  .ed-cv-section { padding-block: 1rem; }
+  .ed-cv-section > h2,
+  .ed-cv-entry-company,
+  .ed-cv-entry-role { break-after: avoid; }
+  .ed-cv-entry { padding-block: 0.6rem; }
+  .ed-cv-bullets li,
+  .ed-cv-tags { break-inside: avoid; margin-bottom: 0.15rem; }
 }
+
+@page { margin: 14mm 16mm; }
 
 /* ==================== BUTTONS ==================== */
 .ed-btn {

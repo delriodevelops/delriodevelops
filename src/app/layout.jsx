@@ -53,7 +53,7 @@ export const metadata = {
     template: '%s',
   },
   description:
-    'Full Stack Engineer & Product Builder. Crafting monumental digital experiences with AI and modern web tech. Specializing in SaaS, interactive design, and innovative solutions. Based in Málaga.',
+    'Full Stack Engineer & Product Builder. Crafting monumental digital experiences with AI and modern web tech. Specializing in SaaS, interactive design, and innovative solutions. Based in Madrid.',
   keywords: [
     'Full Stack Developer',
     'Software Engineer',
@@ -62,7 +62,7 @@ export const metadata = {
     'React',
     'Next.js',
     'Creative Developer',
-    'Málaga',
+    'Madrid',
     'Portfolio',
     'SaaS',
   ],
