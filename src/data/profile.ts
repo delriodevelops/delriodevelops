@@ -209,8 +209,8 @@ export const products: Product[] = [
     name: 'MotorSportive',
     url: 'https://motorsportive.com',
     description: {
-      en: 'Founder. Autonomous AI newsroom for Formula 1: an editor agent assigns stories to AI journalists with their own voice, a pipeline publishes every 15 minutes and posts to social media, with human oversight from an admin console. Next.js, Cloudflare Workers, Firestore, Stripe.',
-      es: 'Fundador. Redacción autónoma de Fórmula 1 con IA: un agente editor asigna noticias a periodistas IA con voz propia, un pipeline publica cada 15 minutos y lo difunde en redes, con supervisión humana desde un panel de control. Next.js, Cloudflare Workers, Firestore, Stripe.',
+      en: 'Founder. Autonomous AI newsroom for Formula 1: an editor agent assigns stories to AI journalists with their own voice, a pipeline publishes every 15 minutes and posts to social media, with human oversight from an admin console. Since January 2026: 33.1M impressions and 34.2K followers on X, 11.8K web visitors and 19.1K page views. Next.js, Cloudflare Workers, Firestore, Stripe.',
+      es: 'Fundador. Redacción autónoma de Fórmula 1 con IA: un agente editor asigna noticias a periodistas IA con voz propia, un pipeline publica cada 15 minutos y lo difunde en redes, con supervisión humana desde un panel de control. Desde enero de 2026: 33,1M de impresiones y 34,2K seguidores en X, 11,8K visitantes web y 19,1K páginas vistas. Next.js, Cloudflare Workers, Firestore, Stripe.',
     },
   },
   {
@@ -241,6 +241,6 @@ export const products: Product[] = [
 ];
 
 export const about: Localized = {
-  en: 'Full stack engineer with 4+ years shipping TypeScript products, from a business-critical lending platform at Banco Santander to a generative-AI assistant for a private-equity client. Outside work I found and run my own AI products end to end — MotorSportive, an autonomous multi-agent F1 newsroom, is the largest. I want to work on agentic AI systems that reach real users.',
-  es: 'Ingeniero full stack con más de 4 años lanzando productos en TypeScript, desde una plataforma crítica de préstamos en Banco Santander hasta un asistente de IA generativa para un fondo de capital privado. Fuera del trabajo fundo y llevo de principio a fin mis propios productos con IA; el mayor es MotorSportive, una redacción de F1 autónoma con varios agentes. Quiero trabajar en sistemas de IA agéntica que lleguen a usuarios reales.',
+  en: 'Full stack engineer with 4+ years shipping TypeScript products, from a business-critical lending platform at Banco Santander to a generative-AI assistant for a private-equity client. Outside work I found and run my own AI products end to end — MotorSportive, an autonomous multi-agent F1 newsroom with 33M+ impressions on X, is the largest. I want to work on agentic AI systems that reach real users.',
+  es: 'Ingeniero full stack con más de 4 años lanzando productos en TypeScript, desde una plataforma crítica de préstamos en Banco Santander hasta un asistente de IA generativa para un fondo de capital privado. Fuera del trabajo fundo y llevo de principio a fin mis propios productos con IA; el mayor es MotorSportive, una redacción de F1 autónoma con varios agentes y más de 33M de impresiones en X. Quiero trabajar en sistemas de IA agéntica que lleguen a usuarios reales.',
 };
