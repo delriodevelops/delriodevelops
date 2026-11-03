@@ -56,6 +56,16 @@ const REEL = {
   shots: ['Fainancial', 'MeshMind', 'CitySwipe', 'Baitme', 'Clyme', 'DR.NEWS', 'My Dog Food', 'Escudo Leal'],
 };
 
+// Featured film: 3.1 s of one continuous camera move from the MeshMind launch film (the canvas
+// runs a flow, then the camera pulls out to the browser), scrubbed by the scroll. Its two lines
+// swap halfway through; the button goes to the case page, where the whole film plays with sound
+const FEATURE = {
+  name: 'MeshMind',
+  src: '/meshmind/scroll.mp4',
+  poster: '/meshmind/1.webp',
+  lines: ['Wire AI models into flows.', 'Right in your browser.'],
+};
+
 const heroLetters = ['D', 'E', 'L', 'R', 'Í', 'O'];
 const panelTones = ['bone', 'red', 'ink'];
 
@@ -66,7 +76,7 @@ const INTRO_SEEN_KEY = 'gb-intro-seen';
  * Home. Data is fetched on the server (page.jsx) and passed in, so the page is
  * crawlable and never flashes placeholder content.
  */
-export default function Home({ projects: rawProjects = [], posts = [], totalProjects = 0 }) {
+export default function Home({ projects: rawProjects = [], posts = [], totalProjects = 0, featureHref = '/projects/meshmind' }) {
   const rootRef = useRef(null);
   const lenisRef = useLenis({ startStopped: true });
   const clock = useLocalClock();
@@ -295,6 +305,39 @@ export default function Home({ projects: rawProjects = [], posts = [], totalProj
             </div>
           </div>
         </section>
+
+        {/* ==================== FEATURED FILM ==================== */}
+        {/* scene: one continuous camera move from the MeshMind launch film, its playhead on the scrollbar */}
+        <div className="gb-scene-wrap gb-feature-wrap">
+          <section className="gb-feature gb-scene" aria-label={`${FEATURE.name}, featured`}>
+            <video
+              className="gb-feature-video"
+              src={FEATURE.src}
+              poster={FEATURE.poster}
+              muted
+              playsInline
+              preload="auto"
+              aria-label={`${FEATURE.name} — the canvas running a flow, then the app in its browser`}
+            />
+            <div className="gb-feature-shade" aria-hidden="true" />
+            <p className="gb-feature-kicker gb-mono">(Featured) — {FEATURE.name}</p>
+            <div className="gb-feature-lines">
+              {FEATURE.lines.map((line) => (
+                <p key={line} className="gb-feature-line gb-cx">
+                  {line}
+                </p>
+              ))}
+            </div>
+            <div className="gb-feature-foot">
+              <Link href={featureHref} className="gb-btn gb-feature-cta">
+                Watch the film ↗
+              </Link>
+              <span className="gb-feature-tc gb-mono" aria-hidden="true">
+                00:00:00:00
+              </span>
+            </div>
+          </section>
+        </div>
 
         {/* ==================== WORK ==================== */}
         <div id="work" className="gb-work-wrap" data-section="work">

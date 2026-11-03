@@ -1,21 +1,9 @@
 import HomeContent from './page-content';
 import { getPosts, getProjects } from '../lib/services/firestore-rest';
 import { identity, socials, companies } from '../data/profile';
+import { FALLBACK_PROJECTS } from '../data/fallback-projects';
 
 export const revalidate = 300;
-
-/**
- * Shown when Firestore is unreachable or not configured (local dev without
- * env vars, or a transient outage) so the page never renders an empty shell.
- * These are real, live products — keep them in sync with Firestore.
- */
-const FALLBACK_PROJECTS = [
-  { id: 'motorsportive', name: 'Motorsportive', description: 'A Formula 1 publication — breaking news, race analysis and live championship standings, with an editorial desk and a shop.', image: '/motorsportive.webp', tags: ['Editorial', 'Publishing', 'SaaS'], href: 'https://motorsportive.com' },
-  { id: 'fainancial', name: 'Fainancial', description: 'AI-powered earnings call analysis. Turns a 60-minute call into the three things that moved the number.', image: '/fainancial/1.webp', tags: ['AI', 'Finance', 'SaaS'], href: 'https://fainancial.app/' },
-  { id: 'meshmind', name: 'MeshMind', description: 'A visual chain-of-thought builder. Draw the reasoning, watch the model follow it.', image: '/meshmind/1.webp', tags: ['AI', 'Productivity'], href: 'https://meshmind.vercel.app/' },
-  { id: 'cityswipe', name: 'CitySwipe', description: 'Swipe through cities until one fits. Relocation as a matching problem.', image: '/cityswipe.webp', tags: ['Mobile', 'AI'], href: 'https://cityswipe.city' },
-  { id: 'baitme', name: 'Baitme', description: 'A/B test your thumbnails before you publish, not after the CTR disappoints you.', image: '/baitme/1.webp', tags: ['Creator Tools', 'Analytics'], href: 'https://baitme.iamdelrio.com/' },
-];
 
 export default async function Page() {
   const [allProjects, allPosts] = await Promise.all([getProjects(), getPosts()]);
@@ -38,6 +26,10 @@ export default async function Page() {
     liveUrl: project.href,
     featured: project.featured ?? false,
   }));
+
+  // The featured film's button goes to MeshMind's case page, wherever its entry lives
+  const mesh = source.find((project) => /meshmind/i.test(project.name || ''));
+  const featureHref = `/projects/${mesh?.id || 'meshmind'}`;
 
   const posts = allPosts.slice(0, 4).map((post) => ({
     slug: post.slug,
@@ -68,7 +60,7 @@ export default async function Page() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <HomeContent projects={projects} posts={posts} totalProjects={source.length} />
+      <HomeContent projects={projects} posts={posts} totalProjects={source.length} featureHref={featureHref} />
     </>
   );
 }

@@ -2,6 +2,8 @@
 # Builds public/reel/showreel.mp4 from project screenshots: slow camera moves per shot,
 # xfade cuts, a light grade and film grain. The home showreel scrubs this file with the
 # scroll, so it is encoded with a short GOP (frequent keyframes) for smooth seeking.
+# A shot can also be a clip of a project film, written file.mp4@start (seconds): it keeps
+# its own camera moves, so it gets no push-in.
 #
 # Usage: bash scripts/make-reel.sh   (needs ffmpeg with WebP decoding on PATH)
 # Shot order must match REEL.shots in src/app/page-content.jsx.
@@ -10,7 +12,7 @@ cd "$(dirname "$0")/../public"
 
 SHOTS=(
   fainancial/1.webp
-  meshmind/3.webp
+  meshmind/film.mp4@6.55  # the wires drawn, the signal through the flow, the pull-out to the browser
   cityswipe.webp
   baitme/1.webp
   clyme.webp
@@ -24,10 +26,20 @@ SHOT_FRAMES=60   # 2.5s per shot
 XFADE=0.5        # seconds of overlap between shots
 TRANSITIONS=(fadeblack slideleft wipeup circleopen fadeblack slideright wipedown fade)
 
+shot_len=$(awk "BEGIN{print ${SHOT_FRAMES}/${FPS}}")
+
 inputs=()
 filters=""
 for i in "${!SHOTS[@]}"; do
-  inputs+=(-i "${SHOTS[$i]}")
+  shot=${SHOTS[$i]}
+  if [[ $shot == *.mp4@* ]]; then
+    inputs+=(-ss "${shot#*@}" -t "$shot_len" -i "${shot%@*}")
+    filters+="[$i:v]fps=${FPS},scale=1280:720:force_original_aspect_ratio=increase,crop=1280:720,"
+    filters+="trim=end_frame=${SHOT_FRAMES},setpts=PTS-STARTPTS,"
+    filters+="eq=contrast=1.08:saturation=0.85,setsar=1,format=yuv420p[v$i];"
+    continue
+  fi
+  inputs+=(-i "$shot")
   # alternate push-in and pull-out, drifting toward a different corner each shot
   if (( i % 2 == 0 )); then
     zoom="min(1+0.0025*on,1.15)"
@@ -46,7 +58,6 @@ for i in "${!SHOTS[@]}"; do
 done
 
 # chain the shots with crossfades
-shot_len=$(awk "BEGIN{print ${SHOT_FRAMES}/${FPS}}")
 prev="v0"
 for (( i=1; i<${#SHOTS[@]}; i++ )); do
   offset=$(awk "BEGIN{print ${i}*(${shot_len}-${XFADE})}")

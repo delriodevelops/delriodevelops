@@ -1,17 +1,25 @@
 import { notFound } from 'next/navigation';
 import ProjectDetailContent from './page-content';
 import { getProjectById, getProjects } from '../../../lib/services/firestore-rest';
+import { FALLBACK_PROJECTS, fallbackProject } from '../../../data/fallback-projects';
 
 export const revalidate = 300;
 
-export async function generateStaticParams() {
+// Without Firestore the case pages still render, from the fallback entries
+const loadProjects = async () => {
   const projects = await getProjects();
+  return projects.length > 0 ? projects : FALLBACK_PROJECTS;
+};
+const loadProject = async (id) => (await getProjectById(id)) || fallbackProject(id);
+
+export async function generateStaticParams() {
+  const projects = await loadProjects();
   return projects.map((project) => ({ id: project.id }));
 }
 
 export async function generateMetadata({ params }) {
   const { id } = await params;
-  const project = await getProjectById(id);
+  const project = await loadProject(id);
 
   if (!project) return { title: 'Project not found | Christian Del Río' };
 
@@ -28,7 +36,7 @@ export async function generateMetadata({ params }) {
 
 export default async function Page({ params }) {
   const { id } = await params;
-  const [project, all] = await Promise.all([getProjectById(id), getProjects()]);
+  const [project, all] = await Promise.all([loadProject(id), loadProjects()]);
 
   if (!project) notFound();
 

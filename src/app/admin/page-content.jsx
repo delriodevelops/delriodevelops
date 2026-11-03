@@ -67,6 +67,8 @@ export default function AdminDashboard() {
         description: '',
         image: '/cityswipe.webp',
         images: [], // Gallery images
+        video: '', // A film shown in place of the cover on the case page
+        videoPoster: '',
         href: '',
         tags: [],
         type: 'Product',
@@ -183,6 +185,8 @@ export default function AdminDashboard() {
             description: '',
             image: '/cityswipe.webp',
             images: [],
+            video: '',
+            videoPoster: '',
             href: '',
             tags: [],
             type: 'Product',
@@ -213,6 +217,8 @@ export default function AdminDashboard() {
             description: project.description,
             image: project.image,
             images: project.images || [],
+            video: project.video || '',
+            videoPoster: project.videoPoster || '',
             href: project.href,
             tags: project.tags || [],
             type: project.type || 'Product',
@@ -730,6 +736,30 @@ export default function AdminDashboard() {
                                     <p className="ed-mono mt-2">
                                         You can select multiple images at once. Max 5MB each.
                                     </p>
+                                </div>
+
+                                {/* Film: shown in place of the cover on the case page, with a play button */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="ed-label">Film</label>
+                                        <input
+                                            type="text"
+                                            className="ed-input"
+                                            placeholder="/project/film.mp4"
+                                            value={projectForm.video}
+                                            onChange={(e) => setProjectForm({ ...projectForm, video: e.target.value })}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="ed-label">Film poster</label>
+                                        <input
+                                            type="text"
+                                            className="ed-input"
+                                            placeholder="/project/film-poster.webp"
+                                            value={projectForm.videoPoster}
+                                            onChange={(e) => setProjectForm({ ...projectForm, videoPoster: e.target.value })}
+                                        />
+                                    </div>
                                 </div>
 
                                 <div>

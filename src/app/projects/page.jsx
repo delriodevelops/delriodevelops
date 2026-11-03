@@ -1,5 +1,6 @@
 import ProjectsPageContent from './page-content';
 import { getProjects } from '../../lib/services/firestore-rest';
+import { FALLBACK_PROJECTS } from '../../data/fallback-projects';
 
 export const revalidate = 300;
 
@@ -12,7 +13,8 @@ export const metadata = {
 };
 
 export default async function Page() {
-  const all = await getProjects();
+  const fetched = await getProjects();
+  const all = fetched.length > 0 ? fetched : FALLBACK_PROJECTS;
 
   const projects = all
     .map((project, index) => ({

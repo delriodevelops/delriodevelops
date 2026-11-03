@@ -143,6 +143,30 @@ export function initGridbreakMotion(root, { onSection, forceMotion = false } = {
         });
       };
 
+      // A video scrubbed by the scroll is loaded whole into memory first. The hosting answers
+      // range requests with the full file and no Accept-Ranges, and then Chrome will not seek
+      // the video at all: it stays on its first frame. A blob URL can always be sought
+      const makeSeekable = (video) => {
+        const src = video.getAttribute('src');
+        if (!src || src.startsWith('blob:')) return;
+        let url = null;
+        let cancelled = false;
+        fetch(src)
+          .then((res) => (res.ok ? res.blob() : null))
+          .then((blob) => {
+            if (!blob || cancelled) return;
+            url = URL.createObjectURL(blob);
+            video.src = url;
+          })
+          .catch(() => {});
+        cleanups.push(() => {
+          cancelled = true;
+          if (!url) return;
+          video.src = src;
+          URL.revokeObjectURL(url);
+        });
+      };
+
       // ---------- hero: letters fall like bars, grid swallows the red ----------
       const hero = q('.gb-hero')[0];
       const heroWrap = q('.gb-hero-wrap')[0];
@@ -347,11 +371,56 @@ export function initGridbreakMotion(root, { onSection, forceMotion = false } = {
         });
       }
 
+      // ---------- featured film: one camera move of a launch film, the scrollbar is its playhead ----------
+      const featureWrap = q('.gb-feature-wrap')[0];
+      const featureVideo = q('.gb-feature-video')[0];
+      if (featureWrap && featureVideo) {
+        makeSeekable(featureVideo);
+        const featureLength = () => (featureVideo.duration > 0 ? featureVideo.duration : 3.1);
+        stickyRun(featureWrap, () => window.innerHeight * 2.2);
+
+        const featureTc = q('.gb-feature-tc')[0];
+        const pad = (n) => String(n).padStart(2, '0');
+        const head = { t: 0 };
+        let lastSeek = -1;
+        const seek = () => {
+          const t = Math.min(head.t, featureLength() - 0.04);
+          // seeking is expensive: skip moves of less than a frame (the clip runs at 30 fps)
+          if (featureVideo.readyState >= 1 && Math.abs(t - lastSeek) > 1 / 60) {
+            featureVideo.currentTime = t;
+            lastSeek = t;
+          }
+          const f = Math.round(t * 30);
+          if (featureTc) featureTc.textContent = `00:00:${pad(Math.floor(f / 30))}:${pad(f % 30)}`;
+        };
+
+        // the two lines share one masked slot: the first leaves as the camera starts to pull out
+        const [lineA, lineB] = q('.gb-feature-line');
+        const tl = gsap.timeline({
+          scrollTrigger: { trigger: featureWrap, start: 'top top', end: 'bottom bottom', scrub: 1, invalidateOnRefresh: true },
+        });
+        tl.fromTo(head, { t: 0 }, { t: () => featureLength(), duration: 1, ease: 'none', onUpdate: seek }, 0);
+        if (lineA) {
+          tl.fromTo(lineA, { yPercent: 110 }, { yPercent: 0, duration: 0.14, ease: 'power3.out' }, 0.04).to(
+            lineA,
+            { yPercent: -110, duration: 0.1, ease: 'power3.in' },
+            0.5
+          );
+        }
+        if (lineB) tl.fromTo(lineB, { yPercent: 110 }, { yPercent: 0, duration: 0.14, ease: 'power3.out' }, 0.58);
+        tl.fromTo(q('.gb-feature-cta'), { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: 0.12, ease: 'power2.out' }, 0.8);
+
+        const onFeatureMeta = () => ScrollTrigger.refresh();
+        featureVideo.addEventListener('loadedmetadata', onFeatureMeta);
+        cleanups.push(() => featureVideo.removeEventListener('loadedmetadata', onFeatureMeta));
+      }
+
       // ---------- showreel: letterbox in, the scrollbar drives the video playhead ----------
       const reelWrap = q('.gb-reel-wrap')[0];
       const video = q('.gb-reel-video')[0];
       const reelTitles = q('.gb-reel-title');
       if (reelWrap && video && reelTitles.length) {
+        makeSeekable(video);
         const shots = reelTitles.length;
         const shotSeconds = Number(video.dataset.shot) || 2;
         // timeline units: 1 unit = one shot; the video spans all shots plus its last tail

@@ -348,6 +348,151 @@
   margin-top: 0;
 }
 
+/* ---------- featured film ---------- */
+/* Without motion it is a plain block: the poster, the line and the button. With motion it is a
+   full-screen scene whose words sit low, over a dark grade: the second half of the clip pulls out
+   to a light ground, where white type up high would vanish */
+.gb-feature {
+  position: relative;
+  background: var(--gb-ink);
+  color: var(--gb-bone);
+}
+
+.gb-feature-video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  background: var(--gb-ink);
+}
+
+.gb-feature-shade {
+  display: none;
+}
+
+.gb-feature-kicker {
+  margin: 0;
+  padding: 24px var(--gb-gutter) 0;
+  color: var(--gb-mute-on-ink);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.gb-feature-lines {
+  padding: 12px var(--gb-gutter) 0;
+}
+
+.gb-feature-line {
+  margin: 0;
+  font-size: clamp(40px, 5.4vw, 104px);
+  line-height: 0.92;
+}
+
+.gb-feature-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 24px var(--gb-gutter) 32px;
+}
+
+.gb-feature-tc {
+  color: var(--gb-mute-on-ink);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+}
+
+.gb-feature-wrap.is-sticky .gb-feature-video {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  aspect-ratio: auto;
+}
+
+.gb-feature-wrap.is-sticky .gb-feature-shade {
+  display: block;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(to top, rgba(10, 10, 10, 0.9) 0%, rgba(10, 10, 10, 0.62) 24%, rgba(10, 10, 10, 0) 52%);
+}
+
+.gb-feature-wrap.is-sticky .gb-feature-kicker,
+.gb-feature-wrap.is-sticky .gb-feature-lines,
+.gb-feature-wrap.is-sticky .gb-feature-foot {
+  position: absolute;
+  left: 0;
+  right: 0;
+}
+
+.gb-feature-wrap.is-sticky .gb-feature-foot {
+  bottom: 0;
+}
+
+.gb-feature-wrap.is-sticky .gb-feature-lines {
+  bottom: 104px;
+  /* one masked slot: the lines take turns in it */
+  height: calc(0.92em + 0.12em);
+  font-size: clamp(40px, 5.4vw, 104px);
+  overflow: hidden;
+}
+
+/* each line fills the whole slot, so moving it by its own height clears the slot even when the
+   other line wraps to more rows */
+.gb-feature-wrap.is-sticky .gb-feature-line {
+  position: absolute;
+  left: var(--gb-gutter);
+  right: var(--gb-gutter);
+  top: 0;
+  height: 100%;
+  white-space: nowrap;
+  font-size: 1em;
+}
+
+/* the timecode keeps clear of the floating chat button in the bottom-right corner */
+.gb-feature-wrap.is-sticky .gb-feature-foot {
+  padding-right: calc(var(--gb-gutter) + 200px);
+}
+
+.gb-feature-wrap.is-sticky .gb-feature-kicker {
+  bottom: calc(104px + 1.2em + clamp(40px, 5.4vw, 104px));
+  padding-top: 0;
+}
+
+/* without motion the second line just follows the first */
+.gb-feature-line + .gb-feature-line {
+  margin-top: 8px;
+}
+
+.gb-feature-wrap.is-sticky .gb-feature-line + .gb-feature-line {
+  margin-top: 0;
+}
+
+@media (max-width: 899px) {
+  .gb-feature-wrap.is-sticky .gb-feature-line {
+    white-space: normal;
+  }
+
+  .gb-feature-wrap.is-sticky .gb-feature-lines {
+    height: calc(2 * 0.92em + 0.12em);
+    font-size: clamp(34px, 9vw, 56px);
+  }
+
+  .gb-feature-wrap.is-sticky .gb-feature-kicker {
+    bottom: calc(104px + 2.2em + clamp(34px, 9vw, 56px) * 2);
+  }
+
+  /* a phone has no room for the timecode beside the button and the chat */
+  .gb-feature-wrap.is-sticky .gb-feature-tc {
+    display: none;
+  }
+
+  .gb-feature-wrap.is-sticky .gb-feature-foot {
+    padding-right: var(--gb-gutter);
+  }
+}
+
 /* ---------- showreel ---------- */
 .gb-reel {
   position: relative;

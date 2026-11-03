@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import Link from 'next/link';
 import GridbreakChat from '../../../components/gridbreak-chat';
 import {
@@ -15,6 +15,38 @@ import '../../gridbreak-pages.css';
 
 const isProduct = (p) => (p.type || p.category || '').toUpperCase() === 'PRODUCT';
 
+// A project film in place of the cover: the poster with a play button, then the video with
+// its own controls and sound. Nothing autoplays, so it never starts loud on its own
+function CaseFilm({ src, poster, name }) {
+    const videoRef = useRef(null);
+    const [playing, setPlaying] = useState(false);
+
+    const play = () => {
+        setPlaying(true);
+        videoRef.current?.play();
+    };
+
+    return (
+        <div className="gb-case-cover gb-case-film" data-gb-expand>
+            <video
+                ref={videoRef}
+                src={src}
+                poster={poster}
+                controls={playing}
+                playsInline
+                preload="metadata"
+                aria-label={`${name} — film`}
+            />
+            {!playing && (
+                <button type="button" className="gb-film-play" onClick={play}>
+                    <span className="gb-film-disc" aria-hidden="true" />
+                    <span className="gb-mono">Play the film</span>
+                </button>
+            )}
+        </div>
+    );
+}
+
 // `project` and `next` (the following case in the same archive) come from page.jsx
 export default function ProjectDetailContent({ project, next = null }) {
     const rootRef = useRef(null);
@@ -22,7 +54,10 @@ export default function ProjectDetailContent({ project, next = null }) {
     const { lenisRef, onEntered } = useGridbreakPage(rootRef);
 
     const name = project?.name || project?.title;
-    const year = project ? new Date(project.date || project.createdAt).getFullYear() : '';
+    const when = project ? new Date(project.date || project.createdAt) : null;
+    const year = when && !Number.isNaN(when.getTime()) ? when.getFullYear() : '';
+    // The admin panel saves the gallery as `images`
+    const gallery = project?.gallery?.length ? project.gallery : project?.images || [];
     const liveUrl = project?.liveUrl || project?.href;
     const archive =
         project && isProduct(project)
@@ -41,7 +76,8 @@ export default function ProjectDetailContent({ project, next = null }) {
                     <div className="gb-crumbs gb-mono">
                         <Link href={archive.href}>← {archive.label}</Link>
                         <span>
-                            {project.type || 'Project'} — {year}
+                            {project.type || 'Project'}
+                            {year ? ` — ${year}` : ''}
                         </span>
                     </div>
                     <h1 className="gb-case-title gb-cx" data-gb-chars data-speed="-0.3" data-skew>
@@ -79,10 +115,14 @@ export default function ProjectDetailContent({ project, next = null }) {
                     </dl>
                 </header>
 
-                {project.image && (
-                    <div className="gb-case-cover" data-gb-expand>
-                        <img src={project.image} alt={`${name} cover`} />
-                    </div>
+                {project.video ? (
+                    <CaseFilm src={project.video} poster={project.videoPoster || project.image} name={name} />
+                ) : (
+                    project.image && (
+                        <div className="gb-case-cover" data-gb-expand>
+                            <img src={project.image} alt={`${name} cover`} />
+                        </div>
+                    )
                 )}
 
                 <section className="gb-case-body" data-wipe>
@@ -117,9 +157,9 @@ export default function ProjectDetailContent({ project, next = null }) {
                     </div>
                 </section>
 
-                {project.gallery?.length > 0 && (
+                {gallery.length > 0 && (
                     <section className="gb-gallery" aria-label="Gallery">
-                        {project.gallery.map((img, i) => (
+                        {gallery.map((img, i) => (
                             <figure
                                 key={img}
                                 className={i % 3 === 0 ? 'is-wide' : ''}
