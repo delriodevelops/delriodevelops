@@ -2,66 +2,46 @@ import {
     collection,
     doc,
     getDocs,
-    getDoc,
     addDoc,
     updateDoc,
     deleteDoc,
     query,
     orderBy,
-    serverTimestamp
+    serverTimestamp,
 } from 'firebase/firestore';
 import { db } from '../firebase';
 
+/**
+ * Write path for projects, used by the admin panel. Reads live in
+ * ./firestore-rest.js so they can run on the server. See the note in blog.js.
+ */
+
 const COLLECTION_NAME = 'projects';
 
-// Get all projects
+/** Live, uncached read for the admin dashboard only. See the note in blog.js. */
 export async function getAllProjects() {
     try {
         const projectsRef = collection(db, COLLECTION_NAME);
 
-        // Try to get with ordering first
         let snapshot;
         try {
-            const q = query(projectsRef, orderBy('order', 'asc'));
-            snapshot = await getDocs(q);
+            snapshot = await getDocs(query(projectsRef, orderBy('order', 'asc')));
         } catch (orderError) {
-            // Fallback to unordered if index doesn't exist
-            console.warn('Order index not available, fetching without order:', orderError.message);
+            console.warn('Order index not available:', orderError.message);
             snapshot = await getDocs(projectsRef);
         }
 
-        const projects = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data(),
-            createdAt: doc.data().createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
-            updatedAt: doc.data().updatedAt?.toDate?.()?.toISOString() || new Date().toISOString(),
-        }));
-
-        // Sort client-side if we couldn't sort server-side
-        return projects.sort((a, b) => (a.order || 0) - (b.order || 0));
+        return snapshot.docs
+            .map((docSnap) => ({
+                id: docSnap.id,
+                ...docSnap.data(),
+                createdAt: docSnap.data().createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
+                updatedAt: docSnap.data().updatedAt?.toDate?.()?.toISOString() || new Date().toISOString(),
+            }))
+            .sort((a, b) => (a.order || 0) - (b.order || 0));
     } catch (error) {
         console.error('Error fetching projects:', error);
         return [];
-    }
-}
-
-// Get a single project by ID
-export async function getProjectById(id) {
-    try {
-        const projectRef = doc(db, COLLECTION_NAME, id);
-        const snapshot = await getDoc(projectRef);
-
-        if (!snapshot.exists()) return null;
-
-        return {
-            id: snapshot.id,
-            ...snapshot.data(),
-            createdAt: snapshot.data().createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
-            updatedAt: snapshot.data().updatedAt?.toDate?.()?.toISOString() || new Date().toISOString(),
-        };
-    } catch (error) {
-        console.error('Error fetching project:', error);
-        return null;
     }
 }
 

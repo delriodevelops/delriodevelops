@@ -3,12 +3,11 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { getAllProjects } from '../lib/services/projects';
-import { getAllPosts } from '../lib/services/blog';
 import GridbreakChat from '../components/gridbreak-chat';
 import { initGridbreakMotion, playGridbreakIntro } from '../components/gridbreak-motion';
 import { initScrollFx } from '../components/gridbreak-scroll-fx';
 import {
+  CITY,
   GRID_CELLS,
   GridbreakNav,
   SOCIALS,
@@ -16,139 +15,27 @@ import {
   formatDate,
   prefersReducedMotion,
   useLenis,
-  useMadridClock,
+  useLocalClock,
 } from '../components/gridbreak-shell';
+import { companies, experienceTimeline, identity, skillsCategories } from '../data/profile';
 import './gridbreak.css';
 
-// Skills data
-const skillsCategories = [
-  {
-    id: 'frontend',
-    title: 'Frontend',
-    tools: ['React', 'Next.js', 'TypeScript', 'Tailwind', 'GSAP', 'Three.js'],
-  },
-  {
-    id: 'backend',
-    title: 'Backend',
-    tools: ['Node.js', 'Python', 'PostgreSQL', 'Supabase', 'Firebase', 'GraphQL'],
-  },
-  {
-    id: 'ai',
-    title: 'AI Engineering',
-    tools: ['OpenAI API', 'LangChain', 'Pinecone', 'Vercel AI SDK', 'HuggingFace', 'RAG'],
-  },
-  {
-    id: 'tools',
-    title: 'DevOps & Tools',
-    tools: ['Docker', 'Git', 'Vercel', 'AWS', 'Figma', 'Stripe'],
-  },
-];
+const city = CITY;
 
-// Fallback projects data
-const fallbackProjectsData = [
-  {
-    id: 1,
-    number: '01',
-    title: 'Fainancial',
-    description: 'AI-powered earnings call analysis platform',
-    image: '/fainancial/1.png',
-    tags: ['AI', 'Finance', 'SaaS'],
-    href: 'https://fainancial.app/',
-    external: true,
-  },
-  {
-    id: 2,
-    number: '02',
-    title: 'MeshMind',
-    description: 'Visual chain-of-thought builder for AI reasoning',
-    image: '/meshmind/3.png',
-    tags: ['AI', 'Productivity'],
-    href: 'https://meshmind.vercel.app/',
-    external: true,
-  },
-  {
-    id: 3,
-    number: '03',
-    title: 'CitySwipe',
-    description: 'Swipe to find your perfect city',
-    image: '/cityswipe.png',
-    tags: ['Mobile', 'AI'],
-    href: 'https://cityswipe.city',
-    external: true,
-  },
-  {
-    id: 4,
-    number: '04',
-    title: 'Baitme',
-    description: 'A/B test your thumbnails for maximum CTR',
-    image: '/baitme/1.png',
-    tags: ['Creator Tools', 'Analytics'],
-    href: 'https://baitme.iamdelrio.com/',
-    external: true,
-  },
-];
+// Timeline rows: the engagement is the headline, the employer sits in the meta line
+const experience = experienceTimeline.map((entry) => ({
+  id: entry.id,
+  headline: entry.project,
+  employer: entry.company.split(' ')[0].toUpperCase(),
+  role: entry.role,
+  period: entry.period,
+  responsibilities: entry.responsibilities.slice(0, 3),
+}));
 
-// Experience data
-const experienceData = [
-  {
-    id: 1,
-    company: 'Santander',
-    role: 'Software Engineer',
-    period: '2025 — Now',
-    responsibilities: [
-      'Developing critical financial applications and internal tools',
-      'Working with modern web technologies (React, TypeScript, Node.js)',
-      'Collaborating with agile teams to deliver banking solutions',
-    ],
-  },
-  {
-    id: 2,
-    company: 'Indie products',
-    role: 'Founder & Full Stack',
-    period: '2023 — Now',
-    responsibilities: [
-      'Building AI-powered SaaS products (Fainancial, MeshMind, CitySwipe, Baitme)',
-      'Full product lifecycle: design, development, marketing, and support',
-      'Building in public and sharing learnings with the community',
-    ],
-  },
-  {
-    id: 3,
-    company: 'NWorld',
-    role: 'Software Developer',
-    period: '2022 — 2024',
-    responsibilities: [
-      'Full stack development for fintech projects',
-      'Frontend architecture and optimization',
-      'Agile development methodology',
-    ],
-  },
-];
-
-// Fallback blog posts
-const fallbackBlogPosts = [
-  {
-    slug: 'building-in-public',
-    title: 'Why I Build in Public',
-    tag: 'Indie Hacking',
-    date: '2024-01-10',
-    image: '/meshmind/2.png',
-  },
-  {
-    slug: 'ai-first-development',
-    title: 'AI-First Product Development',
-    tag: 'AI',
-    date: '2024-01-05',
-    image: '/fainancial/2.png',
-  },
-  {
-    slug: 'solopreneur-stack',
-    title: 'My Solopreneur Tech Stack',
-    tag: 'Tools',
-    date: '2023-12-20',
-    image: '/meshmind/3.png',
-  },
-];
+// Earliest year that appears in the CV timeline
+const careerStart = Math.min(...experienceTimeline.map((e) => Number(e.period.match(/\d{4}/)?.[0] ?? Infinity)));
+const currentRole = experienceTimeline[0];
+const previousEmployer = companies[1]?.company.split(' ')[0].toUpperCase();
 
 const navLinks = [
   { id: 'work', label: 'Work', href: '/#work' },
@@ -175,15 +62,23 @@ const panelTones = ['bone', 'red', 'ink'];
 // The full counter intro plays once per session; later visits get the short grid drop
 const INTRO_SEEN_KEY = 'gb-intro-seen';
 
-export default function Home() {
+/**
+ * Home. Data is fetched on the server (page.jsx) and passed in, so the page is
+ * crawlable and never flashes placeholder content.
+ */
+export default function Home({ projects: rawProjects = [], posts = [], totalProjects = 0 }) {
   const rootRef = useRef(null);
   const lenisRef = useLenis({ startStopped: true });
-  const clock = useMadridClock();
+  const clock = useLocalClock();
   const [introDone, setIntroDone] = useState(false);
   const [activeSection, setActiveSection] = useState('');
-  const [projects, setProjects] = useState(fallbackProjectsData);
-  const [totalProjects, setTotalProjects] = useState(fallbackProjectsData.length);
-  const [blogPosts, setBlogPosts] = useState(fallbackBlogPosts);
+
+  const projects = rawProjects.map((project) => ({
+    ...project,
+    href: `/projects/${project.id}`,
+    external: false,
+  }));
+  const blogPosts = posts;
 
   // Intro waits for fonts so split text measures correctly
   useEffect(() => {
@@ -210,7 +105,7 @@ export default function Home() {
     };
   }, [lenisRef]);
 
-  // Scroll choreography — rebuilt when data changes the track/list lengths
+  // Scroll choreography (data is server-rendered, so it is built once)
   useEffect(() => {
     if (!introDone || !rootRef.current) return;
     const force = forceMotion();
@@ -225,7 +120,7 @@ export default function Home() {
       fx.revert();
       mm.revert();
     };
-  }, [introDone, projects, blogPosts, lenisRef]);
+  }, [introDone, lenisRef]);
 
   // Arriving from another page via /#section: land there once the pins exist
   useEffect(() => {
@@ -239,61 +134,6 @@ export default function Home() {
     return () => clearTimeout(t);
   }, [introDone, lenisRef]);
 
-  // Fetch projects from Firebase
-  useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        const firebaseProjects = await getAllProjects();
-        if (firebaseProjects && firebaseProjects.length > 0) {
-          setTotalProjects(firebaseProjects.length);
-          const featuredProjects = firebaseProjects.filter((p) => p.featured).slice(0, 4);
-          const displayProjects = featuredProjects.length > 0 ? featuredProjects : firebaseProjects.slice(0, 4);
-
-          setProjects(
-            displayProjects.map((project, index) => ({
-              id: project.id,
-              number: String(index + 1).padStart(2, '0'),
-              title: project.name,
-              description: project.description,
-              image: project.image,
-              tags: project.tags || [],
-              href: `/projects/${project.id}`,
-              external: false,
-            })),
-          );
-        }
-      } catch (error) {
-        console.error('Error fetching projects:', error);
-      }
-    };
-
-    fetchProjects();
-  }, []);
-
-  // Fetch blog posts from Firebase
-  useEffect(() => {
-    const fetchBlogPosts = async () => {
-      try {
-        const firebasePosts = await getAllPosts();
-        if (firebasePosts && firebasePosts.length > 0) {
-          setBlogPosts(
-            firebasePosts.slice(0, 4).map((post) => ({
-              slug: post.slug,
-              title: post.title,
-              tag: post.tag,
-              date: post.createdAt || post.date || new Date().toISOString(),
-              image: post.image,
-            })),
-          );
-        }
-      } catch (error) {
-        console.error('Error fetching blog posts:', error);
-      }
-    };
-
-    fetchBlogPosts();
-  }, []);
-
   const scrollToSection = (id) => {
     const target = id === 'top' ? 0 : document.getElementById(id);
     if (target === null) return;
@@ -302,7 +142,7 @@ export default function Home() {
     requestAnimationFrame(() => lenisRef.current?.scrollTo(target, { duration: 1.6 }));
   };
 
-  const yearsCoding = new Date().getFullYear() - 2021;
+  const yearsCoding = new Date().getFullYear() - careerStart;
 
   return (
     <div className="gb" ref={rootRef}>
@@ -335,7 +175,7 @@ export default function Home() {
         }}
       />
 
-      <main id="top">
+      <main id="main">
         {/* ==================== HERO ==================== */}
         <div className="gb-hero-wrap" data-section="top">
           <section className="gb-hero">
@@ -363,7 +203,7 @@ export default function Home() {
               <div className="gb-hero-info">
                 <div className="gb-hero-who">
                   <div className="gb-hero-portrait">
-                    <img src="/me.png" alt="Portrait of Christian Del Río" />
+                    <img src="/me.webp" alt="Portrait of Christian Del Río" />
                   </div>
                   <p className="gb-hero-title gb-cx">
                     Christian
@@ -405,7 +245,7 @@ export default function Home() {
             </span>
             <div className="gb-section-head gb-mono">
               <span>(002) — Manifesto</span>
-              <span>Madrid, ES</span>
+              <span>{city}, ES</span>
             </div>
             <p className="gb-mlines" style={{ margin: 0 }}>
               <span className="gb-mline" data-skew>
@@ -443,7 +283,7 @@ export default function Home() {
           <div className="gb-footnotes gb-mono">
             <div>
               <span>(a) Day</span>
-              <p>Software engineer at Santander, building critical financial applications.</p>
+              <p>Full-stack developer at Santander, building an internal wholesale lending platform.</p>
             </div>
             <div>
               <span>(b) Night</span>
@@ -580,7 +420,7 @@ export default function Home() {
         <div className="gb-scene-wrap gb-pscene-wrap">
           <section className="gb-pscene gb-scene" aria-label="Portrait">
             <div className="gb-pscene-frame">
-              <img src="/me.png" alt="Christian Del Río" />
+              <img src="/me.webp" alt="Christian Del Río" />
             </div>
             <p className="gb-pscene-cap gb-pscene-cap--a gb-cx">
               Engineer
@@ -607,14 +447,14 @@ export default function Home() {
               </p>
               <h2 className="gb-info-title gb-cx">Info</h2>
               <figure className="gb-portrait" style={{ margin: '40px 0 0' }} data-speed="-0.12">
-                <img src="/me.png" alt="Christian Del Río" />
-                <figcaption className="gb-mono">CDR — Madrid, ES</figcaption>
+                <img src="/me.webp" alt="Christian Del Río" />
+                <figcaption className="gb-mono">CDR — {city}, ES</figcaption>
               </figure>
             </div>
 
             <div>
               <p className="gb-about" data-words>
-                By day I&apos;m a <strong>software engineer at Santander</strong>, building enterprise applications. By
+                By day I&apos;m a <strong>full-stack developer at Santander</strong>, building wholesale lending software. By
                 night and weekends I&apos;m an <strong>indie hacker</strong> shipping my own AI products — from{' '}
                 <em>Fainancial</em> to <em>MeshMind</em> — chasing creative freedom one launch at a time.
               </p>
@@ -644,7 +484,7 @@ export default function Home() {
                 <span>Experience</span>
                 <span>Hover or tap to expand</span>
               </div>
-              {experienceData.map((exp) => (
+              {experience.map((exp) => (
                 <div key={exp.id} className="gb-exp-row" tabIndex={0}>
                   <div className="gb-exp-rule" />
                   <div className="gb-exp-main">
@@ -652,9 +492,11 @@ export default function Home() {
                       {exp.period}
                     </span>
                     <span className="gb-exp-company gb-cx" data-skew>
-                      {exp.company}
+                      {exp.headline}
                     </span>
-                    <span className="gb-mono">{exp.role}</span>
+                    <span className="gb-mono">
+                      {exp.employer} — {exp.role}
+                    </span>
                   </div>
                   <div className="gb-exp-more">
                     <ul>
@@ -751,7 +593,7 @@ export default function Home() {
                 </div>
                 <div>
                   <dt className="gb-mono">Day job</dt>
-                  <dd>Software Engineer — Santander</dd>
+                  <dd>{currentRole.role} — Santander</dd>
                 </div>
                 <div>
                   <dt className="gb-mono">Starring</dt>
@@ -759,7 +601,7 @@ export default function Home() {
                 </div>
                 <div>
                   <dt className="gb-mono">Previously</dt>
-                  <dd>NWorld — Software Developer</dd>
+                  <dd>Frontend Developer — {previousEmployer}</dd>
                 </div>
                 <div>
                   <dt className="gb-mono">Built with</dt>
@@ -767,7 +609,7 @@ export default function Home() {
                 </div>
                 <div>
                   <dt className="gb-mono">Shot on location</dt>
-                  <dd>Madrid, Spain</dd>
+                  <dd>{identity.location.en}</dd>
                 </div>
               </dl>
               <p className="gb-credits-fin gb-wx">Fin.</p>
@@ -842,7 +684,7 @@ export default function Home() {
             </div>
             <div>
               <p style={{ margin: '0 0 10px', opacity: 0.75 }}>Local time</p>
-              <p style={{ margin: 0 }}>Madrid — {clock}</p>
+              <p style={{ margin: 0 }}>{city} — {clock}</p>
               <p style={{ margin: 0 }}>© {new Date().getFullYear()} Christian Del Río</p>
             </div>
             <button className="gb-btn gb-footer-top" onClick={() => scrollToSection('top')}>

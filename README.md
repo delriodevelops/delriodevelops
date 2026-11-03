@@ -1,232 +1,96 @@
-# Christian Del Río - Scroll-Driven Portfolio
+# iamdelrio.com
 
-A modern, minimal, scroll-narrative portfolio website built with Next.js, GSAP, and Lenis smooth scroll. The design follows a dark-themed aesthetic with lime-green accents, featuring 6 distinct sections that tell a visual professional story.
+Personal portfolio of Christian del Río Rodríguez — Next.js 16 App Router,
+deployed to Cloudflare Workers via OpenNext, with content in Firestore.
 
-![Portfolio Preview](/public/portfolio_preview.png)
-
-## ✨ Features
-
-### Scroll-Driven Narrative (6 Sections)
-1. **Hero/Intro** - Full-screen viewport with animated name, role, and CTAs
-2. **About ("Who I Am")** - Styled narrative with scroll-triggered animations
-3. **Skills/Tech Stack** - Icon grid with hover effects and category grouping
-4. **Featured Projects** - Card layout with modals for detailed project info
-5. **Professional Experience** - Animated vertical timeline
-6. **Contact + CTA** - Contact form with social links and CV download
-
-### Design System
-- **Color Palette**: Minimal dark theme (#0a0a0a) with lime-green accent (#d4ff00)
-- **Typography**: Inter font with clear hierarchy
-- **Layout**: Grid-based, spacious, mobile-first responsive design
-
-### Animations & Interactions
-- Smooth 60fps scroll with Lenis
-- GSAP ScrollTrigger for reveal animations
-- Micro-interactions (hover states, button effects)
-- CSS transforms for GPU-accelerated performance
-- Respects `prefers-reduced-motion` for accessibility
-
-### Performance Optimizations
-- Next.js Image optimization with lazy loading
-- Minimal DOM complexity
-- CSS-based animations (GPU accelerated)
-- Compressed and optimized assets
-
-## 🛠️ Tech Stack
-
-| Category | Technology |
-|----------|------------|
-| Framework | Next.js 16 (App Router) |
-| Styling | CSS3 + Tailwind CSS |
-| Animations | GSAP + ScrollTrigger |
-| Smooth Scroll | Lenis (formerly @studio-freight/lenis) |
-| Icons | Lucide React |
-| Font | Inter (Google Fonts) |
-
-## 📦 Installation
+## Getting started
 
 ```bash
-# Clone the repository
-git clone https://github.com/delriodevelops/portfolio.git
-
-# Navigate to project directory
-cd portfolio
-
-# Install dependencies
 npm install
-
-# Run development server
+cp .env.example .env.local   # fill in the values
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+The site runs without any environment variables: Firebase-backed sections fall
+back to static data, and the AI assistant returns a 503.
 
-## 📁 Project Structure
+## Scripts
 
-```
-src/
-├── app/
-│   ├── globals.css      # Design system + custom CSS
-│   ├── layout.jsx       # Root layout with metadata
-│   ├── page.jsx         # Main scroll-driven portfolio page
-│   ├── products/        # Products showcase page
-│   ├── projects/        # Projects showcase page
-│   └── cv/              # CV download routes
-├── components/
-│   ├── chat.jsx         # AI chatbot component
-│   └── product-card.jsx # Product card with image carousel
-public/
-├── me.png               # Profile photo
-├── *.png                # Project screenshots
-└── CV_*.pdf             # Downloadable CVs
-```
+| Script | What it does |
+| --- | --- |
+| `npm run dev` | Dev server (Turbopack) |
+| `npm run build` | Production build |
+| `npm test` | Unit tests (Vitest) |
+| `npm run typecheck` | `tsc --noEmit` |
+| `npm run lint` | ESLint |
+| `npm run optimize:images` | Re-compress everything in `public/` to WebP |
+| `npm run cf:build` | Build + OpenNext bundle for Cloudflare |
+| `npm run cf:preview` | Run the Worker locally |
+| `npm run cf:deploy` | Deploy the Worker |
 
-## 🎨 Design Decisions
+## Architecture
 
-### Why Dark Theme?
-- Reduces eye strain for developers/recruiters viewing portfolios
-- Creates dramatic contrast for accent colors
-- Aligns with modern tech industry aesthetics
-- Feels premium and professional
+### Rendering
 
-### Why Lenis for Smooth Scroll?
-- Lightweight alternative to Locomotive Scroll
-- Better performance with less overhead
-- Native feel while maintaining smooth momentum
-- Easy integration with GSAP ScrollTrigger
+Every route is server-rendered. `/`, `/blog`, `/projects` and `/products` are
+prerendered with a 5-minute ISR window; `/blog/[slug]` and `/projects/[id]` are
+generated from `generateStaticParams`.
 
-### Animation Philosophy
-- **Entrance animations**: Fade + translate for professional feel
-- **Staggered reveals**: Sequential timing for grouped elements
-- **Subtle parallax**: Depth without distraction
-- **Interactive micro-states**: Immediate feedback on hover/click
+Server-side reads go through **`src/lib/services/firestore-rest.js`**, which
+talks to the Firestore REST API over plain `fetch`. The `firebase/firestore` JS
+SDK is a browser client and does not run reliably in a Worker, which is why the
+reads are split:
 
-## 🚀 Deployment
+- **Reads, public pages** → `firestore-rest.js` (server, cached)
+- **Reads, admin dashboard** → `services/blog.js` / `services/projects.js`
+  (client SDK, live)
+- **Writes** → client SDK only, so Firestore rules can authenticate the user
 
-### Cloudflare Pages (Recommended)
+### Single source of truth for the CV
+
+`src/data/profile.ts` holds the work history, skills and contact details. The
+homepage timeline, both CV pages and the AI assistant's system prompt are all
+generated from it. Do not copy this data anywhere else — the three copies that
+existed before had drifted into naming *different employers*.
+`src/data/__tests__/profile.test.ts` guards against that regression.
+
+### Motion and accessibility
+
+The site uses GSAP, Lenis smooth scroll and a custom cursor. Everything animated
+checks `prefersReducedMotion()` from `src/lib/motion.ts`, and `globals.css` has a
+matching `prefers-reduced-motion` block that force-reveals elements which start
+at `opacity: 0` — without it, reduced-motion visitors would see a blank page.
+Keep `REVEAL_SELECTOR` in `src/app/page-content.jsx` in sync with that CSS block.
+
+### Images
+
+`next.config.js` sets `images.unoptimized` because Workers has no image
+optimizer runtime. Everything in `public/` is therefore pre-compressed WebP.
+**Run `npm run optimize:images` after adding any image** — the folder was 42 MB
+of raw PNGs before that script existed (one file was 9.3 MB).
+
+### The AI assistant
+
+`/api/chat` proxies DeepSeek. It is public and costs money per call, so it is
+rate limited to 10 requests/minute per IP (`src/lib/rate-limit.ts`), caps
+messages at 1 000 characters and forwards at most 10 turns of history. The
+limiter is per-Worker-isolate; move it to KV or a Durable Object if you need a
+global counter.
+
+## Deployment
+
+Cloudflare Workers via `@opennextjs/cloudflare`:
+
 ```bash
-# Build for Cloudflare
-npm run cf:build
-
-# Preview locally
-npm run cf:preview
-
-# Deploy to Cloudflare
-npm run cf:deploy
+npm run cf:build && npm run cf:deploy
 ```
 
-Alternatively, connect your GitHub repository to Cloudflare Pages:
-1. Go to [Cloudflare Dashboard](https://dash.cloudflare.com/) → Workers & Pages
-2. Create a new project → Connect Git repository
-3. Set build command: `npm run cf:build`
-4. Set output directory: `.open-next`
-5. Add environment variables in Settings (see `.dev.vars` for reference)
+Set every variable from `.env.example` in the Worker. `DEEPSEEK_API_KEY` must be
+a secret (`npx wrangler secret put DEEPSEEK_API_KEY`).
 
-### Local Development
-```bash
-npm run dev
-```
+## Outstanding
 
-### Build for Production (Standard Next.js)
-```bash
-npm run build
-npm run start
-```
-
-## ⚙️ Configuration
-
-### Animation Timing
-All animation timing functions use custom cubic-bezier curves defined in CSS:
-```css
---ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
---ease-in-out-expo: cubic-bezier(0.87, 0, 0.13, 1);
---ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-```
-
-### Scroll Trigger Settings
-ScrollTrigger configurations in `page.jsx`:
-- `start: 'top 70%'` - Trigger when element is 70% from top
-- `toggleActions: 'play none none reverse'` - Play on enter, reverse on leave
-
-### Lenis Smooth Scroll
-```javascript
-const lenis = new Lenis({
-  duration: 1.2,
-  easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-  smooth: true,
-  smoothTouch: false,
-});
-```
-
-## 📱 Responsive Breakpoints
-
-| Breakpoint | Width | Description |
-|------------|-------|-------------|
-| Mobile | < 768px | Single column, simplified animations |
-| Tablet | 768px - 968px | Two column layouts |
-| Desktop | > 968px | Full experience with all animations |
-
-## ♿ Accessibility
-
-- **Keyboard navigation**: All interactive elements are focusable
-- **Screen reader support**: Semantic HTML + ARIA labels
-- **Reduced motion**: Respects `prefers-reduced-motion` media query
-- **Color contrast**: WCAG 2.1 AA compliant
-- **Touch targets**: Minimum 44x44px on mobile
-
-## 🔧 Customization
-
-### Changing Accent Color
-Update the CSS custom property in `globals.css`:
-```css
-:root {
-  --color-accent: #d4ff00; /* Change this value */
-  --color-accent-hover: #e5ff40;
-  --color-accent-muted: rgba(212, 255, 0, 0.1);
-}
-```
-
-### Adding New Projects
-Edit the `projectsData` array in `page.jsx`:
-```javascript
-{
-  id: 5,
-  title: 'New Project',
-  description: 'Project description',
-  image: '/path/to/image.png',
-  tags: ['Tag1', 'Tag2'],
-  techStack: ['React', 'Node.js'],
-  role: 'Developer',
-  responsibilities: ['Task 1', 'Task 2'],
-  liveUrl: 'https://example.com',
-  githubUrl: 'https://github.com/...',
-}
-```
-
-### Adding Experience Entries
-Edit the `experienceData` array in `page.jsx`:
-```javascript
-{
-  id: 4,
-  company: 'Company Name',
-  role: 'Job Title',
-  period: '2023 - Present',
-  description: 'Brief role description',
-  responsibilities: ['Responsibility 1', 'Responsibility 2'],
-}
-```
-
-## 📄 License
-
-MIT License - feel free to use this as a template for your own portfolio!
-
-## 🤝 Connect
-
-- **Website**: [iamdelrio.com](https://www.iamdelrio.com)
-- **LinkedIn**: [/in/iamdelrio](https://www.linkedin.com/in/iamdelrio)
-- **GitHub**: [/delriodevelops](https://github.com/delriodevelops)
-- **YouTube**: [@iamdelrio](https://www.youtube.com/@iamdelrio)
-
----
-
-Built with 💛 and lots of ☕
+- Add the Google Search Console verification token to `metadata.verification` in
+  `src/app/layout.jsx`.
+- `src/app/admin/page-content.jsx` is still ~950 lines and worth splitting further.
+- Only the data/utility layer is TypeScript; components are still JSX.

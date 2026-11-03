@@ -3,20 +3,20 @@
 # xfade cuts, a light grade and film grain. The home showreel scrubs this file with the
 # scroll, so it is encoded with a short GOP (frequent keyframes) for smooth seeking.
 #
-# Usage: bash scripts/make-reel.sh   (needs ffmpeg on PATH)
-# Shot order must match REEL_SHOTS in src/app/page-content.jsx.
+# Usage: bash scripts/make-reel.sh   (needs ffmpeg with WebP decoding on PATH)
+# Shot order must match REEL.shots in src/app/page-content.jsx.
 set -euo pipefail
 cd "$(dirname "$0")/../public"
 
 SHOTS=(
-  fainancial/1.png
-  meshmind/3.png
-  cityswipe.png
-  baitme/1.png
-  clyme.png
-  drnews.png
-  mydogfood.png
-  escudolealjpt/1.png
+  fainancial/1.webp
+  meshmind/3.webp
+  cityswipe.webp
+  baitme/1.webp
+  clyme.webp
+  drnews.webp
+  mydogfood.webp
+  escudolealjpt/1.webp
 )
 
 FPS=24

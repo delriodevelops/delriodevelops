@@ -2,69 +2,55 @@ import {
     collection,
     doc,
     getDocs,
-    getDoc,
     addDoc,
     updateDoc,
     deleteDoc,
     query,
     orderBy,
-    where,
-    serverTimestamp
+    serverTimestamp,
 } from 'firebase/firestore';
 import { db } from '../firebase';
 
+/**
+ * Write path for blog posts, used by the admin panel through the Firebase
+ * client SDK so Firestore rules can authenticate the signed-in user.
+ *
+ * Reads live in ../services/firestore-rest.js: they run on the server over the
+ * REST API so pages can be rendered and cached instead of shipping an empty
+ * shell that fetches on the client.
+ */
+
 const COLLECTION_NAME = 'blog_posts';
 
-// Get all blog posts
+/**
+ * Live, uncached read for the admin dashboard only. Public pages must use
+ * ./firestore-rest.js instead, which runs on the server.
+ */
 export async function getAllPosts() {
     try {
         const postsRef = collection(db, COLLECTION_NAME);
 
-        // Try to get with ordering first
         let snapshot;
         try {
-            const q = query(postsRef, orderBy('createdAt', 'desc'));
-            snapshot = await getDocs(q);
+            snapshot = await getDocs(query(postsRef, orderBy('createdAt', 'desc')));
         } catch (orderError) {
-            // Fallback to unordered if index doesn't exist
-            console.warn('Order index not available, fetching without order:', orderError.message);
+            // The composite index may not exist yet; sorting client-side is fine
+            // for the handful of posts the dashboard shows.
+            console.warn('Order index not available:', orderError.message);
             snapshot = await getDocs(postsRef);
         }
 
-        const posts = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data(),
-            createdAt: doc.data().createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
-            updatedAt: doc.data().updatedAt?.toDate?.()?.toISOString() || new Date().toISOString(),
-        }));
-
-        // Sort client-side by date (newest first)
-        return posts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        return snapshot.docs
+            .map((docSnap) => ({
+                id: docSnap.id,
+                ...docSnap.data(),
+                createdAt: docSnap.data().createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
+                updatedAt: docSnap.data().updatedAt?.toDate?.()?.toISOString() || new Date().toISOString(),
+            }))
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     } catch (error) {
         console.error('Error fetching posts:', error);
         return [];
-    }
-}
-
-// Get a single post by slug
-export async function getPostBySlug(slug) {
-    try {
-        const postsRef = collection(db, COLLECTION_NAME);
-        const q = query(postsRef, where('slug', '==', slug));
-        const snapshot = await getDocs(q);
-
-        if (snapshot.empty) return null;
-
-        const docSnap = snapshot.docs[0];
-        return {
-            id: docSnap.id,
-            ...docSnap.data(),
-            createdAt: docSnap.data().createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
-            updatedAt: docSnap.data().updatedAt?.toDate?.()?.toISOString() || new Date().toISOString(),
-        };
-    } catch (error) {
-        console.error('Error fetching post:', error);
-        return null;
     }
 }
 

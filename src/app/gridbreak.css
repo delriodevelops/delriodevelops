@@ -1651,20 +1651,9 @@
   outline-offset: 4px;
 }
 
-/* ---------- cursor on this page ---------- */
-body:has(.gb) .custom-cursor {
-  border-color: #fff;
-  border-radius: 0;
-}
-
-body:has(.gb) .custom-cursor.hovered {
-  background: #fff;
-}
-
-body:has(.gb) .custom-cursor-follower {
-  background: #fff;
-  mix-blend-mode: difference;
-  border-radius: 0;
+/* the base body is editorial paper; Gridbreak pages overscroll into ink instead */
+body:has(.gb) {
+  background: #0a0a0a;
 }
 
 /* ---------- responsive ---------- */

@@ -1,8 +1,7 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import Link from 'next/link';
-import { getAllProjects } from '../lib/services/projects';
 import GridbreakChat from './gridbreak-chat';
 import {
   CursorPreview,
@@ -29,47 +28,25 @@ const COPY = {
   },
 };
 
-const isProduct = (p) => {
-  const category = p.type || p.category || (p.tags && p.tags.includes('Product') ? 'Product' : 'Project');
-  return category.toUpperCase() === 'PRODUCT';
-};
-
 const yearOf = (p) => {
   const d = new Date(p.date || p.createdAt);
   return Number.isNaN(d.getTime()) ? '' : d.getFullYear();
 };
 
 /**
- * Shared index for /projects and /products: same data source, filtered by kind.
+ * Shared index for /projects and /products. Items come from the server
+ * (page.jsx) as `{ id, name, image, tags, href, wip, external }`.
  */
-export default function GridbreakArchive({ kind, fallback }) {
+export default function GridbreakArchive({ kind, items = [] }) {
   const rootRef = useRef(null);
   const copy = COPY[kind];
-  const [items, setItems] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [view, setView] = useState('list');
 
-  const { lenisRef, onEntered } = useGridbreakPage(rootRef, { ready: !isLoading, deps: [items, view] });
-  const previewRef = useCursorPreview(rootRef, [items, view]);
+  const { lenisRef, onEntered } = useGridbreakPage(rootRef, { deps: [view] });
+  const previewRef = useCursorPreview(rootRef, [view]);
 
-  useEffect(() => {
-    const fetchItems = async () => {
-      try {
-        const all = await getAllProjects();
-        const filtered = all.filter((p) => (kind === 'product' ? isProduct(p) : !isProduct(p)));
-        setItems(filtered.length > 0 ? filtered : all.length > 0 ? [] : fallback);
-      } catch (error) {
-        console.error(`Error fetching ${kind}s:`, error);
-        setItems(fallback);
-      }
-      setIsLoading(false);
-    };
-    fetchItems();
-  }, [kind, fallback]);
-
-  const hrefOf = (item) => (typeof item.id === 'string' ? `/projects/${item.id}` : item.href);
-  const linkProps = (item) =>
-    typeof item.id === 'string' ? {} : { target: '_blank', rel: 'noopener noreferrer' };
+  const hrefOf = (item) => (item.external ? item.href : `/projects/${item.id}`);
+  const linkProps = (item) => (item.external ? { target: '_blank', rel: 'noopener noreferrer' } : {});
 
   return (
     <div className="gb" ref={rootRef}>
@@ -77,7 +54,7 @@ export default function GridbreakArchive({ kind, fallback }) {
       <GridbreakProgress />
       <GridbreakNav active={kind === 'product' ? 'products' : 'projects'} lenisRef={lenisRef} />
 
-      <main>
+      <main id="main">
         <header className="gb-phead gb-phead--ink">
           <div className="gb-crumbs gb-mono">
             <Link href="/">← Index</Link>
@@ -85,7 +62,7 @@ export default function GridbreakArchive({ kind, fallback }) {
           </div>
           <h1 className="gb-ptitle gb-cx" data-speed="-0.35" data-skew>
             <span data-gb-chars>{copy.title}</span>
-            {!isLoading && <sup>({String(items.length).padStart(2, '0')})</sup>}
+            <sup>({String(items.length).padStart(2, '0')})</sup>
           </h1>
           <div className="gb-phead-row">
             <p className="gb-lede" data-gb-lines>
@@ -112,14 +89,8 @@ export default function GridbreakArchive({ kind, fallback }) {
           </div>
         </header>
 
-        <section className="gb-arch gb-arch--ink" aria-busy={isLoading}>
-          {isLoading ? (
-            <div aria-label="Loading">
-              {[0, 1, 2, 3].map((i) => (
-                <div key={i} className="gb-skeleton" />
-              ))}
-            </div>
-          ) : items.length === 0 ? (
+        <section className="gb-arch gb-arch--ink">
+          {items.length === 0 ? (
             <p className="gb-empty gb-mono">Nothing here yet — check back soon.</p>
           ) : view === 'list' ? (
             <>

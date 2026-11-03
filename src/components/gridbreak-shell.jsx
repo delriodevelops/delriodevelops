@@ -7,6 +7,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from '@studio-freight/lenis';
 import { initPageMotion } from './gridbreak-page-motion';
 import { initScrollFx } from './gridbreak-scroll-fx';
+import { identity, socials } from '../data/profile';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
@@ -14,10 +15,13 @@ if (typeof window !== 'undefined') {
 
 export const GRID_CELLS = Array.from({ length: 84 });
 
+// City shown next to the local clock (the clock itself runs on Spain's timezone)
+export const CITY = identity.location.en.split(',')[0];
+
 export const SOCIALS = [
-  { label: 'LinkedIn', href: 'https://linkedin.com/in/iamdelrio' },
-  { label: 'GitHub', href: 'https://github.com/delriodevelops' },
-  { label: 'X / Twitter', href: 'https://twitter.com/chrissdelrio' },
+  { label: 'LinkedIn', href: socials.linkedin },
+  { label: 'GitHub', href: socials.github },
+  { label: 'X / Twitter', href: socials.twitter },
 ];
 
 // Links used on every page except home, which scrolls in place instead
@@ -38,14 +42,14 @@ export const forceMotion = () => motionParam() !== 'off';
 
 export const prefersReducedMotion = () => motionParam() === 'off';
 
-const madridTime = () =>
+const localTime = () =>
   new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Madrid', hour: '2-digit', minute: '2-digit' }).format(new Date());
 
-export function useMadridClock() {
+export function useLocalClock() {
   const [clock, setClock] = useState('');
   useEffect(() => {
-    setClock(madridTime());
-    const id = setInterval(() => setClock(madridTime()), 30000);
+    setClock(localTime());
+    const id = setInterval(() => setClock(localTime()), 30000);
     return () => clearInterval(id);
   }, []);
   return clock;
@@ -178,7 +182,7 @@ export function GridbreakEnter({ onDone, tone = 'ink' }) {
 export function GridbreakNav({ links = SITE_LINKS, active, onLinkClick, onLogoClick, lenisRef }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const wasOpen = useRef(false);
-  const clock = useMadridClock();
+  const clock = useLocalClock();
 
   // Lock scroll while the menu is open; only touch Lenis on open/close transitions
   // so a page that keeps scroll stopped (home intro) is left alone on mount.
@@ -224,7 +228,7 @@ export function GridbreakNav({ links = SITE_LINKS, active, onLinkClick, onLogoCl
           ))}
         </nav>
         <div className="gb-nav-right">
-          <span className="gb-nav-clock">Madrid {clock}</span>
+          <span className="gb-nav-clock">{CITY} {clock}</span>
           <span className="gb-nav-clock">
             <span className="gb-dot" />
             Available
@@ -260,7 +264,7 @@ export function GridbreakNav({ links = SITE_LINKS, active, onLinkClick, onLogoCl
 
 /** Compact red contact block used to close every inner page. */
 export function GridbreakFooter({ lenisRef, children }) {
-  const clock = useMadridClock();
+  const clock = useLocalClock();
   const toTop = () => {
     if (lenisRef?.current) lenisRef.current.scrollTo(0, { duration: 1.6 });
     else window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -309,7 +313,7 @@ export function GridbreakFooter({ lenisRef, children }) {
         </div>
         <div>
           <p style={{ margin: '0 0 10px', opacity: 0.75 }}>Local time</p>
-          <p style={{ margin: 0 }}>Madrid — {clock}</p>
+          <p style={{ margin: 0 }}>{CITY} — {clock}</p>
           <p style={{ margin: 0 }}>© {new Date().getFullYear()} Christian Del Río</p>
         </div>
         <button className="gb-btn gb-footer-top" onClick={toTop}>

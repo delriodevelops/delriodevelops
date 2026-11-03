@@ -60,10 +60,10 @@ export default function MarkdownEditor({
             .replace(/!\[(.*?)\]\((.*?)\)/gim, '<div style="margin: 1.5rem 0;"><img src="$2" alt="$1" style="max-width: 100%; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);" /><p style="text-align: center; color: #888; font-size: 0.85rem; margin-top: 0.5rem; font-family: monospace;">$1</p></div>')
 
             // Links
-            .replace(/\[(.*?)\]\((.*?)\)/gim, '<a href="$2" style="color: var(--color-accent, #00ff88); text-decoration: underline;">$1</a>')
+            .replace(/\[(.*?)\]\((.*?)\)/gim, '<a href="$2" style="color: inherit; text-decoration: underline; text-decoration-color: var(--signal);">$1</a>')
 
             // Blockquotes
-            .replace(/^\> (.*$)/gim, '<blockquote style="border-left: 3px solid var(--color-accent, #00ff88); padding-left: 1rem; margin: 1rem 0; color: #aaa; font-style: italic;">$1</blockquote>')
+            .replace(/^\> (.*$)/gim, '<blockquote style="border-left: 2px solid var(--signal); padding-left: 1rem; margin: 1rem 0; font-style: italic;">$1</blockquote>')
 
             // Horizontal rules
             .replace(/^---$/gim, '<hr style="border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 2rem 0;" />')
@@ -95,7 +95,7 @@ export default function MarkdownEditor({
     return (
         <div className="markdown-editor">
             {/* Toolbar */}
-            <div className="flex items-center justify-between mb-4 pb-4 border-b border-white/10">
+            <div className="ed-admin-panel-head">
                 <div className="flex gap-2">
                     {viewButtons.map((btn) => (
                         <button
@@ -103,8 +103,8 @@ export default function MarkdownEditor({
                             type="button"
                             onClick={() => setViewMode(btn.id)}
                             className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs uppercase tracking-wider transition-all ${viewMode === btn.id
-                                    ? 'bg-[var(--color-accent)] text-black'
-                                    : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10'
+                                    ? 'ed-tab is-active'
+                                    : 'ed-tab'
                                 }`}
                         >
                             <btn.icon size={14} />
@@ -113,7 +113,7 @@ export default function MarkdownEditor({
                     ))}
                 </div>
 
-                <div className="text-xs text-gray-600 font-mono">
+                <div className="ed-mono">
                     {value?.length || 0} chars • {value?.split(/\s+/).filter(Boolean).length || 0} words
                 </div>
             </div>
@@ -126,12 +126,12 @@ export default function MarkdownEditor({
                 {/* Editor */}
                 {(viewMode === 'edit' || viewMode === 'split') && (
                     <div className={`${viewMode === 'split' ? 'w-1/2' : 'w-full'}`}>
-                        <div className="text-xs uppercase tracking-widest text-gray-600 mb-2 font-mono">
+                        <div className="ed-label">
                             Markdown
                         </div>
                         <textarea
                             ref={textareaRef}
-                            className="w-full h-full bg-white/5 border border-white/10 rounded-xl p-6 font-mono text-base leading-relaxed focus:border-[var(--color-accent)] focus:outline-none transition-colors placeholder-white/20 resize-none"
+                            className="ed-textarea w-full h-full resize-none"
                             style={{ minHeight: `calc(${minHeight} - 30px)` }}
                             placeholder={placeholder}
                             value={value}
@@ -144,12 +144,12 @@ export default function MarkdownEditor({
                 {/* Preview */}
                 {(viewMode === 'preview' || viewMode === 'split') && (
                     <div className={`${viewMode === 'split' ? 'w-1/2' : 'w-full'}`}>
-                        <div className="text-xs uppercase tracking-widest text-gray-600 mb-2 font-mono">
+                        <div className="ed-label">
                             Preview
                         </div>
                         <div
                             ref={previewRef}
-                            className="w-full bg-white/5 border border-white/10 rounded-xl p-6 overflow-y-auto prose prose-invert"
+                            className="ed-prose ed-editor-preview w-full p-6 overflow-y-auto"
                             style={{ minHeight: `calc(${minHeight} - 30px)` }}
                             onScroll={handleScroll}
                             dangerouslySetInnerHTML={{ __html: parseMarkdown(value) }}
@@ -159,47 +159,47 @@ export default function MarkdownEditor({
             </div>
 
             {/* Markdown Help */}
-            <div className="mt-4 pt-4 border-t border-white/10">
-                <details className="text-xs text-gray-500">
-                    <summary className="cursor-pointer hover:text-white transition-colors font-mono uppercase tracking-wider">
+            <div className="ed-editor-foot mt-4 pt-4">
+                <details className="ed-mono">
+                    <summary className="ed-mono cursor-pointer">
                         Markdown Cheatsheet
                     </summary>
-                    <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-4 font-mono text-xs">
+                    <div className="ed-mono mt-3 grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div>
-                            <span className="text-gray-400"># Heading 1</span>
+                            <span className="ed-mono"># Heading 1</span>
                         </div>
                         <div>
-                            <span className="text-gray-400">## Heading 2</span>
+                            <span className="ed-mono">## Heading 2</span>
                         </div>
                         <div>
-                            <span className="text-gray-400">**bold**</span>
+                            <span className="ed-mono">**bold**</span>
                         </div>
                         <div>
-                            <span className="text-gray-400">*italic*</span>
+                            <span className="ed-mono">*italic*</span>
                         </div>
                         <div>
-                            <span className="text-gray-400">[link](url)</span>
+                            <span className="ed-mono">[link](url)</span>
                         </div>
                         <div>
-                            <span className="text-gray-400">![alt](image-url)</span>
+                            <span className="ed-mono">![alt](image-url)</span>
                         </div>
                         <div>
-                            <span className="text-gray-400">- list item</span>
+                            <span className="ed-mono">- list item</span>
                         </div>
                         <div>
-                            <span className="text-gray-400">&gt; quote</span>
+                            <span className="ed-mono">&gt; quote</span>
                         </div>
                         <div>
-                            <span className="text-gray-400">`code`</span>
+                            <span className="ed-mono">`code`</span>
                         </div>
                         <div>
-                            <span className="text-gray-400">```code block```</span>
+                            <span className="ed-mono">```code block```</span>
                         </div>
                         <div>
-                            <span className="text-gray-400">---</span> <span className="text-gray-600">(horizontal rule)</span>
+                            <span className="ed-mono">---</span> <span className="ed-mono">(horizontal rule)</span>
                         </div>
                         <div>
-                            <span className="text-gray-400">1. numbered list</span>
+                            <span className="ed-mono">1. numbered list</span>
                         </div>
                     </div>
                 </details>

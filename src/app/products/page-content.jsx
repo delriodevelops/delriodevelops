@@ -2,19 +2,17 @@
 
 import GridbreakArchive from '../../components/gridbreak-archive';
 
-// Fallback products just in case
-const fallbackProducts = [
-	{
-		id: 1,
-		name: 'Fainancial',
-		description: 'AI Financial Analysis',
-		image: '/fainancial/1.png',
-		href: 'https://fainancial.app/',
-		tags: ['AI', 'Finance', 'SaaS'],
-		type: 'Product',
-	},
-];
+// `products` comes from the server (page.jsx); each one opens its case study
+export default function ProductsPageContent({ products = [] }) {
+  const items = products.map((product) => ({
+    id: product.id,
+    name: product.name,
+    image: product.images?.[0],
+    tags: product.tags || [],
+    href: product.href,
+    wip: product.wip,
+    external: false,
+  }));
 
-export default function ProductsPage() {
-	return <GridbreakArchive kind="product" fallback={fallbackProducts} />;
+  return <GridbreakArchive kind="product" items={items} />;
 }
