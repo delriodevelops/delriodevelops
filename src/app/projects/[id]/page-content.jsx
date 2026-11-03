@@ -1,31 +1,43 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'next/navigation';
-import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowLeft, ArrowUpRight, Github, Calendar, Loader2 } from 'lucide-react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { getProjectById } from '../../../lib/services/projects';
+import { getAllProjects, getProjectById } from '../../../lib/services/projects';
+import GridbreakChat from '../../../components/gridbreak-chat';
+import {
+    GridbreakEnter,
+    GridbreakFooter,
+    GridbreakNav,
+    GridbreakProgress,
+    useGridbreakPage,
+} from '../../../components/gridbreak-shell';
+import '../../gridbreak.css';
+import '../../gridbreak-pages.css';
 
-// Register GSAP plugins POYA
-if (typeof window !== 'undefined') {
-    gsap.registerPlugin(ScrollTrigger);
-}
+const isProduct = (p) => (p.type || p.category || '').toUpperCase() === 'PRODUCT';
 
 export default function ProjectDetailPage() {
     const { id } = useParams();
+    const rootRef = useRef(null);
     const [project, setProject] = useState(null);
+    const [next, setNext] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
-    const containerRef = useRef(null);
+
+    const { lenisRef, onEntered } = useGridbreakPage(rootRef, { ready: !isLoading, deps: [project] });
 
     useEffect(() => {
         const fetchProject = async () => {
             if (!id) return;
             try {
-                const data = await getProjectById(id);
+                const [data, all] = await Promise.all([getProjectById(id), getAllProjects()]);
                 setProject(data);
+                if (data && all.length > 1) {
+                    // next item within the same archive (products stay with products)
+                    const siblings = all.filter((p) => isProduct(p) === isProduct(data));
+                    const index = siblings.findIndex((p) => p.id === data.id);
+                    if (siblings.length > 1 && index !== -1) setNext(siblings[(index + 1) % siblings.length]);
+                }
             } catch (error) {
                 console.error('Error fetching project:', error);
             }
@@ -35,186 +47,134 @@ export default function ProjectDetailPage() {
         fetchProject();
     }, [id]);
 
-    // Animations
-    useEffect(() => {
-        if (isLoading || !project) return;
-
-        const ctx = gsap.context(() => {
-            // Header animation
-            gsap.from('.project-header-reveal', {
-                y: 100,
-                opacity: 0,
-                duration: 1,
-                stagger: 0.1,
-                ease: 'power3.out'
-            });
-
-            // Image reveal
-            gsap.utils.toArray('.gallery-image').forEach((img, i) => {
-                gsap.from(img, {
-                    scrollTrigger: {
-                        trigger: img,
-                        start: 'top 80%',
-                    },
-                    y: 50,
-                    opacity: 0,
-                    duration: 0.8,
-                    ease: 'power2.out'
-                });
-            });
-        }, containerRef);
-
-        return () => ctx.revert();
-    }, [isLoading, project]);
-
-    if (isLoading) {
-        return (
-            <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--color-bg)' }}>
-                <Loader2 size={32} className="animate-spin" style={{ color: 'var(--color-accent)' }} />
-            </div>
-        );
-    }
-
-    if (!project) {
-        return (
-            <div style={{ padding: '20vh 0', textAlign: 'center', background: 'var(--color-bg)', minHeight: '100vh' }}>
-                <h1 className="title-monumental">PROJECT NOT FOUND</h1>
-                <Link href="/projects" className="magnetic-btn" style={{ marginTop: '2rem', display: 'inline-block' }}>
-                    Back to Works
-                </Link>
-            </div>
-        );
-    }
+    const name = project?.name || project?.title;
+    const year = project ? new Date(project.date || project.createdAt).getFullYear() : '';
+    const liveUrl = project?.liveUrl || project?.href;
+    const archive = project && isProduct(project) ? { href: '/products', label: 'Products' } : { href: '/projects', label: 'Projects' };
 
     return (
-        <div ref={containerRef} style={{ background: 'var(--color-bg)', minHeight: '100vh', paddingBottom: '10vh' }}>
-            {/* Header */}
-            <header style={{ padding: '15vh 0 5vh' }}>
-                <div className="container">
-                    <Link
-                        href="/projects"
-                        style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '1rem',
-                            color: '#888',
-                            textDecoration: 'none',
-                            fontSize: '0.9rem',
-                            letterSpacing: '0.05em',
-                            marginBottom: '4rem',
-                            textTransform: 'uppercase',
-                        }}
-                    >
-                        <ArrowLeft size={16} />
-                        Back to Works
+        <div className="gb" ref={rootRef}>
+            <GridbreakEnter onDone={onEntered} tone="red" />
+            <GridbreakProgress />
+            <GridbreakNav active={archive.label.toLowerCase()} lenisRef={lenisRef} />
+
+            {isLoading ? (
+                <div className="gb-state gb-phead--red" aria-busy="true">
+                    <span className="gb-mono">Loading case study…</span>
+                </div>
+            ) : !project ? (
+                <div className="gb-state gb-phead--ink">
+                    <span className="gb-mono">Error 404</span>
+                    <h1 className="gb-ptitle gb-cx">Not found</h1>
+                    <Link href="/projects" className="gb-btn">
+                        ← Back to projects
                     </Link>
-
-                    <span className="section-label project-header-reveal" style={{ display: 'block', marginBottom: '1rem' }}>
-                        {project.type || 'Project'} — {new Date(project.date || project.createdAt).getFullYear()}
-                    </span>
-
-                    <h1 className="title-monumental project-header-reveal" style={{ fontSize: 'clamp(3rem, 8vw, 7rem)', lineHeight: 0.9, marginBottom: '4rem' }}>
-                        {project.name || project.title}
-                    </h1>
-
-                    <div className="project-info-grid" style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                        gap: '4rem',
-                        borderTop: '1px solid rgba(255,255,255,0.1)',
-                        paddingTop: '2rem'
-                    }}>
-                        <div className="project-header-reveal">
-                            <span style={{ display: 'block', color: '#666', marginBottom: '0.5rem', fontSize: '0.8rem', textTransform: 'uppercase' }}>Role</span>
-                            <span style={{ fontSize: '1.1rem' }}>Design & Development</span>
-                        </div>
-                        <div className="project-header-reveal">
-                            <span style={{ display: 'block', color: '#666', marginBottom: '0.5rem', fontSize: '0.8rem', textTransform: 'uppercase' }}>Stack</span>
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                                {project.tags?.map(tag => (
-                                    <span key={tag} style={{ fontSize: '1.1rem' }}>{tag}</span>
-                                ))}
-                            </div>
-                        </div>
-                        <div className="project-header-reveal">
-                            <span style={{ display: 'block', color: '#666', marginBottom: '0.5rem', fontSize: '0.8rem', textTransform: 'uppercase' }}>Links</span>
-                            <div style={{ display: 'flex', gap: '1rem' }}>
-                                {(project.liveUrl || project.href) && (
-                                    <a href={project.liveUrl || project.href} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-accent)', textDecoration: 'none' }}>
-                                        Live Site <ArrowUpRight size={16} />
-                                    </a>
-                                )}
-                                {project.githubUrl && (
-                                    <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: '#fff', textDecoration: 'none' }}>
-                                        GitHub <Github size={16} />
-                                    </a>
-                                )}
-                            </div>
-                        </div>
-                    </div>
                 </div>
-            </header>
-
-            {/* Cover Image */}
-            <div className="container-wide" style={{ marginBottom: '8rem' }}>
-                <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', overflow: 'hidden', borderRadius: '4px' }}>
-                    <Image
-                        src={project.image}
-                        alt={project.name}
-                        fill
-                        className="project-header-reveal"
-                        style={{ objectFit: 'cover' }}
-                        priority
-                    />
-                </div>
-            </div>
-
-            {/* Description */}
-            <section className="container" style={{ marginBottom: '8rem' }}>
-                <div style={{ maxWidth: '800px', marginLeft: 'auto' }}>
-                    <h2 style={{ fontSize: '2rem', marginBottom: '2rem', fontWeight: 300 }}>Overview</h2>
-                    <div style={{ fontSize: '1.2rem', lineHeight: 1.6, color: '#aaa', whiteSpace: 'pre-line' }}>
-                        {project.description}
-
-                        {/* Fallback to long description if available (future proofing) */}
-                        {project.longDescription && (
-                            <div style={{ marginTop: '2rem' }}>
-                                {project.longDescription}
+            ) : (
+                <main>
+                    <header className="gb-case-hero">
+                        <div className="gb-crumbs gb-mono">
+                            <Link href={archive.href}>← {archive.label}</Link>
+                            <span>
+                                {project.type || 'Project'} — {year}
+                            </span>
+                        </div>
+                        <h1 className="gb-case-title gb-cx" data-gb-chars data-speed="-0.3" data-skew>
+                            {name}
+                        </h1>
+                        <dl className="gb-spec gb-mono" data-gb-stagger data-gb-delay="0.3">
+                            <div>
+                                <dt>Role</dt>
+                                <dd>Design &amp; development</dd>
                             </div>
-                        )}
-                    </div>
-                </div>
-            </section>
-
-            {/* Gallery */}
-            {project.gallery && project.gallery.length > 0 && (
-                <section className="container-wide" style={{ marginBottom: '8rem' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2rem' }}>
-                        {project.gallery.map((img, i) => (
-                            <div
-                                key={i}
-                                className="gallery-image"
-                                style={{
-                                    gridColumn: i % 3 === 0 ? 'span 2' : 'span 1',
-                                    position: 'relative',
-                                    aspectRatio: i % 3 === 0 ? '16/9' : '4/5',
-                                    borderRadius: '4px',
-                                    overflow: 'hidden'
-                                }}
-                            >
-                                <Image
-                                    src={img}
-                                    alt={`Gallery image ${i + 1}`}
-                                    fill
-                                    style={{ objectFit: 'cover' }}
-                                />
+                            <div>
+                                <dt>Stack</dt>
+                                <dd>{(project.tags || []).join(' / ') || '—'}</dd>
                             </div>
-                        ))}
-                    </div>
-                </section>
+                            <div>
+                                <dt>Year</dt>
+                                <dd>{year || '—'}</dd>
+                            </div>
+                            <div>
+                                <dt>Links</dt>
+                                <dd>
+                                    {liveUrl && (
+                                        <a href={liveUrl} target="_blank" rel="noopener noreferrer">
+                                            Live site ↗
+                                        </a>
+                                    )}
+                                    {project.githubUrl && (
+                                        <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
+                                            GitHub ↗
+                                        </a>
+                                    )}
+                                    {!liveUrl && !project.githubUrl && '—'}
+                                </dd>
+                            </div>
+                        </dl>
+                    </header>
+
+                    {project.image && (
+                        <div className="gb-case-cover" data-gb-expand>
+                            <img src={project.image} alt={`${name} cover`} />
+                        </div>
+                    )}
+
+                    <section className="gb-case-body" data-wipe>
+                        <aside className="gb-case-aside">
+                            <p className="gb-mono" style={{ margin: '0 0 16px', color: 'var(--gb-mute-on-bone)' }}>
+                                (01) — Overview
+                            </p>
+                            <h2 className="gb-cx" data-gb-chars>
+                                The brief
+                            </h2>
+                        </aside>
+                        <div>
+                            <p className="gb-case-text" data-gb-lines>
+                                {project.description}
+                            </p>
+                            {project.longDescription && (
+                                <p className="gb-case-text gb-case-text--long" data-gb-lines>
+                                    {project.longDescription}
+                                </p>
+                            )}
+                            {liveUrl && (
+                                <a href={liveUrl} target="_blank" rel="noopener noreferrer" className="gb-btn" style={{ marginTop: 48 }}>
+                                    Visit {name} ↗
+                                </a>
+                            )}
+                        </div>
+                    </section>
+
+                    {project.gallery?.length > 0 && (
+                        <section className="gb-gallery" aria-label="Gallery">
+                            {project.gallery.map((img, i) => (
+                                <figure
+                                    key={img}
+                                    className={i % 3 === 0 ? 'is-wide' : ''}
+                                    data-gb-clip
+                                    data-speed={i % 3 === 0 ? undefined : i % 3 === 1 ? '0.12' : '-0.18'}
+                                >
+                                    <img src={img} alt={`${name} — image ${i + 1}`} loading="lazy" />
+                                </figure>
+                            ))}
+                        </section>
+                    )}
+
+                    {next && (
+                        <Link href={`/projects/${next.id}`} className="gb-next">
+                            <span className="gb-mono">Next case —&gt;</span>
+                            <span className="gb-next-name gb-cx" data-drift="12">
+                                {next.name || next.title}
+                            </span>
+                        </Link>
+                    )}
+
+                    <GridbreakFooter lenisRef={lenisRef} />
+                </main>
             )}
 
-            {/* Next Project Navigation could go here */}
+            <GridbreakChat />
         </div>
     );
 }

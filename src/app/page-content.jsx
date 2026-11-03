@@ -1,68 +1,47 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
-import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import Lenis from '@studio-freight/lenis';
 import { getAllProjects } from '../lib/services/projects';
 import { getAllPosts } from '../lib/services/blog';
+import GridbreakChat from '../components/gridbreak-chat';
+import { initGridbreakMotion, playGridbreakIntro } from '../components/gridbreak-motion';
+import { initScrollFx } from '../components/gridbreak-scroll-fx';
 import {
-  Github,
-  Linkedin,
-  Youtube,
-  Mail,
-  Download,
-  ExternalLink,
-  ArrowRight,
-  ArrowUpRight,
-  Code2,
-  Database,
-  Cloud,
-  Smartphone,
-  Palette,
-  Cpu,
-  Globe,
-  Terminal,
-  Layers,
-  X,
-  Menu,
-  MessageCircle,
-  Send,
-  Rocket,
-  Zap,
-  Coffee,
-  Twitter,
-} from 'lucide-react';
-
-// Register GSAP plugins
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger);
-}
+  GRID_CELLS,
+  GridbreakNav,
+  SOCIALS,
+  forceMotion,
+  formatDate,
+  prefersReducedMotion,
+  useLenis,
+  useMadridClock,
+} from '../components/gridbreak-shell';
+import './gridbreak.css';
 
 // Skills data
 const skillsCategories = [
   {
     id: 'frontend',
     title: 'Frontend',
-    tools: ['React', 'Next.js', 'TypeScript', 'Tailwind', 'GSAP', 'Three.js']
+    tools: ['React', 'Next.js', 'TypeScript', 'Tailwind', 'GSAP', 'Three.js'],
   },
   {
     id: 'backend',
     title: 'Backend',
-    tools: ['Node.js', 'Python', 'PostgreSQL', 'Supabase', 'Firebase', 'GraphQL']
+    tools: ['Node.js', 'Python', 'PostgreSQL', 'Supabase', 'Firebase', 'GraphQL'],
   },
   {
     id: 'ai',
     title: 'AI Engineering',
-    tools: ['OpenAI API', 'LangChain', 'Pinecone', 'Vercel AI SDK', 'HuggingFace', 'RAG']
+    tools: ['OpenAI API', 'LangChain', 'Pinecone', 'Vercel AI SDK', 'HuggingFace', 'RAG'],
   },
   {
     id: 'tools',
     title: 'DevOps & Tools',
-    tools: ['Docker', 'Git', 'Vercel', 'AWS', 'Figma', 'Stripe']
-  }
+    tools: ['Docker', 'Git', 'Vercel', 'AWS', 'Figma', 'Stripe'],
+  },
 ];
 
 // Fallback projects data
@@ -74,17 +53,18 @@ const fallbackProjectsData = [
     description: 'AI-powered earnings call analysis platform',
     image: '/fainancial/1.png',
     tags: ['AI', 'Finance', 'SaaS'],
-    liveUrl: 'https://fainancial.app/',
-    featured: true,
+    href: 'https://fainancial.app/',
+    external: true,
   },
   {
     id: 2,
     number: '02',
     title: 'MeshMind',
     description: 'Visual chain-of-thought builder for AI reasoning',
-    image: '/meshmind/1.png',
+    image: '/meshmind/3.png',
     tags: ['AI', 'Productivity'],
-    liveUrl: 'https://meshmind.vercel.app/',
+    href: 'https://meshmind.vercel.app/',
+    external: true,
   },
   {
     id: 3,
@@ -93,7 +73,8 @@ const fallbackProjectsData = [
     description: 'Swipe to find your perfect city',
     image: '/cityswipe.png',
     tags: ['Mobile', 'AI'],
-    liveUrl: 'https://cityswipe.city',
+    href: 'https://cityswipe.city',
+    external: true,
   },
   {
     id: 4,
@@ -102,7 +83,8 @@ const fallbackProjectsData = [
     description: 'A/B test your thumbnails for maximum CTR',
     image: '/baitme/1.png',
     tags: ['Creator Tools', 'Analytics'],
-    liveUrl: 'https://baitme.iamdelrio.com/',
+    href: 'https://baitme.iamdelrio.com/',
+    external: true,
   },
 ];
 
@@ -110,21 +92,9 @@ const fallbackProjectsData = [
 const experienceData = [
   {
     id: 1,
-    company: 'Indie Hacker Journey',
-    role: 'Founder & Full Stack Developer',
-    period: '2023 — Present',
-    responsibilities: [
-      'Building AI-powered SaaS products (Fainancial, MeshMind, CitySwipe, Baitme)',
-      'Shipping fast and iterating based on user feedback',
-      'Full product lifecycle: design, development, marketing, and support',
-      'Building in public and sharing learnings with the community',
-    ],
-  },
-  {
-    id: 2,
-    company: 'Santander Bank',
-    role: 'Software Engineer', // Verify specific title
-    period: '2025 — Present', // Update with real start date
+    company: 'Santander',
+    role: 'Software Engineer',
+    period: '2025 — Now',
     responsibilities: [
       'Developing critical financial applications and internal tools',
       'Working with modern web technologies (React, TypeScript, Node.js)',
@@ -132,16 +102,27 @@ const experienceData = [
     ],
   },
   {
+    id: 2,
+    company: 'Indie products',
+    role: 'Founder & Full Stack',
+    period: '2023 — Now',
+    responsibilities: [
+      'Building AI-powered SaaS products (Fainancial, MeshMind, CitySwipe, Baitme)',
+      'Full product lifecycle: design, development, marketing, and support',
+      'Building in public and sharing learnings with the community',
+    ],
+  },
+  {
     id: 3,
     company: 'NWorld',
-    role: 'Software Developer', // Verify specific title
-    period: '2022 — 2024', // Update with real dates
+    role: 'Software Developer',
+    period: '2022 — 2024',
     responsibilities: [
       'Full stack development for fintech projects',
       'Frontend architecture and optimization',
       'Agile development methodology',
     ],
-  }
+  },
 ];
 
 // Fallback blog posts
@@ -149,7 +130,6 @@ const fallbackBlogPosts = [
   {
     slug: 'building-in-public',
     title: 'Why I Build in Public',
-    excerpt: 'The journey from corporate developer to indie hacker, and why transparency matters.',
     tag: 'Indie Hacking',
     date: '2024-01-10',
     image: '/meshmind/2.png',
@@ -157,7 +137,6 @@ const fallbackBlogPosts = [
   {
     slug: 'ai-first-development',
     title: 'AI-First Product Development',
-    excerpt: 'How I integrate AI into every product from day one, and why you should too.',
     tag: 'AI',
     date: '2024-01-05',
     image: '/fainancial/2.png',
@@ -165,92 +144,100 @@ const fallbackBlogPosts = [
   {
     slug: 'solopreneur-stack',
     title: 'My Solopreneur Tech Stack',
-    excerpt: 'The tools and technologies I use to ship products fast as a one-person team.',
     tag: 'Tools',
     date: '2023-12-20',
     image: '/meshmind/3.png',
   },
 ];
 
-// Navigation links
 const navLinks = [
-  { href: '#about', label: 'About' },
-  { href: '#work', label: 'Work' },
-  { href: '#blog', label: 'Blog' },
-  { href: '#contact', label: 'Contact' },
+  { id: 'work', label: 'Work', href: '/#work' },
+  { id: 'info', label: 'Info', href: '/#info' },
+  { id: 'stack', label: 'Stack', href: '/#stack' },
+  { id: 'notes', label: 'Notes', href: '/#notes' },
+  { id: 'contact', label: 'Contact', href: '/#contact' },
 ];
 
-// Marquee items
-const marqueeItems = ['INDIE HACKER', 'SOLOBUILDER', 'FULL STACK', 'AI ENTHUSIAST', 'PRODUCT MAKER'];
+const marqueeItems = ['Indie hacker', 'Solobuilder', 'Full stack', 'AI engineer', 'Product maker'];
+
+// Showreel video (rendered by scripts/make-reel.sh). `shots` lists the projects in the
+// order they appear; each shot lasts `shotLength` seconds of video.
+const REEL = {
+  src: '/reel/showreel.mp4',
+  poster: '/reel/showreel-poster.jpg',
+  shotLength: 2,
+  shots: ['Fainancial', 'MeshMind', 'CitySwipe', 'Baitme', 'Clyme', 'DR.NEWS', 'My Dog Food', 'Escudo Leal'],
+};
+
+const heroLetters = ['D', 'E', 'L', 'R', 'Í', 'O'];
+const panelTones = ['bone', 'red', 'ink'];
+
+// The full counter intro plays once per session; later visits get the short grid drop
+const INTRO_SEEN_KEY = 'gb-intro-seen';
 
 export default function Home() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [isScrolled, setIsScrolled] = useState(false);
+  const rootRef = useRef(null);
+  const lenisRef = useLenis({ startStopped: true });
+  const clock = useMadridClock();
+  const [introDone, setIntroDone] = useState(false);
   const [activeSection, setActiveSection] = useState('');
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const [isChatOpen, setIsChatOpen] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [projects, setProjects] = useState(fallbackProjectsData);
   const [totalProjects, setTotalProjects] = useState(fallbackProjectsData.length);
   const [blogPosts, setBlogPosts] = useState(fallbackBlogPosts);
 
-  // Chat state
-  const [messages, setMessages] = useState([
-    { role: 'assistant', content: "Hey! 👋 I'm Christian's AI assistant. Ask me anything about his work, skills, or how he can help you!" },
-  ]);
-  const [chatInput, setChatInput] = useState('');
-  const [isChatLoading, setIsChatLoading] = useState(false);
-  const chatMessagesRef = useRef(null);
-  const experienceListRef = useRef(null);
-  const experienceGlowRef = useRef(null);
-
-  const lenisRef = useRef(null);
-
+  // Intro waits for fonts so split text measures correctly
   useEffect(() => {
-    // Initialize Lenis smooth scroll
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      direction: 'vertical',
-      gestureDirection: 'vertical',
-      smooth: true,
-      smoothTouch: false,
-      touchMultiplier: 2,
-    });
-
-    lenisRef.current = lenis;
-
-    function raf(time) {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
+    let cancelled = false;
+    let seen = false;
+    try {
+      seen = sessionStorage.getItem(INTRO_SEEN_KEY) === '1';
+      sessionStorage.setItem(INTRO_SEEN_KEY, '1');
+    } catch {
+      // storage blocked: just play the full intro
     }
-    requestAnimationFrame(raf);
+    window.scrollTo(0, 0);
 
-    // Update scroll progress
-    lenis.on('scroll', ({ scroll, limit }) => {
-      setScrollProgress((scroll / limit) * 100);
-      setIsScrolled(scroll > 50);
-    });
-
-    // Loader animation
-    const loaderTimer = setTimeout(() => {
-      setIsLoading(false);
-      initAnimations();
-    }, 2000);
+    document.fonts.ready
+      .then(() => playGridbreakIntro(rootRef.current, { reduced: prefersReducedMotion(), short: seen }))
+      .then(() => {
+        if (cancelled) return;
+        lenisRef.current?.start();
+        setIntroDone(true);
+      });
 
     return () => {
-      clearTimeout(loaderTimer);
-      lenis.destroy();
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+      cancelled = true;
     };
-  }, []);
+  }, [lenisRef]);
 
-  // Scroll chat to bottom
+  // Scroll choreography — rebuilt when data changes the track/list lengths
   useEffect(() => {
-    if (chatMessagesRef.current) {
-      chatMessagesRef.current.scrollTop = chatMessagesRef.current.scrollHeight;
-    }
-  }, [messages]);
+    if (!introDone || !rootRef.current) return;
+    const force = forceMotion();
+    const mm = initGridbreakMotion(rootRef.current, { onSection: setActiveSection, forceMotion: force });
+    // parallax layer goes on after the pins so its triggers account for pin spacing
+    const fx = initScrollFx(rootRef.current, { forceMotion: force, lenis: lenisRef.current });
+    ScrollTrigger.refresh();
+    const refresh = () => ScrollTrigger.refresh();
+    window.addEventListener('load', refresh);
+    return () => {
+      window.removeEventListener('load', refresh);
+      fx.revert();
+      mm.revert();
+    };
+  }, [introDone, projects, blogPosts, lenisRef]);
+
+  // Arriving from another page via /#section: land there once the pins exist
+  useEffect(() => {
+    if (!introDone) return;
+    const id = window.location.hash.slice(1);
+    if (!id) return;
+    const t = setTimeout(() => {
+      const target = document.getElementById(id);
+      if (target) lenisRef.current?.scrollTo(target, { duration: 1.8 });
+    }, 150);
+    return () => clearTimeout(t);
+  }, [introDone, lenisRef]);
 
   // Fetch projects from Firebase
   useEffect(() => {
@@ -259,32 +246,24 @@ export default function Home() {
         const firebaseProjects = await getAllProjects();
         if (firebaseProjects && firebaseProjects.length > 0) {
           setTotalProjects(firebaseProjects.length);
-          // Format projects for display - only show featured or first 4
-          const featuredProjects = firebaseProjects
-            .filter(p => p.featured)
-            .slice(0, 4);
+          const featuredProjects = firebaseProjects.filter((p) => p.featured).slice(0, 4);
+          const displayProjects = featuredProjects.length > 0 ? featuredProjects : firebaseProjects.slice(0, 4);
 
-          // If no featured, take first 4
-          const displayProjects = featuredProjects.length > 0
-            ? featuredProjects
-            : firebaseProjects.slice(0, 4);
-
-          const formattedProjects = displayProjects.map((project, index) => ({
-            id: project.id,
-            number: String(index + 1).padStart(2, '0'),
-            title: project.name,
-            description: project.description,
-            image: project.image,
-            tags: project.tags || [],
-            category: project.type || project.category || (project.tags && project.tags.includes('Product') ? 'Product' : 'Project'),
-            liveUrl: project.href,
-            featured: project.featured,
-          }));
-          setProjects(formattedProjects);
+          setProjects(
+            displayProjects.map((project, index) => ({
+              id: project.id,
+              number: String(index + 1).padStart(2, '0'),
+              title: project.name,
+              description: project.description,
+              image: project.image,
+              tags: project.tags || [],
+              href: `/projects/${project.id}`,
+              external: false,
+            })),
+          );
         }
       } catch (error) {
         console.error('Error fetching projects:', error);
-        // Keep using fallback data
       }
     };
 
@@ -297,810 +276,583 @@ export default function Home() {
       try {
         const firebasePosts = await getAllPosts();
         if (firebasePosts && firebasePosts.length > 0) {
-          // Take first 3 posts for homepage
-          const displayPosts = firebasePosts.slice(0, 3).map(post => ({
-            slug: post.slug,
-            title: post.title,
-            excerpt: post.excerpt,
-            tag: post.tag,
-            date: post.createdAt || post.date || new Date().toISOString(),
-            image: post.image,
-          }));
-          setBlogPosts(displayPosts);
+          setBlogPosts(
+            firebasePosts.slice(0, 4).map((post) => ({
+              slug: post.slug,
+              title: post.title,
+              tag: post.tag,
+              date: post.createdAt || post.date || new Date().toISOString(),
+              image: post.image,
+            })),
+          );
         }
       } catch (error) {
         console.error('Error fetching blog posts:', error);
-        // Keep using fallback data
       }
     };
 
     fetchBlogPosts();
   }, []);
 
-  const initAnimations = () => {
-    // Hero animations with stagger
-    const heroTl = gsap.timeline({ delay: 0.2 });
-    heroTl
-      .to('.hero-tag', { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' })
-      .to('.hero-name-line', {
-        opacity: 1,
-        y: 0,
-        duration: 1,
-        stagger: 0.1,
-        ease: 'power3.out'
-      }, '-=0.5')
-      .to('.hero-subtitle', { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }, '-=0.6')
-      .to('.hero-cta', { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }, '-=0.4')
-      .to('.hero-scroll', { opacity: 1, duration: 0.8, ease: 'power3.out' }, '-=0.2');
-
-    // Marquee
-    gsap.to('.marquee-section', {
-      scrollTrigger: {
-        trigger: '.marquee-section',
-        start: 'top 90%',
-        toggleActions: 'play none none reverse',
-      },
-      opacity: 1,
-      duration: 1,
-    });
-
-    // About section with parallax
-    gsap.to('.about-image-wrapper', {
-      scrollTrigger: {
-        trigger: '.about',
-        start: 'top 70%',
-        toggleActions: 'play none none reverse',
-      },
-      opacity: 1,
-      x: 0,
-      duration: 1.2,
-      ease: 'power3.out',
-    });
-
-    gsap.to('.about-content', {
-      scrollTrigger: {
-        trigger: '.about',
-        start: 'top 60%',
-        toggleActions: 'play none none reverse',
-      },
-      opacity: 1,
-      x: 0,
-      duration: 1.2,
-      delay: 0.2,
-      ease: 'power3.out',
-    });
-
-    // About floating elements
-    gsap.utils.toArray('.about-float').forEach((el, i) => {
-      gsap.to(el, {
-        scrollTrigger: {
-          trigger: '.about',
-          start: 'top 70%',
-          toggleActions: 'play none none reverse',
-        },
-        opacity: 1,
-        scale: 1,
-        duration: 0.6,
-        delay: 0.5 + i * 0.15,
-        ease: 'back.out(1.5)',
-      });
-    });
-
-    // Tech Stack Animation
-    gsap.utils.toArray('.tech-row').forEach((row, i) => {
-      gsap.to(row, {
-        scrollTrigger: {
-          trigger: row,
-          start: 'top 85%',
-          toggleActions: 'play none none reverse',
-        },
-        opacity: 1,
-        y: 0,
-        duration: 0.8,
-        delay: i * 0.1,
-        ease: 'power3.out',
-      });
-    });
-
-    // Project cards with dramatic reveal
-    gsap.utils.toArray('.project-card').forEach((card, i) => {
-      gsap.to(card, {
-        scrollTrigger: {
-          trigger: card,
-          start: 'top 85%',
-          toggleActions: 'play none none reverse',
-        },
-        opacity: 1,
-        y: 0,
-        duration: 1,
-        delay: i * 0.1,
-        ease: 'power3.out',
-      });
-    });
-
-    // Experience items
-    gsap.utils.toArray('.experience-item').forEach((item, i) => {
-      gsap.to(item, {
-        scrollTrigger: {
-          trigger: item,
-          start: 'top 85%',
-          toggleActions: 'play none none reverse',
-        },
-        opacity: 1,
-        y: 0,
-        duration: 0.8,
-        delay: i * 0.1,
-        ease: 'power3.out',
-      });
-    });
-
-    // Blog cards
-    gsap.utils.toArray('.blog-card').forEach((card, i) => {
-      gsap.to(card, {
-        scrollTrigger: {
-          trigger: '.blog-grid',
-          start: 'top 80%',
-          toggleActions: 'play none none reverse',
-        },
-        opacity: 1,
-        y: 0,
-        duration: 0.8,
-        delay: i * 0.1,
-        ease: 'power3.out',
-      });
-    });
-
-    // Contact section
-    gsap.to('.contact-info', {
-      scrollTrigger: {
-        trigger: '.contact',
-        start: 'top 70%',
-        toggleActions: 'play none none reverse',
-      },
-      opacity: 1,
-      x: 0,
-      duration: 1,
-      ease: 'power3.out',
-    });
-
-    gsap.to('.contact-form', {
-      scrollTrigger: {
-        trigger: '.contact',
-        start: 'top 70%',
-        toggleActions: 'play none none reverse',
-      },
-      opacity: 1,
-      x: 0,
-      duration: 1,
-      delay: 0.2,
-      ease: 'power3.out',
-    });
-
-    // Section observer
-    const sections = document.querySelectorAll('section[id]');
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveSection(entry.target.id);
-          }
-        });
-      },
-      { threshold: 0.3, rootMargin: '-20% 0px -20% 0px' }
-    );
-
-    sections.forEach((section) => observer.observe(section));
-
-    // Project Image Reveal Follower
-    const projectItems = document.querySelectorAll('.project-item');
-    projectItems.forEach((item) => {
-      const img = item.querySelector('.project-image-reveal');
-
-      const moveImage = (e) => {
-        gsap.to(img, {
-          x: e.clientX,
-          y: e.clientY,
-          duration: 0.15,
-          ease: 'power2.out',
-          overwrite: 'auto'
-        });
-      };
-
-      item.addEventListener('mousemove', moveImage);
-      // Cleanup attached to element, simplified for this scope
-    });
-
-    return () => {
-      observer.disconnect();
-      projectItems.forEach(item => {
-        // Remove listeners if needed, but standard cleanup handles main observer
-      });
-    };
+  const scrollToSection = (id) => {
+    const target = id === 'top' ? 0 : document.getElementById(id);
+    if (target === null) return;
+    history.replaceState(null, '', id === 'top' ? '/' : `/#${id}`);
+    // wait a frame so a closing menu releases the scroll lock first
+    requestAnimationFrame(() => lenisRef.current?.scrollTo(target, { duration: 1.6 }));
   };
 
-
-
-  useEffect(() => {
-    const list = experienceListRef.current;
-    const glow = experienceGlowRef.current;
-
-    if (!list || !glow) return;
-
-    const moveGlow = (e) => {
-      const rect = list.getBoundingClientRect();
-      const y = e.clientY - rect.top;
-
-      gsap.to(glow, {
-        y: y,
-        opacity: 1,
-        duration: 0.2,
-        ease: 'power2.out'
-      });
-    };
-
-    const hideGlow = () => {
-      gsap.to(glow, { opacity: 0, duration: 0.5 });
-    };
-
-    list.addEventListener('mousemove', moveGlow);
-    list.addEventListener('mouseleave', hideGlow);
-
-    return () => {
-      list.removeEventListener('mousemove', moveGlow);
-      list.removeEventListener('mouseleave', hideGlow);
-    };
-  }, []);
-
-  const scrollToSection = (href) => {
-    const element = document.querySelector(href);
-    if (element && lenisRef.current) {
-      lenisRef.current.scrollTo(element, { offset: -80 });
-    }
-    setIsMenuOpen(false);
-  };
-
-  const sendMessage = async (content) => {
-    if (!content.trim() || isChatLoading) return;
-
-    const userMessage = { role: 'user', content: content.trim() };
-    const updatedMessages = [...messages, userMessage];
-    setMessages(updatedMessages);
-    setChatInput('');
-    setIsChatLoading(true);
-
-    try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: updatedMessages.filter((m) => m.role !== 'error').slice(1),
-        }),
-      });
-
-      if (!response.ok) throw new Error('Failed to get response');
-
-      const { answer } = await response.json();
-      setMessages([...updatedMessages, { role: 'assistant', content: answer }]);
-    } catch (err) {
-      setMessages([
-        ...updatedMessages,
-        { role: 'error', content: 'Sorry, something went wrong. Try again!' },
-      ]);
-    } finally {
-      setIsChatLoading(false);
-    }
-  };
-
-  const handleChatSubmit = async (e) => {
-    e.preventDefault();
-    sendMessage(chatInput);
-  };
+  const yearsCoding = new Date().getFullYear() - 2021;
 
   return (
-    <>
-      {/* Loader */}
-      <div className={`loader ${!isLoading ? 'hidden' : ''}`}>
-        <div className="loader-logo">
-          <span style={{ color: 'var(--color-accent)' }}>del</span>río
+    <div className="gb" ref={rootRef}>
+      {/* ==================== INTRO ==================== */}
+      <div className="gb-loader" aria-hidden="true">
+        <div className="gb-loader-grid">
+          {GRID_CELLS.map((_, i) => (
+            <span key={i} className="gb-loader-cell" />
+          ))}
         </div>
-        <div className="loader-bar">
-          <div className="loader-bar-fill" />
+        <div className="gb-loader-meta">
+          <span className="gb-loader-count">000</span>
+          <span className="gb-mono">Christian Del Río — Portfolio ©{new Date().getFullYear()}</span>
         </div>
       </div>
 
-      {/* Scroll Progress */}
-      <div className="scroll-progress" style={{ width: `${scrollProgress}%` }} />
+      <div className="gb-progress" aria-hidden="true" />
 
-      {/* Navigation */}
-      <nav className={`nav ${isScrolled ? 'scrolled' : ''}`}>
-        <a href="#" className="nav-logo" onClick={(e) => { e.preventDefault(); scrollToSection('#hero'); }}>
-          <span style={{ color: 'var(--color-accent)' }}>del</span>río
-        </a>
+      <GridbreakNav
+        links={navLinks}
+        active={activeSection}
+        lenisRef={lenisRef}
+        onLinkClick={(link, e) => {
+          e.preventDefault();
+          scrollToSection(link.id);
+        }}
+        onLogoClick={(e) => {
+          e.preventDefault();
+          scrollToSection('top');
+        }}
+      />
 
-        <ul className="nav-links">
-          {navLinks.map((link) => (
-            <li key={link.href}>
-              <a
-                href={link.href}
-                className={`nav-link ${activeSection === link.href.slice(1) ? 'active' : ''}`}
-                onClick={(e) => { e.preventDefault(); scrollToSection(link.href); }}
-              >
-                {link.label}
-              </a>
-            </li>
-          ))}
-        </ul>
-
-        <button
-          className="nav-link"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          style={{ display: 'none' }}
-          aria-label="Menu"
-        >
-          <Menu size={24} />
-        </button>
-      </nav>
-
-      {/* Mobile Menu */}
-      {isMenuOpen && (
-        <div className="fixed inset-0 bg-black/95 z-50 flex flex-col items-center justify-center gap-8">
-          <button className="absolute top-6 right-6 text-white" onClick={() => setIsMenuOpen(false)}>
-            <X size={32} />
-          </button>
-          {navLinks.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              className="text-3xl font-bold text-white hover:text-[#c8ff00] transition-colors"
-              onClick={(e) => { e.preventDefault(); scrollToSection(link.href); }}
-            >
-              {link.label}
-            </a>
-          ))}
-        </div>
-      )}
-
-      <main>
-        {/* ==================== HERO SECTION ==================== */}
-        <section id="hero" className="hero section" style={{ height: '100vh', padding: 0, justifyContent: 'center' }}>
-          <div className="hero-wrapper">
-            <div className="hero-background-text">
-              CHRISTIAN DEL RIO — DEVELOPER — CREATOR —
-            </div>
-
-            <div className="container" style={{ position: 'relative', zIndex: 10 }}>
-              <div className="hero-tag" style={{ opacity: 0, transform: 'translateY(20px)', marginBottom: '2rem' }}>
-                <span style={{ color: 'var(--color-accent)' }}>●</span> AVAILABLE FOR NEW PROJECTS
+      <main id="top">
+        {/* ==================== HERO ==================== */}
+        <div className="gb-hero-wrap" data-section="top">
+          <section className="gb-hero">
+            <div className="gb-hero-inner">
+              <div className="gb-hero-ghost gb-wx" aria-hidden="true">
+                Portfolio — Engineer — Builder — ©{new Date().getFullYear()} — Portfolio — Engineer —
               </div>
-
-              <h1 className="title-monumental hero-name">
-                <span className="hero-name-line" style={{ opacity: 0, transform: 'translateY(100%)' }}>
-                  CHRISTIAN
-                </span>
-                <span className="hero-name-line" style={{ opacity: 0, transform: 'translateY(100%)' }}>
-                  DEL <span className="filled" style={{ display: 'inline', color: 'var(--color-accent)' }}>RÍO</span>
-                </span>
+              <h1 className="gb-hero-name gb-cx" aria-label="Christian Del Río">
+                {heroLetters.map((l, i) => [
+                  i === 3 && <span key="gap" className="gb-hero-gap" aria-hidden="true" />,
+                  <span key={i} className="gb-hero-letter" aria-hidden="true">
+                    {l}
+                  </span>,
+                ])}
               </h1>
 
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'flex-end',
-                marginTop: '4rem',
-                flexWrap: 'wrap',
-                gap: '2rem'
-              }}>
-                <p className="hero-subtitle" style={{
-                  opacity: 0,
-                  transform: 'translateY(20px)',
-                  fontSize: '1.5rem',
-                  maxWidth: '500px',
-                  margin: 0,
-                  fontFamily: 'var(--font-mono)'
-                }}>
-                  Software Engineer & Indie Hacker.<br />
-                  Crafting <span style={{ color: 'var(--color-text)' }}>digital experiences</span> that leave a mark.
-                </p>
-
-                <div className="hero-cta" style={{ opacity: 0, transform: 'translateY(20px)' }}>
-                  <a href="#work" className="magnetic-btn" onClick={(e) => { e.preventDefault(); scrollToSection('#work'); }}>
-                    See Selected Work
-                  </a>
+              <div className="gb-cut gb-mono">
+                <div className="gb-cut-meta">
+                  <span>(001) — Engineer &amp; builder</span>
+                  <span>Cut along line —&gt;</span>
                 </div>
+                <div className="gb-cut-line" />
+              </div>
+
+              <div className="gb-hero-info">
+                <div className="gb-hero-who">
+                  <div className="gb-hero-portrait">
+                    <img src="/me.png" alt="Portrait of Christian Del Río" />
+                  </div>
+                  <p className="gb-hero-title gb-cx">
+                    Christian
+                    <br />
+                    Del Río
+                  </p>
+                </div>
+                <p className="gb-mono" style={{ margin: 0 }}>
+                  Full-stack engineer
+                  <br />
+                  Product builder
+                </p>
+                <p className="gb-mono" style={{ margin: 0 }}>
+                  Santander — by day
+                  <br />
+                  Indie AI — by night
+                </p>
+                <p className="gb-hero-lede">
+                  I design, code and launch software products — from critical banking apps to my own AI tools. Scroll to
+                  see the work.
+                </p>
               </div>
             </div>
-          </div>
-        </section>
+
+            <div className="gb-cover" aria-hidden="true">
+              {GRID_CELLS.map((_, i) => (
+                <span key={i} className="gb-cover-cell" />
+              ))}
+            </div>
+          </section>
+        </div>
+
+        {/* ==================== MANIFESTO ==================== */}
+        {/* scene: lines arrive like subtitles, then the camera dives into "SHIP." */}
+        <div className="gb-scene-wrap gb-manifesto-wrap">
+          <section className="gb-manifesto gb-scene gb-has-bignum" aria-label="Manifesto">
+            <span className="gb-bignum gb-cx" data-speed="-0.6" aria-hidden="true">
+              02
+            </span>
+            <div className="gb-section-head gb-mono">
+              <span>(002) — Manifesto</span>
+              <span>Madrid, ES</span>
+            </div>
+            <p className="gb-mlines" style={{ margin: 0 }}>
+              <span className="gb-mline" data-skew>
+                <span className="gb-cx">I build</span> <span className="gb-wx">products</span>
+              </span>
+              <span className="gb-mline gb-mline--r gb-mline--hero" data-skew>
+                <span className="gb-wx">that</span> <span className="gb-cx gb-hl">ship.</span>
+              </span>
+              <span className="gb-mline" data-skew>
+                <span className="gb-cx">No decks.</span> <span className="gb-wx">Just</span>
+              </span>
+              <span className="gb-mline gb-mline--r" data-skew>
+                <span className="gb-cx">working</span> <span className="gb-wx">software.</span>
+              </span>
+            </p>
+          </section>
+        </div>
 
         {/* ==================== MARQUEE ==================== */}
-        <div className="marquee-section" style={{ opacity: 0 }}>
-          <div className="marquee">
-            {[...marqueeItems, ...marqueeItems].map((item, i) => (
-              <span key={i} className="marquee-item">
-                {item}
-                <span className="separator">✦</span>
-              </span>
+        <div className="gb-marquee" aria-hidden="true">
+          <div className="gb-marquee-track">
+            {[0, 1].map((dup) => (
+              <div key={dup} style={{ display: 'flex' }}>
+                {[...marqueeItems, ...marqueeItems].map((item, i) => (
+                  <span key={`${dup}-${i}`} className="gb-marquee-item gb-cx">
+                    {item} <i />
+                  </span>
+                ))}
+              </div>
             ))}
           </div>
         </div>
 
-        {/* ==================== ABOUT SECTION ==================== */}
-        <section id="about" className="about section">
-          <div className="container">
-            <div className="about-grid">
-              <div className="about-image-wrapper" style={{ opacity: 0, transform: 'translateX(-60px)' }}>
-                <div className="about-image">
-                  <Image
-                    src="/me.png"
-                    alt="Christian Del Río"
-                    width={600}
-                    height={800}
-                    quality={90}
-                    priority
-                  />
-                </div>
-                <div className="about-float about-float-1" style={{ opacity: 0, transform: 'scale(0.8)' }}>
-                  <Zap size={16} style={{ display: 'inline', marginRight: '6px', color: 'var(--color-accent)' }} />
-                  Building in public
-                </div>
-                <div className="about-float about-float-2" style={{ opacity: 0, transform: 'scale(0.8)' }}>
-                  <Coffee size={16} style={{ display: 'inline', marginRight: '6px', color: 'var(--color-accent)' }} />
-                  Coffee-powered
-                </div>
-                <div className="about-float about-float-3" style={{ opacity: 0, transform: 'scale(0.8)' }}>
-                  📍 Madrid, Spain
-                </div>
-              </div>
-
-              <div className="about-content" style={{ opacity: 0, transform: 'translateX(60px)' }}>
-                <span className="section-label">About me</span>
-                <h2 style={{ marginBottom: 'var(--space-xl)' }}>
-                  Engineer by day.<br />
-                  <span style={{ color: 'var(--color-text-muted)' }}>Builder by night.</span>
-                </h2>
-
-                <p className="about-text">
-                  By day, I work as a <strong>Software Engineer at Santander</strong>, building enterprise applications.
-                  By night and weekends, I&apos;m an <strong>indie hacker</strong> shipping my own AI-powered products
-                  and chasing the dream of creative freedom.
-                </p>
-
-                <p className="about-text">
-                  I started building in public in 2023 and haven&apos;t stopped since. From <strong>Fainancial</strong> (AI earnings analysis)
-                  to <strong>MeshMind</strong> (chain-of-thought builder), each product is a step towards building something meaningful.
-                </p>
-
-                <div className="about-stats">
-                  <div>
-                    <div className="about-stat-number">{totalProjects}<span className="accent">+</span></div>
-                    <div className="about-stat-label">Products Shipped</div>
-                  </div>
-                  <div>
-                    <div className="about-stat-number">{new Date().getFullYear() - 2021}<span className="accent">+</span></div>
-                    <div className="about-stat-label">Years Coding</div>
-                  </div>
-                  <div>
-                    <div className="about-stat-number">∞</div>
-                    <div className="about-stat-label">Ideas to Build</div>
-                  </div>
-                </div>
-              </div>
+        <section className="gb-manifesto gb-manifesto--notes" aria-label="Day and night">
+          <div className="gb-footnotes gb-mono">
+            <div>
+              <span>(a) Day</span>
+              <p>Software engineer at Santander, building critical financial applications.</p>
+            </div>
+            <div>
+              <span>(b) Night</span>
+              <p>Indie hacker shipping AI-powered products — design, code, launch, support.</p>
+            </div>
+            <div>
+              <span>(c) Always</span>
+              <p>Building in public since 2023, sharing what works and what doesn&apos;t.</p>
             </div>
           </div>
         </section>
 
-        {/* ==================== SKILLS SECTION ==================== */}
-        {/* ==================== TECH STACK SECTION ==================== */}
-        <section className="skills section" style={{ minHeight: 'auto', padding: '10vh 0' }}>
-          <div className="container" style={{ marginBottom: '4rem' }}>
-            <span className="section-label">THE ARSENAL</span>
-            <h2 className="title-monumental" style={{ fontSize: 'clamp(3rem, 8vw, 8rem)', WebkitTextStroke: '0', marginBottom: 0 }}>
-              TECH <span style={{ color: 'var(--color-text-muted)' }}>STACK</span>
-            </h2>
-          </div>
+        {/* ==================== WORK ==================== */}
+        <div id="work" className="gb-work-wrap" data-section="work">
+          <section className="gb-work" aria-label="Selected work">
+            <div className="gb-work-head gb-mono">
+              <span>(003) — Selected work</span>
+              <span>{totalProjects} products shipped</span>
+            </div>
 
-          <div className="container-wide">
-            {skillsCategories.map((category, i) => (
-              <div key={category.id} className="tech-row" style={{ opacity: 0, transform: 'translateY(30px)' }}>
-                <div className="tech-category">{category.title}</div>
-                <div className="tech-tags">
-                  {category.tools.map((tool, j) => (
-                    <span key={tool} className="tech-tag" style={{ transitionDelay: `${j * 50}ms` }}>
-                      {tool}
-                    </span>
-                  ))}
+            <div className="gb-track" data-skew="x">
+              <div className="gb-panel gb-panel--intro">
+                <p className="gb-mono" style={{ margin: '0 0 24px', color: 'var(--gb-mute-on-ink)' }}>
+                  Keep scrolling —&gt;
+                </p>
+                <h2 className="gb-cx" style={{ margin: 0, fontSize: 'clamp(80px, 12vw, 210px)', lineHeight: 0.8 }}>
+                  Selected
+                  <br />
+                  <span className="gb-wx">work</span>
+                </h2>
+              </div>
+
+              {projects.map((project, i) => {
+                const tone = panelTones[i % panelTones.length];
+                const linkProps = project.external ? { target: '_blank', rel: 'noopener noreferrer' } : {};
+                const Wrapper = project.external ? 'a' : Link;
+                return (
+                  <Wrapper
+                    key={project.id}
+                    href={project.href}
+                    {...linkProps}
+                    className={`gb-panel gb-panel--${tone}`}
+                    data-project={project.number}
+                  >
+                    <div className="gb-panel-top gb-mono">
+                      <span>
+                        Work {project.number} / {String(projects.length).padStart(2, '0')}
+                      </span>
+                      <span>{project.external ? 'Live site ↗' : 'Case study →'}</span>
+                    </div>
+                    <div className="gb-panel-media">
+                      {project.image && <img src={project.image} alt={`${project.title} screenshot`} loading="lazy" />}
+                      <span className="gb-panel-num gb-cx" aria-hidden="true">
+                        {project.number}
+                      </span>
+                    </div>
+                    <div className="gb-panel-foot">
+                      <h3 className="gb-panel-title gb-cx">{project.title}</h3>
+                      <div>
+                        <p className="gb-panel-desc">{project.description}</p>
+                        <div className="gb-tags gb-mono">
+                          {project.tags.slice(0, 3).map((tag) => (
+                            <span key={tag} className="gb-tag">
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </Wrapper>
+                );
+              })}
+
+              <div className="gb-panel gb-panel--end">
+                <span className="gb-mono">
+                  {totalProjects > projects.length
+                    ? `+${totalProjects - projects.length} more in the archive`
+                    : 'The archive'}
+                </span>
+                <Link href="/projects" className="gb-big-link gb-cx">
+                  All projects <span aria-hidden="true">→</span>
+                </Link>
+              </div>
+            </div>
+
+            <div className="gb-work-ui gb-mono" aria-hidden="true">
+              <span className="gb-work-count">01 / {String(projects.length).padStart(2, '0')}</span>
+              <div className="gb-work-bar">
+                <div />
+              </div>
+              <span>Scroll</span>
+            </div>
+          </section>
+        </div>
+
+        {/* ==================== REEL ==================== */}
+        {/* scene: letterboxed showreel — a video whose playhead is the scrollbar */}
+        <div className="gb-scene-wrap gb-reel-wrap">
+          <section className="gb-reel gb-scene" aria-label="Showreel">
+            <video
+              className="gb-reel-video"
+              src={REEL.src}
+              poster={REEL.poster}
+              muted
+              playsInline
+              preload="auto"
+              data-shot={REEL.shotLength}
+              aria-label="Showreel of Christian's products"
+            />
+            <div className="gb-reel-titles" aria-hidden="true">
+              {REEL.shots.map((shot) => (
+                <p key={shot} className="gb-reel-title gb-cx">
+                  {shot}
+                </p>
+              ))}
+            </div>
+            <div className="gb-reel-bar gb-reel-bar--top" aria-hidden="true" />
+            <div className="gb-reel-bar gb-reel-bar--bottom" aria-hidden="true" />
+            <div className="gb-reel-hud gb-reel-hud--top gb-mono" aria-hidden="true">
+              <span>
+                <span className="gb-dot" style={{ color: 'var(--gb-red)' }} />
+                Rec — Showreel
+              </span>
+              <span className="gb-reel-tc">00:00:00:00</span>
+            </div>
+            <div className="gb-reel-hud gb-reel-hud--bottom gb-mono" aria-hidden="true">
+              <span>CDR ©{new Date().getFullYear()}</span>
+              <span className="gb-reel-count">01 / {String(REEL.shots.length).padStart(2, '0')}</span>
+            </div>
+          </section>
+        </div>
+
+        {/* scene: the camera pulls back from a full-screen portrait */}
+        <div className="gb-scene-wrap gb-pscene-wrap">
+          <section className="gb-pscene gb-scene" aria-label="Portrait">
+            <div className="gb-pscene-frame">
+              <img src="/me.png" alt="Christian Del Río" />
+            </div>
+            <p className="gb-pscene-cap gb-pscene-cap--a gb-cx">
+              Engineer
+              <br />
+              <span className="gb-wx">by day</span>
+            </p>
+            <p className="gb-pscene-cap gb-pscene-cap--b gb-cx">
+              Builder
+              <br />
+              <span className="gb-wx">by night</span>
+            </p>
+          </section>
+        </div>
+
+        {/* ==================== INFO ==================== */}
+        <section id="info" className="gb-info gb-has-bignum" data-section="info" data-wipe>
+          <span className="gb-bignum gb-cx" data-speed="-0.5" aria-hidden="true">
+            04
+          </span>
+          <div className="gb-info-grid">
+            <div className="gb-info-aside">
+              <p className="gb-mono" style={{ margin: '0 0 20px', color: 'var(--gb-mute-on-bone)' }}>
+                (004) — About
+              </p>
+              <h2 className="gb-info-title gb-cx">Info</h2>
+              <figure className="gb-portrait" style={{ margin: '40px 0 0' }} data-speed="-0.12">
+                <img src="/me.png" alt="Christian Del Río" />
+                <figcaption className="gb-mono">CDR — Madrid, ES</figcaption>
+              </figure>
+            </div>
+
+            <div>
+              <p className="gb-about" data-words>
+                By day I&apos;m a <strong>software engineer at Santander</strong>, building enterprise applications. By
+                night and weekends I&apos;m an <strong>indie hacker</strong> shipping my own AI products — from{' '}
+                <em>Fainancial</em> to <em>MeshMind</em> — chasing creative freedom one launch at a time.
+              </p>
+
+              <div className="gb-stats">
+                <div className="gb-stat">
+                  <span className="gb-stat-num gb-cx" data-count={totalProjects}>
+                    {String(totalProjects).padStart(2, '0')}
+                    <sup>+</sup>
+                  </span>
+                  <span className="gb-mono">Products shipped</span>
+                </div>
+                <div className="gb-stat">
+                  <span className="gb-stat-num gb-cx" data-count={yearsCoding}>
+                    {String(yearsCoding).padStart(2, '0')}
+                    <sup>+</sup>
+                  </span>
+                  <span className="gb-mono">Years coding</span>
+                </div>
+                <div className="gb-stat">
+                  <span className="gb-stat-num gb-cx">∞</span>
+                  <span className="gb-mono">Ideas to build</span>
                 </div>
               </div>
-            ))}
-          </div>
-        </section>
 
-        {/* ==================== PROJECTS SECTION ==================== */}
-
-        <section id="work" className="section" style={{ padding: '0 0 10vh 0' }}>
-          <div className="container" style={{ marginBottom: '4rem' }}>
-            <span className="section-label">Selected Works</span>
-            <h2 className="title-monumental" style={{ fontSize: 'clamp(3rem, 6vw, 6rem)', WebkitTextStroke: '0' }}>
-              FEATURED<br />  <span style={{ color: 'var(--color-text-muted)' }}>PROJECTS</span>
-            </h2>
-          </div>
-
-          <div className="projects-list">
-            {projects.map((project) => (
-              <a
-                key={project.id}
-                href={project.liveUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="project-item"
-              >
-                <div className="container">
-                  <div className="project-meta">
-                    <span>{project.number} — {(project.category || 'PROJECT').toUpperCase()}</span>
-                    <span>{project.tags.join(' / ')}</span>
-                  </div>
-                  <h3 className="project-title">{project.title}</h3>
-                  <div className="project-meta" style={{ marginTop: '0.5rem', opacity: 0.7 }}>
-                    {project.description}
-                  </div>
-                </div>
-                <div
-                  className="project-image-reveal"
-                  style={{ backgroundImage: `url(${project.image})` }}
-                />
-              </a>
-            ))}
-          </div>
-
-          <div className="container" style={{ marginTop: '4rem', textAlign: 'center' }}>
-            <Link href="/products" className="magnetic-btn">
-              View All Projects
-            </Link>
-          </div>
-        </section>
-
-        {/* ==================== EXPERIENCE SECTION ==================== */}
-        <section id="experience" className="experience section">
-          <div className="container" style={{ marginBottom: '4rem' }}>
-            <span className="section-label">Trajectory</span>
-            <h2 className="title-monumental" style={{ fontSize: 'clamp(3rem, 6vw, 6rem)', WebkitTextStroke: '0' }}>
-              THE <span style={{ color: 'var(--color-text-muted)' }}>JOURNEY</span>
-            </h2>
-          </div>
-
-          <div className="container-wide">
-            <div className="experience-list" ref={experienceListRef} style={{ position: 'relative' }}>
-              <div className="experience-timeline">
-                <div className="experience-timeline-glow" ref={experienceGlowRef} />
+              <div className="gb-exp-head gb-mono">
+                <span>Experience</span>
+                <span>Hover or tap to expand</span>
               </div>
               {experienceData.map((exp) => (
-                <div
-                  key={exp.id}
-                  className="experience-item"
-                  style={{ opacity: 0, transform: 'translateY(30px)' }}
-                >
-                  <div className="experience-period">{exp.period}</div>
-                  <div className="experience-content">
-                    <h3 className="experience-company">{exp.company}</h3>
-                    <h4 className="experience-role">{exp.role}</h4>
-                    <div className="experience-details-wrapper">
-                      <ul className="experience-details">
-                        {exp.responsibilities.map((resp, i) => (
-                          <li key={i}>{resp}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ==================== BLOG SECTION ==================== */}
-        <section id="blog" className="section">
-          <div className="container" style={{ marginBottom: '4rem' }}>
-            <span className="section-label">Writing</span>
-            <h2 className="title-monumental">THOUGHTS</h2>
-          </div>
-
-          <div className="container-wide">
-            <div className="blog-list">
-              {blogPosts.map((post) => (
-                <Link
-                  key={post.slug}
-                  href={`/blog/${post.slug}`}
-                  className="blog-item"
-                >
-                  <div className="blog-item-meta">
-                    <span className="blog-item-date">
-                      {new Date(post.date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                <div key={exp.id} className="gb-exp-row" tabIndex={0}>
+                  <div className="gb-exp-rule" />
+                  <div className="gb-exp-main">
+                    <span className="gb-mono" style={{ color: 'var(--gb-mute-on-bone)' }}>
+                      {exp.period}
                     </span>
+                    <span className="gb-exp-company gb-cx" data-skew>
+                      {exp.company}
+                    </span>
+                    <span className="gb-mono">{exp.role}</span>
                   </div>
-                  <h3 className="blog-item-title">{post.title}</h3>
-                  <div className="blog-item-arrow">
-                    <ArrowUpRight size={24} />
+                  <div className="gb-exp-more">
+                    <ul>
+                      {exp.responsibilities.map((r) => (
+                        <li key={r}>{r}</li>
+                      ))}
+                    </ul>
                   </div>
-                </Link>
+                </div>
               ))}
             </div>
+          </div>
+        </section>
 
-            <div style={{ marginTop: '4rem', display: 'flex', justifyContent: 'center' }}>
-              <Link href="/blog" className="magnetic-btn">
-                Read All Articles
+        {/* ==================== STACK ==================== */}
+        <section id="stack" className="gb-stack gb-has-bignum" data-section="stack" data-wipe>
+          <span className="gb-bignum gb-cx" data-speed="-0.6" aria-hidden="true">
+            05
+          </span>
+          <div className="gb-section-head gb-mono">
+            <span>(005) — The arsenal</span>
+            <span>{skillsCategories.reduce((n, c) => n + c.tools.length, 0)} tools</span>
+          </div>
+          <h2 className="gb-stack-title gb-cx">Tech stack</h2>
+          <div className="gb-stack-grid">
+            {skillsCategories.map((category, i) => (
+              // columns travel at different speeds so the grid shears while you scroll
+              <div key={category.id} className="gb-stack-col" data-speed={(i * 0.12).toFixed(2)}>
+                <span className="gb-mono" style={{ color: 'var(--gb-red)' }}>
+                  0{i + 1}
+                </span>
+                <h3 className="gb-cx">{category.title}</h3>
+                <ul>
+                  {category.tools.map((tool, j) => (
+                    <li key={tool}>
+                      {tool}
+                      <span className="gb-mono">{String(j + 1).padStart(2, '0')}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ==================== NOTES ==================== */}
+        <section id="notes" className="gb-notes gb-has-bignum" data-section="notes" data-wipe>
+          <span className="gb-bignum gb-cx" data-speed="-0.6" aria-hidden="true">
+            06
+          </span>
+          <div className="gb-notes-head">
+            <div>
+              <p className="gb-mono" style={{ margin: '0 0 20px', color: 'var(--gb-mute-on-bone)' }}>
+                (006) — Writing
+              </p>
+              <h2 className="gb-notes-title gb-cx">Notes</h2>
+            </div>
+            <Link href="/blog" className="gb-btn">
+              All articles →
+            </Link>
+          </div>
+          <div className="gb-notes-list">
+            {blogPosts.map((post) => (
+              <Link key={post.slug} href={`/blog/${post.slug}`} className="gb-note" data-image={post.image || ''}>
+                <span className="gb-note-date gb-mono">{formatDate(post.date)}</span>
+                <h3 className="gb-note-title gb-cx" data-skew>
+                  {post.title}
+                </h3>
+                <span className="gb-note-tag gb-mono">{post.tag}</span>
+                <span className="gb-note-arrow" aria-hidden="true">
+                  →
+                </span>
               </Link>
-            </div>
+            ))}
+          </div>
+          <div className="gb-note-preview" aria-hidden="true">
+            <img alt="" />
           </div>
         </section>
 
-        {/* ==================== CONTACT SECTION ==================== */}
-        <section id="contact" className="section contact-section">
-          <div className="container">
-            <span className="section-label">Connect</span>
-            <h2 className="title-monumental">GET IN TOUCH</h2>
-
-            <div className="contact-container">
-              <a href="mailto:hello@iamdelrio.com" className="contact-email-massive">
-                hello@iamdelrio.com
-              </a>
-
-              <div className="contact-actions">
-                <div className="social-links-large">
-                  <a href="https://linkedin.com/in/iamdelrio" target="_blank" rel="noopener noreferrer" className="social-btn">
-                    <Linkedin size={24} />
-                    <span>LinkedIn</span>
-                  </a>
-                  <a href="https://github.com/delriodevelops" target="_blank" rel="noopener noreferrer" className="social-btn">
-                    <Github size={24} />
-                    <span>GitHub</span>
-                  </a>
-                  <a href="https://twitter.com/chrissdelrio" target="_blank" rel="noopener noreferrer" className="social-btn">
-                    <Twitter size={24} />
-                    <span>Twitter</span>
-                  </a>
+        {/* ==================== CREDITS ==================== */}
+        {/* scene: end credits roll up through a letterboxed frame before the post-credits contact */}
+        <div className="gb-scene-wrap gb-credits-wrap">
+          <section className="gb-credits gb-scene" aria-label="Credits">
+            <div className="gb-reel-bar gb-reel-bar--top" aria-hidden="true" />
+            <div className="gb-reel-bar gb-reel-bar--bottom" aria-hidden="true" />
+            <div className="gb-credits-roll">
+              <p className="gb-mono gb-credits-kicker">A Christian Del Río production</p>
+              <p className="gb-credits-title gb-cx">Del Río</p>
+              <dl className="gb-credits-list">
+                <div>
+                  <dt className="gb-mono">Directed, designed &amp; engineered by</dt>
+                  <dd>Christian Del Río</dd>
                 </div>
-              </div>
+                <div>
+                  <dt className="gb-mono">Day job</dt>
+                  <dd>Software Engineer — Santander</dd>
+                </div>
+                <div>
+                  <dt className="gb-mono">Starring</dt>
+                  <dd>{projects.map((p) => p.title).join(' · ')}</dd>
+                </div>
+                <div>
+                  <dt className="gb-mono">Previously</dt>
+                  <dd>NWorld — Software Developer</dd>
+                </div>
+                <div>
+                  <dt className="gb-mono">Built with</dt>
+                  <dd>Next.js · GSAP · Lenis · Firebase · OpenAI</dd>
+                </div>
+                <div>
+                  <dt className="gb-mono">Shot on location</dt>
+                  <dd>Madrid, Spain</dd>
+                </div>
+              </dl>
+              <p className="gb-credits-fin gb-wx">Fin.</p>
+              <p className="gb-mono gb-credits-kicker">Stay for the post-credits scene ↓</p>
             </div>
-          </div>
-        </section>
+          </section>
+        </div>
 
-        {/* Footer */}
-        <footer className="footer">
-          <div className="container">
-            <div className="footer-content">
-              <div className="footer-left">
-                <p>© {new Date().getFullYear()} Christian Del Río</p>
-                <p className="footer-sub">Engineer & Builder</p>
-              </div>
-              <div className="footer-nav">
-                <Link href="#work">Work</Link>
-                <Link href="#about">About</Link>
-                <Link href="#blog">Writing</Link>
-                <Link href="/products">Products</Link>
-              </div>
+        {/* ==================== CONTACT ==================== */}
+        <section id="contact" className="gb-contact" data-section="contact">
+          <div className="gb-cover" aria-hidden="true">
+            {GRID_CELLS.map((_, i) => (
+              <span key={i} className="gb-cover-cell" />
+            ))}
+          </div>
+
+          <p className="gb-mono" style={{ margin: '0 0 24px' }}>
+            (007) — Contact
+          </p>
+          <h2 className="gb-contact-title gb-cx">Let&apos;s talk</h2>
+
+          <div className="gb-contact-row">
+            <a href="mailto:hello@iamdelrio.com" className="gb-email gb-wx">
+              hello@iamdelrio.com
+            </a>
+            <div className="gb-cv">
+              <a
+                className="gb-btn"
+                href="/CV_CHRISTIAN_DELRIO_RODRIGUEZ_EN.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                CV — EN ↓
+              </a>
+              <a
+                className="gb-btn"
+                href="/CV_CHRISTIAN_DELRIO_RODRIGUEZ_ES.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                CV — ES ↓
+              </a>
             </div>
           </div>
-        </footer>
+
+          <footer className="gb-footer gb-mono">
+            <div>
+              <p style={{ margin: '0 0 10px', opacity: 0.75 }}>Social</p>
+              <ul>
+                {SOCIALS.map((s) => (
+                  <li key={s.href}>
+                    <a href={s.href} target="_blank" rel="noopener noreferrer">
+                      {s.label} ↗
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <p style={{ margin: '0 0 10px', opacity: 0.75 }}>Pages</p>
+              <ul>
+                <li>
+                  <Link href="/projects">Projects</Link>
+                </li>
+                <li>
+                  <Link href="/products">Products</Link>
+                </li>
+                <li>
+                  <Link href="/blog">Blog</Link>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <p style={{ margin: '0 0 10px', opacity: 0.75 }}>Local time</p>
+              <p style={{ margin: 0 }}>Madrid — {clock}</p>
+              <p style={{ margin: 0 }}>© {new Date().getFullYear()} Christian Del Río</p>
+            </div>
+            <button className="gb-btn gb-footer-top" onClick={() => scrollToSection('top')}>
+              Back to top ↑
+            </button>
+          </footer>
+        </section>
       </main>
 
-      {/* ==================== FLOATING CHAT ==================== */}
-      {/* ==================== FLOATING CHAT ==================== */}
-      <div className="chat-widget">
-        {!isChatOpen && (
-          <button
-            className="chat-toggle"
-            onClick={() => setIsChatOpen(true)}
-            aria-label="Open chat"
-          >
-            <MessageCircle size={24} />
-          </button>
-        )}
-
-        {isChatOpen && (
-          <div className="chat-window">
-            <div className="chat-header">
-              <div className="chat-header-avatar">
-                {/* Placeholder or real avatar */}
-                <div style={{ width: 30, height: 30, background: 'var(--color-accent)', borderRadius: '50%' }} />
-              </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>AI Assistant</div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>Online</div>
-              </div>
-              <button className="chat-close" onClick={() => setIsChatOpen(false)} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer' }}>
-                <X size={20} />
-              </button>
-            </div>
-
-            <div className="chat-messages" ref={chatMessagesRef}>
-              {messages.map((msg, i) => (
-                <div key={i} className={`message message-${msg.role}`}>
-                  {msg.content}
-                </div>
-              ))}
-              {isChatLoading && (
-                <div className="message message-assistant" style={{ opacity: 0.7 }}>
-                  Thinking...
-                </div>
-              )}
-              {messages.length === 1 && !isChatLoading && (
-                <div style={{ marginTop: 'auto', paddingTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <button
-                    onClick={() => sendMessage("What's your experience?")}
-                    style={{
-                      background: 'rgba(255,255,255,0.05)',
-                      border: '1px solid rgba(255,255,255,0.1)',
-                      padding: '0.6rem 1rem',
-                      borderRadius: '12px',
-                      color: 'var(--color-text)',
-                      fontSize: '0.85rem',
-                      cursor: 'pointer',
-                      textAlign: 'left',
-                      transition: 'all 0.2s',
-                    }}
-                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--color-accent)'; e.currentTarget.style.color = 'white'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = 'var(--color-text)'; }}
-                  >
-                    What&apos;s your experience?
-                  </button>
-                  <button
-                    onClick={() => sendMessage("What's your tech stack?")}
-                    style={{
-                      background: 'rgba(255,255,255,0.05)',
-                      border: '1px solid rgba(255,255,255,0.1)',
-                      padding: '0.6rem 1rem',
-                      borderRadius: '12px',
-                      color: 'var(--color-text)',
-                      fontSize: '0.85rem',
-                      cursor: 'pointer',
-                      textAlign: 'left',
-                      transition: 'all 0.2s',
-                    }}
-                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--color-accent)'; e.currentTarget.style.color = 'white'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = 'var(--color-text)'; }}
-                  >
-                    What&apos;s your tech stack?
-                  </button>
-                  <button
-                    onClick={() => sendMessage("Let's schedule a call")}
-                    style={{
-                      background: 'rgba(255,255,255,0.05)',
-                      border: '1px solid rgba(255,255,255,0.1)',
-                      padding: '0.6rem 1rem',
-                      borderRadius: '12px',
-                      color: 'var(--color-text)',
-                      fontSize: '0.85rem',
-                      cursor: 'pointer',
-                      textAlign: 'left',
-                      transition: 'all 0.2s',
-                    }}
-                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--color-accent)'; e.currentTarget.style.color = 'white'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = 'var(--color-text)'; }}
-                  >
-                    Let&apos;s schedule a call
-                  </button>
-                </div>
-              )}
-            </div>
-
-            <div className="chat-input-area">
-              <form style={{ display: 'flex', width: '100%', gap: '0.5rem' }} onSubmit={handleChatSubmit}>
-                <input
-                  type="text"
-                  className="chat-input"
-                  placeholder="Ask me anything..."
-                  value={chatInput}
-                  onChange={(e) => setChatInput(e.target.value)}
-                  disabled={isChatLoading}
-                />
-                <button type="submit" className="chat-send" disabled={isChatLoading || !chatInput.trim()}>
-                  <Send size={18} />
-                </button>
-              </form>
-            </div>
-          </div>
-        )}
-      </div>
-    </>
+      <GridbreakChat />
+    </div>
   );
 }

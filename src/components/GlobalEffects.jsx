@@ -28,29 +28,18 @@ export default function GlobalEffects() {
                 });
             };
 
-            const handleHover = () => {
-                cursor.classList.add('hovered');
-            };
-
-            const handleUnhover = () => {
-                cursor.classList.remove('hovered');
+            // Delegated so links rendered after mount (client-only pages, async data) also react
+            const interactiveSelector = 'a, button, .project-item, .magnetic-btn';
+            const handleOver = (e) => {
+                cursor.classList.toggle('hovered', !!e.target.closest?.(interactiveSelector));
             };
 
             window.addEventListener('mousemove', moveCursor);
-
-            // Add hover effect to all links and buttons
-            const interactiveElements = document.querySelectorAll('a, button, .project-item, .magnetic-btn');
-            interactiveElements.forEach((el) => {
-                el.addEventListener('mouseenter', handleHover);
-                el.addEventListener('mouseleave', handleUnhover);
-            });
+            document.addEventListener('mouseover', handleOver);
 
             return () => {
                 window.removeEventListener('mousemove', moveCursor);
-                interactiveElements.forEach((el) => {
-                    el.removeEventListener('mouseenter', handleHover);
-                    el.removeEventListener('mouseleave', handleUnhover);
-                });
+                document.removeEventListener('mouseover', handleOver);
             };
         }
     }, []);

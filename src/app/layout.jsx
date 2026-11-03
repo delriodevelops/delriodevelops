@@ -1,10 +1,25 @@
-import { Inter } from 'next/font/google';
+import { Inter, Archivo, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 
 const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-inter',
+});
+
+// Gridbreak display face: variable width (62–125) drives the condensed/expanded contrast
+const archivo = Archivo({
+  subsets: ['latin'],
+  display: 'swap',
+  axes: ['wdth'],
+  variable: '--font-archivo',
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  display: 'swap',
+  weight: ['400', '600'],
+  variable: '--font-jetbrains',
 });
 
 export const metadata = {
@@ -67,10 +82,11 @@ export const viewport = {
 };
 
 import GlobalEffects from '../components/GlobalEffects';
+import RouteCurtain from '../components/route-curtain';
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en" className={`${inter.variable} ${archivo.variable} ${jetbrainsMono.variable}`}>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -79,6 +95,7 @@ export default function RootLayout({ children }) {
       <body className={inter.className}>
         <GlobalEffects />
         {children}
+        <RouteCurtain />
       </body>
     </html>
   );

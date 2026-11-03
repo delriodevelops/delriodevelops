@@ -1,12 +1,21 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, ArrowUpRight, Search, Loader2 } from 'lucide-react';
-import gsap from 'gsap';
 import { getAllPosts } from '../../lib/services/blog';
-
-const tags = ['All', 'Indie Hacking', 'AI', 'Tools', 'Personal', 'Tutorial', 'Product'];
+import GridbreakChat from '../../components/gridbreak-chat';
+import {
+    CursorPreview,
+    GridbreakEnter,
+    GridbreakFooter,
+    GridbreakNav,
+    GridbreakProgress,
+    formatDate,
+    useCursorPreview,
+    useGridbreakPage,
+} from '../../components/gridbreak-shell';
+import '../gridbreak.css';
+import '../gridbreak-pages.css';
 
 // Fallback static posts for when Firebase is not configured
 const fallbackPosts = [
@@ -49,32 +58,23 @@ const fallbackPosts = [
 ];
 
 export default function BlogPage() {
+    const rootRef = useRef(null);
     const [selectedTag, setSelectedTag] = useState('All');
     const [searchQuery, setSearchQuery] = useState('');
     const [posts, setPosts] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
-    const listRef = useRef(null);
-    const revealRef = useRef(null);
 
-    // Fetch posts from Firebase on mount
     useEffect(() => {
         const fetchPosts = async () => {
             try {
                 const firebasePosts = await getAllPosts();
-                if (firebasePosts.length > 0) {
-                    // Transform Firebase data to match expected format
-                    const formattedPosts = firebasePosts.map(post => ({
-                        ...post,
-                        date: post.createdAt || new Date().toISOString(),
-                    }));
-                    setPosts(formattedPosts);
-                } else {
-                    // Use fallback if no Firebase posts
-                    setPosts(fallbackPosts);
-                }
+                setPosts(
+                    firebasePosts.length > 0
+                        ? firebasePosts.map((post) => ({ ...post, date: post.createdAt || new Date().toISOString() }))
+                        : fallbackPosts
+                );
             } catch (error) {
                 console.error('Error fetching posts:', error);
-                // Use fallback on error
                 setPosts(fallbackPosts);
             }
             setIsLoading(false);
@@ -83,285 +83,120 @@ export default function BlogPage() {
         fetchPosts();
     }, []);
 
+    // Tags come from the posts themselves so filters never point at empty sets
+    const tags = useMemo(() => ['All', ...new Set(posts.map((p) => p.tag).filter(Boolean))], [posts]);
+
     const filteredPosts = posts.filter((post) => {
+        const q = searchQuery.toLowerCase();
         const matchesTag = selectedTag === 'All' || post.tag === selectedTag;
-        const matchesSearch =
-            post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            post.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesSearch = (post.title || '').toLowerCase().includes(q) || (post.excerpt || '').toLowerCase().includes(q);
         return matchesTag && matchesSearch;
     });
 
-    useEffect(() => {
-        if (isLoading) return;
+    const isFiltering = selectedTag !== 'All' || searchQuery !== '';
+    const [featured, ...rest] = filteredPosts;
+    const listed = isFiltering ? filteredPosts : rest;
 
-        const items = document.querySelectorAll('.blog-item');
-        const reveal = revealRef.current;
-        const revealImg = reveal?.querySelector('img');
-
-        if (!reveal || !items.length) return;
-
-        // Move reveal following mouse
-        const moveReveal = (e) => {
-            gsap.to(reveal, {
-                x: e.clientX,
-                y: e.clientY,
-                duration: 0.1,
-                ease: 'power2.out'
-            });
-        };
-
-        window.addEventListener('mousemove', moveReveal);
-
-        items.forEach((item) => {
-            item.addEventListener('mouseenter', () => {
-                const img = item.getAttribute('data-img');
-                if (revealImg && img) revealImg.src = img;
-
-                gsap.to(reveal, {
-                    opacity: 1,
-                    scale: 1,
-                    duration: 0.3,
-                    ease: 'power2.out'
-                });
-            });
-
-            item.addEventListener('mouseleave', () => {
-                gsap.to(reveal, {
-                    opacity: 0,
-                    scale: 0.8,
-                    duration: 0.3,
-                    ease: 'power2.out'
-                });
-            });
-        });
-
-        return () => {
-            window.removeEventListener('mousemove', moveReveal);
-        };
-    }, [filteredPosts, isLoading]);
+    // Reveals rebuild only when the list identity changes, not on every keystroke
+    const listKey = listed.map((p) => p.slug).join('|');
+    const { lenisRef, onEntered } = useGridbreakPage(rootRef, { ready: !isLoading, deps: [listKey, isFiltering] });
+    const previewRef = useCursorPreview(rootRef, [listKey]);
 
     return (
-        <div style={{ minHeight: '100vh', background: 'var(--color-bg)', overflowX: 'hidden' }}>
-            {/* Reveal Image Container */}
-            <div
-                ref={revealRef}
-                className="project-image-reveal"
-                style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    width: '400px',
-                    height: '250px',
-                    pointerEvents: 'none',
-                    opacity: 0,
-                    zIndex: 20,
-                    transform: 'translate(-50%, -50%) scale(0.8)',
-                    borderRadius: '8px',
-                    overflow: 'hidden',
-                }}
-            >
-                <div className="reveal-inner" style={{ width: '100%', height: '100%' }}>
-                    <img
-                        src=""
-                        alt="Blog Preview"
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
-                </div>
-            </div>
+        <div className="gb" ref={rootRef}>
+            <GridbreakEnter onDone={onEntered} />
+            <GridbreakProgress />
+            <GridbreakNav active="notes" lenisRef={lenisRef} />
 
-            {/* Header */}
-            <header style={{ padding: '15vh 0 5vh' }}>
-                <div className="container">
-                    <Link
-                        href="/"
-                        style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '1rem',
-                            color: '#888',
-                            textDecoration: 'none',
-                            fontSize: '0.9rem',
-                            letterSpacing: '0.05em',
-                            marginBottom: '4rem',
-                            textTransform: 'uppercase',
-                            transition: 'color 0.3s ease',
-                        }}
-                        onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--color-accent)')}
-                        onMouseLeave={(e) => (e.currentTarget.style.color = '#888')}
-                    >
-                        <ArrowLeft size={16} />
-                        Back home
-                    </Link>
-
-                    <span className="section-label" style={{ marginBottom: '1rem', display: 'block' }}>Writing</span>
-                    <h1 className="title-monumental" style={{ fontSize: 'clamp(3rem, 8vw, 6rem)', lineHeight: 0.9, marginBottom: '2rem' }}>
-                        THOUGHTS
+            <main>
+                <header className="gb-phead gb-phead--ink">
+                    <div className="gb-crumbs gb-mono">
+                        <Link href="/">← Index</Link>
+                        <span>(B) — Writing</span>
+                    </div>
+                    <h1 className="gb-ptitle gb-cx" data-speed="-0.35" data-skew>
+                        <span data-gb-chars>Notes</span>
+                        {!isLoading && <sup>({String(posts.length).padStart(2, '0')})</sup>}
                     </h1>
-
-                    {/* Controls Row */}
-                    <div style={{
-                        display: 'flex',
-                        flexWrap: 'wrap',
-                        gap: '2rem',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        marginTop: '4rem'
-                    }}>
-                        {/* Tags */}
-                        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                    <div className="gb-phead-row">
+                        <div className="gb-controls" role="group" aria-label="Filter by tag">
                             {tags.map((tag) => (
                                 <button
                                     key={tag}
+                                    className={`gb-filter ${selectedTag === tag ? 'is-active' : ''}`}
                                     onClick={() => setSelectedTag(tag)}
-                                    style={{
-                                        padding: '0.5rem 1rem',
-                                        background: selectedTag === tag ? 'var(--color-accent)' : 'rgba(255,255,255,0.05)',
-                                        color: selectedTag === tag ? '#000' : '#888',
-                                        border: '1px solid',
-                                        borderColor: selectedTag === tag ? 'var(--color-accent)' : 'rgba(255,255,255,0.1)',
-                                        borderRadius: '100px',
-                                        fontSize: '0.8rem',
-                                        fontWeight: '600',
-                                        cursor: 'pointer',
-                                        textTransform: 'uppercase',
-                                        transition: 'all 0.3s ease',
-                                    }}
+                                    aria-pressed={selectedTag === tag}
                                 >
                                     {tag}
                                 </button>
                             ))}
                         </div>
-
-                        {/* Search */}
-                        <div style={{ position: 'relative' }}>
-                            <Search
-                                size={16}
-                                style={{
-                                    position: 'absolute',
-                                    left: '1rem',
-                                    top: '50%',
-                                    transform: 'translateY(-50%)',
-                                    color: '#666',
-                                }}
-                            />
+                        <div className="gb-search">
+                            <label htmlFor="gb-search" className="gb-mono">
+                                Search
+                            </label>
                             <input
-                                type="text"
-                                placeholder="Search articles..."
+                                id="gb-search"
+                                type="search"
+                                placeholder="Type to filter…"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                style={{
-                                    padding: '0.8rem 1rem',
-                                    paddingLeft: '2.5rem',
-                                    background: 'rgba(255,255,255,0.05)',
-                                    border: '1px solid rgba(255,255,255,0.1)',
-                                    borderRadius: '100px',
-                                    color: '#fff',
-                                    fontSize: '0.9rem',
-                                    width: '250px',
-                                    outline: 'none',
-                                }}
-                                onFocus={(e) => e.target.style.borderColor = 'var(--color-accent)'}
-                                onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
                             />
                         </div>
                     </div>
-                </div>
-            </header>
+                </header>
 
-            {/* Blog List - Monumental Style */}
-            <section className="container" style={{ paddingBottom: '15vh' }}>
-                {isLoading ? (
-                    <div style={{ textAlign: 'center', padding: '8rem 0' }}>
-                        <Loader2
-                            size={32}
-                            style={{
-                                color: 'var(--color-accent)',
-                                animation: 'spin 1s linear infinite',
-                                marginBottom: '1rem'
-                            }}
-                        />
-                        <p style={{ color: '#666', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '0.8rem' }}>
-                            Loading posts...
-                        </p>
-                        <style jsx>{`
-                            @keyframes spin {
-                                from { transform: rotate(0deg); }
-                                to { transform: rotate(360deg); }
-                            }
-                        `}</style>
-                    </div>
-                ) : (
-                    <div ref={listRef} className="blog-list-container">
-                        {filteredPosts.length > 0 ? (
-                            filteredPosts.map((post) => (
-                                <Link
-                                    key={post.slug}
-                                    href={`/blog/${post.slug}`}
-                                    className="blog-item"
-                                    data-img={post.image}
-                                    style={{
-                                        display: 'grid',
-                                        gridTemplateColumns: '1fr 3fr auto',
-                                        gap: '2rem',
-                                        alignItems: 'center',
-                                        padding: '4rem 0',
-                                        borderTop: '1px solid rgba(255,255,255,0.1)',
-                                        textDecoration: 'none',
-                                        position: 'relative',
-                                        transition: 'padding-left 0.3s ease',
-                                    }}
-                                    onMouseEnter={(e) => {
-                                        e.currentTarget.style.paddingLeft = '2rem';
-                                        e.currentTarget.querySelector('.blog-title').style.color = 'var(--color-accent)';
-                                        const arrow = e.currentTarget.querySelector('.blog-arrow');
-                                        if (arrow) {
-                                            arrow.style.transform = 'rotate(0deg) scale(1.2)';
-                                            arrow.style.color = 'var(--color-accent)';
-                                        }
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        e.currentTarget.style.paddingLeft = '0';
-                                        e.currentTarget.querySelector('.blog-title').style.color = '#fff';
-                                        const arrow = e.currentTarget.querySelector('.blog-arrow');
-                                        if (arrow) {
-                                            arrow.style.transform = 'rotate(45deg)';
-                                            arrow.style.color = '#888';
-                                        }
-                                    }}
-                                >
-                                    <div style={{ fontFamily: 'var(--font-mono)', color: '#666', fontSize: '0.9rem' }}>
-                                        {new Date(post.date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
-                                    </div>
-                                    <div>
-                                        <h3 className="blog-title" style={{
-                                            fontSize: 'clamp(1.5rem, 3vw, 2.5rem)',
-                                            margin: '0 0 0.5rem 0',
-                                            transition: 'color 0.3s ease'
-                                        }}>
-                                            {post.title}
-                                        </h3>
-                                        <p style={{ margin: 0, color: '#888', maxWidth: '600px' }}>{post.excerpt}</p>
-                                    </div>
-                                    <ArrowUpRight
-                                        className="blog-arrow"
-                                        size={32}
-                                        color="#888"
-                                        style={{
-                                            transform: 'rotate(45deg)',
-                                            transition: 'all 0.3s ease'
-                                        }}
-                                    />
-                                </Link>
-                            ))
-                        ) : (
-                            <div style={{ textAlign: 'center', padding: '4rem 0', color: '#666' }}>
-                                No articles found matching your criteria.
-                            </div>
-                        )}
-                        <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }} />
-                    </div>
+                {!isLoading && !isFiltering && featured && (
+                    <Link href={`/blog/${featured.slug}`} className="gb-feature">
+                        <div className="gb-feature-media" data-gb-clip>
+                            {featured.image && <img src={featured.image} alt="" />}
+                        </div>
+                        <div data-speed="-0.2">
+                            <span className="gb-mono" style={{ color: 'var(--gb-red)' }}>
+                                Latest — {formatDate(featured.date)}
+                            </span>
+                            <h2 className="gb-cx">{featured.title}</h2>
+                            <p>{featured.excerpt}</p>
+                            <span className="gb-btn">Read the note →</span>
+                        </div>
+                    </Link>
                 )}
-            </section>
+
+                <section className="gb-arch gb-arch--ink" aria-busy={isLoading} aria-live="polite">
+                    {isLoading ? (
+                        <div aria-label="Loading">
+                            {[0, 1, 2, 3].map((i) => (
+                                <div key={i} className="gb-skeleton" />
+                            ))}
+                        </div>
+                    ) : filteredPosts.length === 0 ? (
+                        <p className="gb-empty gb-mono">No notes match that — try another tag or search.</p>
+                    ) : (
+                        <div data-gb-stagger key={listKey}>
+                            {listed.map((post) => (
+                                <Link key={post.slug} href={`/blog/${post.slug}`} className="gb-arch-row gb-post-row" data-image={post.image || ''}>
+                                    <span className="gb-mono">{formatDate(post.date)}</span>
+                                    <div>
+                                        <h2 className="gb-arch-name gb-cx" data-skew>
+                                            {post.title}
+                                        </h2>
+                                        {post.excerpt && <p>{post.excerpt}</p>}
+                                    </div>
+                                    <span className="gb-arch-tags gb-mono">{post.tag}</span>
+                                    <span className="gb-arch-arrow" aria-hidden="true">
+                                        →
+                                    </span>
+                                </Link>
+                            ))}
+                        </div>
+                    )}
+                    <CursorPreview previewRef={previewRef} />
+                </section>
+
+                <GridbreakFooter lenisRef={lenisRef} />
+            </main>
+
+            <GridbreakChat />
         </div>
     );
 }
