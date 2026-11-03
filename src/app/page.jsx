@@ -33,6 +33,7 @@ export default async function Page() {
     meshmind: caseHref(/meshmind/i, 'meshmind'),
     cityswipe: caseHref(/cityswipe/i, 'cityswipe'),
     billonario: caseHref(/billonario/i, 'billonario'),
+    motorsportive: caseHref(/motorsportive/i, 'motorsportive'),
   };
 
   const posts = allPosts.slice(0, 4).map((post) => ({

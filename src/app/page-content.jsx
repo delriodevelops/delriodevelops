@@ -53,7 +53,7 @@ const REEL = {
   src: '/reel/showreel.mp4',
   poster: '/reel/showreel-poster.jpg',
   shotLength: 2,
-  shots: ['Fainancial', 'MeshMind', 'CitySwipe', 'Billonario', 'Baitme', 'Clyme', 'DR.NEWS', 'My Dog Food', 'Escudo Leal'],
+  shots: ['Fainancial', 'MeshMind', 'CitySwipe', 'Billonario', 'Motorsportive', 'Baitme', 'Clyme', 'DR.NEWS', 'My Dog Food', 'Escudo Leal'],
 };
 
 // Featured films: a few seconds of one continuous camera move from each launch film, scrubbed by
@@ -88,6 +88,15 @@ const FEATURES = [
     alt: 'one trade arriving at once on two phones and a laptop',
     lines: ['Bankrupt your friends.', 'Live, on every screen.'],
     focus: '94%', // the phone the offer arrives on, right of centre
+  },
+  {
+    id: 'motorsportive',
+    name: 'Motorsportive',
+    src: '/motorsportive/scroll.mp4',
+    poster: '/motorsportive/scroll-poster.webp',
+    alt: 'five red start lights coming on one by one, then lights out into the first story',
+    lines: ['Five lights, then the news.', 'Formula 1, read closely.'],
+    focus: '70%', // the start lights, right of centre
   },
 ];
 

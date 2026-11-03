@@ -5,7 +5,19 @@
  * products — keep them in sync with Firestore.
  */
 export const FALLBACK_PROJECTS = [
-  { id: 'motorsportive', name: 'Motorsportive', description: 'A Formula 1 publication — breaking news, race analysis and live championship standings, with an editorial desk and a shop.', image: '/motorsportive.webp', tags: ['Editorial', 'Publishing', 'SaaS'], href: 'https://motorsportive.com' },
+  {
+    id: 'motorsportive',
+    name: 'Motorsportive',
+    description: 'A Formula 1 publication — breaking news, race analysis and live championship standings, with an editorial desk and a shop.',
+    longDescription: 'An independent Formula 1 journal: the news as it breaks, technical analysis, the championship as a timing tower, and every race weekend with its countdown and schedule in your own time zone. Server-rendered on Cloudflare Workers so every page reaches search. The launch film above is the site itself, its real pages and data cut to the beat.',
+    image: '/motorsportive.webp',
+    images: ['/motorsportive/1.webp', '/motorsportive/2.webp', '/motorsportive/3.webp', '/motorsportive/4.webp'],
+    video: '/motorsportive/film.mp4',
+    videoPoster: '/motorsportive/film-poster.webp',
+    tags: ['Editorial', 'Publishing', 'SaaS'],
+    href: 'https://motorsportive.com',
+    date: '2026-11-03',
+  },
   { id: 'fainancial', name: 'Fainancial', description: 'AI-powered earnings call analysis. Turns a 60-minute call into the three things that moved the number.', image: '/fainancial/1.webp', tags: ['AI', 'Finance', 'SaaS'], href: 'https://fainancial.app/' },
   {
     id: 'meshmind',

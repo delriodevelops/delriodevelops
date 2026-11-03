@@ -15,6 +15,7 @@ SHOTS=(
   meshmind/film.mp4@6.55  # the wires drawn, the signal through the flow, the pull-out to the browser
   cityswipe/scroll.mp4@0.6  # the dots fly from the cost field into the value chart, the frontier draws
   billonario/film.mp4@20.3  # a country completed, then ten builds speeding up into the hotel
+  motorsportive/film.mp4@14.6  # the red dot closes the Interlagos lap, the frame floods red, the site rises
   baitme/1.webp
   clyme.webp
   drnews.webp
