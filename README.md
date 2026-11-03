@@ -7,11 +7,11 @@ deployed to Cloudflare Workers via OpenNext, with content in Firestore.
 
 ```bash
 npm install
-cp .env.example .env.local   # fill in the values
 npm run dev
 ```
 
-The site runs without any environment variables: Firebase-backed sections fall
+For real data, put the variables listed under [Deployment](#deployment) in
+`.env.local`. The site runs without any of them: Firebase-backed sections fall
 back to static data, and the AI assistant returns a 503.
 
 ## Scripts
@@ -26,7 +26,7 @@ back to static data, and the AI assistant returns a 503.
 | `npm run optimize:images` | Re-compress everything in `public/` to WebP |
 | `npm run cf:build` | Build + OpenNext bundle for Cloudflare |
 | `npm run cf:preview` | Run the Worker locally |
-| `npm run cf:deploy` | Deploy the Worker |
+| `npm run cf:deploy` | Deploy the Worker named in `wrangler.jsonc` — not production, see [Deployment](#deployment) |
 
 ## Architecture
 
@@ -79,14 +79,33 @@ global counter.
 
 ## Deployment
 
-Cloudflare Workers via `@opennextjs/cloudflare`:
+Production is the Worker **`delriodevelops`**, which serves iamdelrio.com and
+www. Cloudflare Workers Builds builds it with `@opennextjs/cloudflare` and
+deploys it on every push to `main`, so pushing is the whole release. A build
+takes about 5 to 15 minutes; its result shows on the commit in GitHub as the
+check "Workers Builds: delriodevelops".
 
-```bash
-npm run cf:build && npm run cf:deploy
-```
+`wrangler.jsonc` names the Worker `portfolio`. Workers Builds deploys to
+`delriodevelops` regardless, but wrangler run locally follows the config:
+`npm run cf:deploy` does not reach production, it creates or updates a separate
+`portfolio` Worker on workers.dev. Pass `--name delriodevelops` to any wrangler
+command meant for production.
 
-Set every variable from `.env.example` in the Worker. `DEEPSEEK_API_KEY` must be
-a secret (`npx wrangler secret put DEEPSEEK_API_KEY`).
+| Variable | Set as | For |
+| --- | --- | --- |
+| `NEXT_PUBLIC_FIREBASE_API_KEY`, `_AUTH_DOMAIN`, `_PROJECT_ID`, `_STORAGE_BUCKET`, `_MESSAGING_SENDER_ID`, `_APP_ID` | Build variables | Firestore reads, and the admin's Firebase client |
+| `NEXT_PUBLIC_ADMIN_EMAIL` | Build variable | The account allowed into `/admin` |
+| `NEXT_PUBLIC_CF_ANALYTICS_TOKEN` | Build variable (optional) | Cloudflare Web Analytics |
+| `DEEPSEEK_API_KEY` | Runtime secret | The AI assistant |
+
+Next.js inlines `NEXT_PUBLIC_*` values when it builds, so they belong in the
+Worker's build settings (Settings → Build → Variables and secrets), not only in
+its runtime variables. Without them the build still passes but renders from
+`FALLBACK_PROJECTS`: the blog is empty, its posts 404 and the archive lists only
+the fallback projects. Set the secret with
+`npx wrangler secret put DEEPSEEK_API_KEY --name delriodevelops`.
+
+To try the production bundle locally: `npm run cf:build && npm run cf:preview`.
 
 ## Outstanding
 
