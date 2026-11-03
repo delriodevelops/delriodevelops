@@ -410,6 +410,13 @@
   aspect-ratio: auto;
 }
 
+/* a portrait screen shows a slice of the 16:9 film: the film's focus says where (centre by default) */
+@media (orientation: portrait) {
+  .gb-feature-wrap.is-sticky .gb-feature-video {
+    object-position: var(--gb-feature-focus, 50%) 50%;
+  }
+}
+
 .gb-feature-wrap.is-sticky .gb-feature-shade {
   display: block;
   position: absolute;
@@ -491,6 +498,27 @@
   .gb-feature-wrap.is-sticky .gb-feature-foot {
     padding-right: var(--gb-gutter);
   }
+}
+
+/* a film shot on a light ground (CitySwipe): bone under the words and ink type, instead of ink and bone */
+.gb-feature-wrap--light .gb-feature,
+.gb-feature-wrap--light .gb-feature-video {
+  background: var(--gb-bone);
+  color: var(--gb-ink);
+}
+
+.gb-feature-wrap--light .gb-feature-kicker,
+.gb-feature-wrap--light .gb-feature-tc {
+  color: var(--gb-mute-on-bone);
+}
+
+.gb-feature-wrap--light.is-sticky .gb-feature-shade {
+  background: linear-gradient(to top, rgba(241, 238, 230, 0.96) 0%, rgba(241, 238, 230, 0.72) 24%, rgba(241, 238, 230, 0) 52%);
+}
+
+.gb-feature-wrap--light .gb-btn:hover {
+  background: var(--gb-ink);
+  color: var(--gb-bone);
 }
 
 /* ---------- showreel ---------- */

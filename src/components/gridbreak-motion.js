@@ -371,16 +371,16 @@ export function initGridbreakMotion(root, { onSection, forceMotion = false } = {
         });
       }
 
-      // ---------- featured film: one camera move of a launch film, the scrollbar is its playhead ----------
-      const featureWrap = q('.gb-feature-wrap')[0];
-      const featureVideo = q('.gb-feature-video')[0];
-      if (featureWrap && featureVideo) {
+      // ---------- featured films: one camera move of a launch film each, the scrollbar is its playhead ----------
+      const pad = (n) => String(n).padStart(2, '0');
+      q('.gb-feature-wrap').forEach((featureWrap) => {
+        const featureVideo = featureWrap.querySelector('.gb-feature-video');
+        if (!featureVideo) return;
         makeSeekable(featureVideo);
         const featureLength = () => (featureVideo.duration > 0 ? featureVideo.duration : 3.1);
         stickyRun(featureWrap, () => window.innerHeight * 2.2);
 
-        const featureTc = q('.gb-feature-tc')[0];
-        const pad = (n) => String(n).padStart(2, '0');
+        const featureTc = featureWrap.querySelector('.gb-feature-tc');
         const head = { t: 0 };
         let lastSeek = -1;
         const seek = () => {
@@ -394,8 +394,8 @@ export function initGridbreakMotion(root, { onSection, forceMotion = false } = {
           if (featureTc) featureTc.textContent = `00:00:${pad(Math.floor(f / 30))}:${pad(f % 30)}`;
         };
 
-        // the two lines share one masked slot: the first leaves as the camera starts to pull out
-        const [lineA, lineB] = q('.gb-feature-line');
+        // the two lines share one masked slot: the first leaves halfway through the move
+        const [lineA, lineB] = featureWrap.querySelectorAll('.gb-feature-line');
         const tl = gsap.timeline({
           scrollTrigger: { trigger: featureWrap, start: 'top top', end: 'bottom bottom', scrub: 1, invalidateOnRefresh: true },
         });
@@ -408,12 +408,12 @@ export function initGridbreakMotion(root, { onSection, forceMotion = false } = {
           );
         }
         if (lineB) tl.fromTo(lineB, { yPercent: 110 }, { yPercent: 0, duration: 0.14, ease: 'power3.out' }, 0.58);
-        tl.fromTo(q('.gb-feature-cta'), { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: 0.12, ease: 'power2.out' }, 0.8);
+        tl.fromTo(featureWrap.querySelector('.gb-feature-cta'), { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: 0.12, ease: 'power2.out' }, 0.8);
 
         const onFeatureMeta = () => ScrollTrigger.refresh();
         featureVideo.addEventListener('loadedmetadata', onFeatureMeta);
         cleanups.push(() => featureVideo.removeEventListener('loadedmetadata', onFeatureMeta));
-      }
+      });
 
       // ---------- showreel: letterbox in, the scrollbar drives the video playhead ----------
       const reelWrap = q('.gb-reel-wrap')[0];

@@ -21,7 +21,32 @@ export const FALLBACK_PROJECTS = [
     githubUrl: 'https://github.com/delriodevelops/meshmind',
     date: '2026-11-03',
   },
-  { id: 'cityswipe', name: 'CitySwipe', description: 'Swipe through cities until one fits. Relocation as a matching problem.', image: '/cityswipe.webp', tags: ['Mobile', 'AI'], href: 'https://cityswipe.city' },
+  {
+    id: 'cityswipe',
+    name: 'CitySwipe',
+    description: 'What would your life cost in another city? Say what you earn and spend, and see the same life priced in 522 cities.',
+    longDescription: 'A calculator for remote workers and anyone thinking of moving: each part of your month is scaled by the Numbeo index that measures it, then every city is ranked by what you would have left, how long your savings would last and value for money, with a planner for months on the move. A static site, no server and no account. The launch film above is the app itself, rebuilt frame by frame from its own data.',
+    image: '/cityswipe/1.webp',
+    images: ['/cityswipe/1.webp', '/cityswipe/2.webp', '/cityswipe/3.webp', '/cityswipe/4.webp'],
+    video: '/cityswipe/film.mp4',
+    videoPoster: '/cityswipe/film-poster.webp',
+    // no link yet: the site is not published and the repository is private
+    tags: ['Data', 'Next.js', 'Remote work'],
+    date: '2026-11-03',
+  },
+  {
+    id: 'billonario',
+    name: 'Billonario',
+    description: 'A property-trading board game for two to eight friends, in the browser: make a room, share the link and play on any phone or computer.',
+    longDescription: 'Roll, buy cities and charge rent, bid in auctions, draw Surprise and Treasure cards, build hotels on full sets, mortgage your way out of the red and trade anything: every offer and counter-offer shows up live for the whole table. The rules run on the server, one Cloudflare Durable Object per room, so nobody can cheat and a dropped phone rejoins where it was. No menus or tabs, everything happens on the board, with haptics, a musical WebAudio sound engine and a battery saver. The launch film above is the game itself, rebuilt frame by frame from real matches.',
+    image: '/billonario/1.webp',
+    images: ['/billonario/1.webp', '/billonario/2.webp', '/billonario/3.webp', '/billonario/4.webp'],
+    video: '/billonario/film.mp4',
+    videoPoster: '/billonario/film-poster.webp',
+    tags: ['Multiplayer', 'Game', 'Cloudflare'],
+    href: 'https://billonario.pages.dev',
+    date: '2026-11-03',
+  },
   { id: 'baitme', name: 'Baitme', description: 'A/B test your thumbnails before you publish, not after the CTR disappoints you.', image: '/baitme/1.webp', tags: ['Creator Tools', 'Analytics'], href: 'https://baitme.iamdelrio.com/' },
 ];
 

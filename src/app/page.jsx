@@ -27,9 +27,13 @@ export default async function Page() {
     featured: project.featured ?? false,
   }));
 
-  // The featured film's button goes to MeshMind's case page, wherever its entry lives
-  const mesh = source.find((project) => /meshmind/i.test(project.name || ''));
-  const featureHref = `/projects/${mesh?.id || 'meshmind'}`;
+  // Each featured film's button goes to its project's case page, wherever the entry lives
+  const caseHref = (pattern, fallback) => `/projects/${source.find((project) => pattern.test(project.name || ''))?.id || fallback}`;
+  const featureHrefs = {
+    meshmind: caseHref(/meshmind/i, 'meshmind'),
+    cityswipe: caseHref(/cityswipe/i, 'cityswipe'),
+    billonario: caseHref(/billonario/i, 'billonario'),
+  };
 
   const posts = allPosts.slice(0, 4).map((post) => ({
     slug: post.slug,
@@ -60,7 +64,7 @@ export default async function Page() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <HomeContent projects={projects} posts={posts} totalProjects={source.length} featureHref={featureHref} />
+      <HomeContent projects={projects} posts={posts} totalProjects={source.length} featureHrefs={featureHrefs} />
     </>
   );
 }

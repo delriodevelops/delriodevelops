@@ -13,7 +13,8 @@ cd "$(dirname "$0")/../public"
 SHOTS=(
   fainancial/1.webp
   meshmind/film.mp4@6.55  # the wires drawn, the signal through the flow, the pull-out to the browser
-  cityswipe.webp
+  cityswipe/scroll.mp4@0.6  # the dots fly from the cost field into the value chart, the frontier draws
+  billonario/film.mp4@20.3  # a country completed, then ten builds speeding up into the hotel
   baitme/1.webp
   clyme.webp
   drnews.webp
