@@ -57,7 +57,7 @@ Every featured product has a launch film, cut from the app's real screens. Click
 | 05 | **[CitySwipe](https://www.iamdelrio.com/projects/cityswipe)** | Your monthly life, priced in 522 cities and ranked by what you'd have left. | Coming soon |
 | 06 | **[Ephemeral](https://www.iamdelrio.com/projects/2JdP9s2FmFOSy3eOOulm)** | Encrypted spreadsheets that live in the URL and self-destruct when you say so. | [Open ↗](https://ephemeral.iamdelrio.com) |
 | 07 | **Baitme** | Drops your YouTube thumbnail into the real search results it will compete with, then an AI art director critiques it. | [Open ↗](https://baitme.iamdelrio.com) |
-| 08 | **[Resonant](https://www.iamdelrio.com/projects/Djg9PQFbc4V6cYeb1RaW)** | Reads a company's real problems and rewrites your résumé to position you as the solution. | Case study |
+| 08 | **[Resonant](https://www.iamdelrio.com/projects/Djg9PQFbc4V6cYeb1RaW)** | Reads a company's real problems and rewrites your résumé to position you as the solution. | [Open ↗](https://resonant.iamdelrio.com) |
 | 09 | **[Thumbly](https://www.iamdelrio.com/projects/0sy38ebyThrCzxyD0KOO)** | AI thumbnail studio with real creative control over faces, emotions, poses and lighting. | Paused |
 
 [**All projects →**](https://www.iamdelrio.com/projects)
