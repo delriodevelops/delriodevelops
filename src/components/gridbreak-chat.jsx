@@ -1,14 +1,32 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { ArrowUpRight, X } from 'lucide-react';
+import { ArrowUpRight, Maximize2, Minimize2, X } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
-const suggestions = ["What's your experience?", "What's your tech stack?", "Let's schedule a call"];
+const suggestions = ["What's your experience?", 'What have you built?', 'Which project uses AI agents?', "Let's schedule a call"];
+
+// Must match MAX_MESSAGE_LENGTH in app/api/chat/route.js
+const MAX_MESSAGE_LENGTH = 800;
+
+// Answers are Markdown; links leave the site in a new tab, raw HTML is never rendered
+const markdownComponents = {
+  a: ({ href, children }) => {
+    const external = /^https?:\/\/(?!(www\.)?iamdelrio\.com(\/|$))/.test(href || '');
+    return (
+      <a href={href} {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>
+        {children}
+      </a>
+    );
+  },
+};
 
 export default function GridbreakChat() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isWide, setIsWide] = useState(false);
   const [messages, setMessages] = useState([
-    { role: 'assistant', content: "Hey! I'm Christian's AI assistant. Ask me anything about his work, skills, or how he can help you." },
+    { role: 'assistant', content: "Hey! I'm Christian's AI assistant. Ask me anything about his work, projects or how he can help you." },
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -19,6 +37,15 @@ export default function GridbreakChat() {
       messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
     }
   }, [messages, isLoading]);
+
+  useEffect(() => {
+    if (!isOpen) return undefined;
+    const onKey = (e) => {
+      if (e.key === 'Escape') (isWide ? setIsWide(false) : setIsOpen(false));
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [isOpen, isWide]);
 
   const sendMessage = async (content) => {
     if (!content.trim() || isLoading) return;
@@ -37,11 +64,11 @@ export default function GridbreakChat() {
           messages: updatedMessages.filter((m) => m.role !== 'error').slice(1),
         }),
       });
-      if (!response.ok) throw new Error('Failed to get response');
-      const { answer } = await response.json();
-      setMessages([...updatedMessages, { role: 'assistant', content: answer }]);
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || 'Sorry, something went wrong. Try again!');
+      setMessages([...updatedMessages, { role: 'assistant', content: data.answer }]);
     } catch (err) {
-      setMessages([...updatedMessages, { role: 'error', content: 'Sorry, something went wrong. Try again!' }]);
+      setMessages([...updatedMessages, { role: 'error', content: err.message }]);
     } finally {
       setIsLoading(false);
     }
@@ -62,23 +89,45 @@ export default function GridbreakChat() {
       )}
 
       {isOpen && (
-        <div className="gb-chat-win" role="dialog" aria-label="Chat with Christian's AI assistant">
+        <div
+          className={`gb-chat-win${isWide ? ' gb-chat-win--wide' : ''}`}
+          role="dialog"
+          aria-label="Chat with Christian's AI assistant"
+        >
           <div className="gb-chat-head">
             <div>
               <h2 className="gb-cx">Ask anything</h2>
               <span className="gb-mono">AI assistant · online</span>
             </div>
-            <button className="gb-chat-close" onClick={() => setIsOpen(false)} aria-label="Close chat">
-              <X size={20} />
-            </button>
+            <div className="gb-chat-actions">
+              <button
+                className="gb-chat-close"
+                onClick={() => setIsWide((wide) => !wide)}
+                aria-label={isWide ? 'Shrink chat' : 'Expand chat'}
+                aria-pressed={isWide}
+              >
+                {isWide ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
+              </button>
+              <button className="gb-chat-close" onClick={() => setIsOpen(false)} aria-label="Close chat">
+                <X size={20} />
+              </button>
+            </div>
           </div>
 
           <div className="gb-chat-msgs" ref={messagesRef} aria-live="polite">
-            {messages.map((msg, i) => (
-              <div key={i} className={`gb-msg gb-msg--${msg.role}`}>
-                {msg.content}
-              </div>
-            ))}
+            {messages.map((msg, i) =>
+              msg.role === 'assistant' ? (
+                <div key={i} className="gb-msg gb-msg--assistant gb-md">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+                    {msg.content}
+                  </ReactMarkdown>
+                </div>
+              ) : (
+                <div key={i} className={`gb-msg gb-msg--${msg.role}`}>
+                  {msg.content}
+                </div>
+              )
+            )}
             {isLoading && <div className="gb-msg gb-msg--assistant gb-mono">Thinking…</div>}
             {messages.length === 1 && !isLoading && (
               <div className="gb-chat-sugg">
@@ -96,8 +145,9 @@ export default function GridbreakChat() {
             <input
               id="gb-chat-input"
               type="text"
-              placeholder="Ask me anything…"
+              placeholder="Ask about my work…"
               value={input}
+              maxLength={MAX_MESSAGE_LENGTH}
               onChange={(e) => setInput(e.target.value)}
               disabled={isLoading}
             />
@@ -105,6 +155,7 @@ export default function GridbreakChat() {
               <ArrowUpRight size={20} />
             </button>
           </form>
+          <p className="gb-chat-note gb-mono">Questions are saved anonymously so I can improve the answers.</p>
         </div>
       )}
     </div>

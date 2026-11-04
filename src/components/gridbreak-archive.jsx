@@ -18,8 +18,8 @@ import '../app/gridbreak-pages.css';
 const COPY = {
   project: {
     title: 'Projects',
-    label: 'Side projects',
-    lede: 'Experiments, side projects and learning adventures. Not polished, but packed with lessons.',
+    label: 'All projects',
+    lede: 'Everything I have built: products with real users, AI tools, games and experiments.',
   },
   product: {
     title: 'Products',

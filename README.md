@@ -186,11 +186,26 @@ of raw PNGs before that script existed (one file was 9.3 MB).
 
 `/api/chat` asks DeepSeek V4.1 Flash through an OpenCode Go subscription
 (`src/lib/opencode.js`), falling back to GLM-5.3-Flash when DeepSeek is
-unavailable; `OPENCODE_MODELS` sets the order. It is public, so it is
-rate limited to 10 requests/minute per IP (`src/lib/rate-limit.ts`), caps
-messages at 1 000 characters and forwards at most 10 turns of history. The
-limiter is per-Worker-isolate; move it to KV or a Durable Object if you need a
-global counter.
+unavailable; `OPENCODE_MODELS` sets the order.
+
+- **Context.** `src/lib/assistant-context.js` builds the system prompt on every
+  request from `profile.ts` plus every project (`src/lib/all-projects.js`, the same
+  list `/projects` shows) and blog post in Firestore, so a new post or project is
+  known within the 5-minute cache.
+- **Scope.** The prompt only allows questions about Christian and his work and
+  turns everything else (code, homework, general chat) away.
+- **Limits.** 6 messages/minute per IP (in memory, `src/lib/rate-limit.ts`),
+  40 questions/day per visitor and 800/day overall (in D1), 800 characters per
+  message, 10 turns of history, and answers capped by `max_tokens` and length.
+- **Question log.** Every question and answer goes to the D1 database
+  `portfolio-chat` (binding `CHAT_DB`, schema in `migrations/`) with the page,
+  country and a salted hash of the IP. `/admin` → *AI questions* lists them through
+  `/api/admin/chat-log`, which checks the admin's Firebase ID token.
+- **UI.** Answers render as Markdown (`react-markdown`, no raw HTML) and the window
+  can be expanded for long answers.
+
+After changing the schema, add a file to `migrations/` and run
+`npx wrangler d1 migrations apply portfolio-chat --remote`.
 
 ### Deployment
 

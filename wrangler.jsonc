@@ -3,6 +3,14 @@
 	"main": ".open-next/worker.js",
 	"compatibility_date": "2025-06-19",
 	"compatibility_flags": ["nodejs_compat"],
+	"d1_databases": [
+		{
+			"binding": "CHAT_DB",
+			"database_name": "portfolio-chat",
+			"database_id": "a70cee93-8120-4c3d-b996-49f5992127c2",
+			"migrations_dir": "migrations"
+		}
+	],
 	"assets": {
 		"directory": ".open-next/assets",
 		"binding": "ASSETS",

@@ -21,6 +21,7 @@ import {
     Loader2,
     ExternalLink,
     Upload,
+    MessageSquare,
     Image as ImageIcon
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -29,10 +30,12 @@ import { getAllProjects, createProject, updateProject, deleteProject } from '../
 import { uploadImage } from '../../lib/services/storage';
 import MarkdownEditor from '../../components/MarkdownEditor';
 import AuthGate from '../../components/admin/AuthGate';
+import ChatLogPanel from '../../components/admin/chat-log-panel';
 
 const tabs = [
     { id: 'blog', label: 'Blog Posts', icon: FileText },
     { id: 'projects', label: 'Projects', icon: Folder },
+    { id: 'questions', label: 'AI questions', icon: MessageSquare },
 ];
 
 const blogTags = ['Indie Hacking', 'AI', 'Tools', 'Personal', 'Tutorial', 'Product'];
@@ -397,7 +400,7 @@ export default function AdminDashboard() {
                     </div>
 
                     <div className="flex items-center gap-4">
-                        {!isEditing && (
+                        {!isEditing && activeTab !== 'questions' && (
                             <button
                                 className="ed-btn"
                                 onClick={() => setIsEditing(true)}
@@ -952,6 +955,8 @@ export default function AdminDashboard() {
                                         )}
                                     </>
                                 )}
+
+                                {activeTab === 'questions' && <ChatLogPanel user={user} />}
                             </>
                         )}
                     </div>

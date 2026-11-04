@@ -1817,6 +1817,127 @@
   cursor: not-allowed;
 }
 
+.gb-chat-actions {
+  display: flex;
+}
+
+/* expanded: room for long, structured answers, above the site's fixed nav */
+.gb-chat:has(.gb-chat-win--wide) {
+  z-index: 160; /* over .gb-nav and .gb-menu, under the .gb-loader intro */
+}
+
+.gb-chat-win--wide {
+  width: min(880px, calc(100vw - 32px));
+  height: calc(100vh - 2 * var(--gb-gutter));
+}
+
+.gb-chat-win--wide .gb-msg {
+  max-width: 82%;
+}
+
+.gb-chat-note {
+  margin: 0;
+  padding: 6px 14px 8px;
+  font-size: 10px;
+  opacity: 0.6;
+}
+
+/* Markdown answers */
+.gb-md > :first-child {
+  margin-top: 0;
+}
+
+.gb-md > :last-child {
+  margin-bottom: 0;
+}
+
+.gb-md p,
+.gb-md ul,
+.gb-md ol,
+.gb-md table,
+.gb-md pre {
+  margin: 0 0 0.6em;
+}
+
+.gb-md ul,
+.gb-md ol {
+  padding-left: 1.2em;
+}
+
+.gb-md ul {
+  list-style: square;
+}
+
+.gb-md ol {
+  list-style: decimal;
+}
+
+.gb-md li + li {
+  margin-top: 0.25em;
+}
+
+.gb-md h1,
+.gb-md h2,
+.gb-md h3,
+.gb-md h4 {
+  margin: 0.8em 0 0.4em;
+  font-size: 1em;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.gb-md a {
+  color: var(--gb-red);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  word-break: break-word;
+}
+
+.gb-md code {
+  font-family: var(--gb-mono);
+  font-size: 0.85em;
+  background: rgba(0, 0, 0, 0.06);
+  padding: 0.1em 0.3em;
+}
+
+.gb-md pre {
+  overflow-x: auto;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.gb-md pre code {
+  background: none;
+  padding: 0;
+}
+
+.gb-md table {
+  display: block;
+  overflow-x: auto;
+  border-collapse: collapse;
+  font-size: 0.9em;
+}
+
+.gb-md th,
+.gb-md td {
+  border: 1px solid var(--gb-ink);
+  padding: 4px 8px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.gb-md th {
+  background: var(--gb-ink);
+  color: var(--gb-bone);
+  font-weight: 500;
+}
+
+.gb-md blockquote {
+  margin: 0 0 0.6em;
+  padding-left: 10px;
+  border-left: 3px solid var(--gb-red);
+}
+
 /* ---------- focus ---------- */
 .gb a:focus-visible,
 .gb button:focus-visible {
