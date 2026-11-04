@@ -1,15 +1,10 @@
 import { NextResponse } from 'next/server';
-import OpenAI from 'openai';
 import { rateLimit, clientIp } from '../../../lib/rate-limit';
 import { buildSystemPrompt } from '../../../lib/assistant-prompt';
+import { createOpenCodeClient } from '../../../lib/opencode';
 
-// Initialize Deepseek client using the OpenAI SDK with a custom base URL.
-const deepseek = process.env.DEEPSEEK_API_KEY
-  ? new OpenAI({
-      apiKey: process.env.DEEPSEEK_API_KEY,
-      baseURL: 'https://api.deepseek.com',
-    })
-  : null;
+// DeepSeek through OpenCode Go (see lib/opencode)
+const llm = createOpenCodeClient();
 
 // Abuse limits. Every request here costs money.
 const REQUESTS_PER_WINDOW = 10;
@@ -20,8 +15,8 @@ const MAX_HISTORY_MESSAGES = 10;
 const SYSTEM_PROMPT = buildSystemPrompt();
 
 export async function POST(req) {
-  if (!deepseek) {
-    return NextResponse.json({ error: 'Deepseek API key not configured' }, { status: 503 });
+  if (!llm) {
+    return NextResponse.json({ error: 'OPENCODE_API_KEY not configured' }, { status: 503 });
   }
 
   const { allowed, retryAfter } = rateLimit(
@@ -65,8 +60,8 @@ export async function POST(req) {
       return NextResponse.json({ error: 'No valid messages provided' }, { status: 400 });
     }
 
-    const completion = await deepseek.chat.completions.create({
-      model: 'deepseek-chat',
+    const completion = await llm.chat.completions.create({
+      model: 'deepseek-v4.1-flash', // overridden by OPENCODE_MODELS
       messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...messages],
       max_tokens: 500,
       temperature: 0.7,
@@ -77,7 +72,7 @@ export async function POST(req) {
 
     return NextResponse.json({ answer });
   } catch (error) {
-    console.error('Deepseek API error:', error);
+    console.error('OpenCode API error:', error);
     return NextResponse.json({ error: 'Failed to process message' }, { status: 500 });
   }
 }

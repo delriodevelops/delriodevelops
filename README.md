@@ -184,7 +184,9 @@ of raw PNGs before that script existed (one file was 9.3 MB).
 
 #### The AI assistant
 
-`/api/chat` proxies DeepSeek. It is public and costs money per call, so it is
+`/api/chat` asks DeepSeek V4.1 Flash through an OpenCode Go subscription
+(`src/lib/opencode.js`), falling back to GLM-5.3-Flash when DeepSeek is
+unavailable; `OPENCODE_MODELS` sets the order. It is public, so it is
 rate limited to 10 requests/minute per IP (`src/lib/rate-limit.ts`), caps
 messages at 1 000 characters and forwards at most 10 turns of history. The
 limiter is per-Worker-isolate; move it to KV or a Durable Object if you need a
@@ -209,14 +211,15 @@ command meant for production.
 | `NEXT_PUBLIC_FIREBASE_API_KEY`, `_AUTH_DOMAIN`, `_PROJECT_ID`, `_STORAGE_BUCKET`, `_MESSAGING_SENDER_ID`, `_APP_ID` | Build variables | Firestore reads, and the admin's Firebase client |
 | `NEXT_PUBLIC_ADMIN_EMAIL` | Build variable | The account allowed into `/admin` |
 | `NEXT_PUBLIC_CF_ANALYTICS_TOKEN` | Build variable (optional) | Cloudflare Web Analytics |
-| `DEEPSEEK_API_KEY` | Runtime secret | The AI assistant |
+| `OPENCODE_API_KEY` | Runtime secret | The AI assistant (OpenCode Go key) |
+| `OPENCODE_MODELS` | Runtime variable (optional) | Models to try in order; default `deepseek-v4.1-flash,glm-5.3-flash` |
 
 Next.js inlines `NEXT_PUBLIC_*` values when it builds, so they belong in the
 Worker's build settings (Settings → Build → Variables and secrets), not only in
 its runtime variables. Without them the build still passes but renders from
 `FALLBACK_PROJECTS`: the blog is empty, its posts 404 and the archive lists only
 the fallback projects. Set the secret with
-`npx wrangler secret put DEEPSEEK_API_KEY --name delriodevelops`.
+`npx wrangler secret put OPENCODE_API_KEY --name delriodevelops`.
 
 To try the production bundle locally: `npm run cf:build && npm run cf:preview`.
 
