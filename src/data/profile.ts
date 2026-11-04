@@ -223,7 +223,7 @@ export const products: Product[] = [
   },
   {
     name: 'Fainancial',
-    url: 'https://fainancial.app',
+    url: 'https://fainancial.iamdelrio.com',
     description: {
       en: 'AI analysis of earnings-call transcripts and market data, with watchlists, paid plans and a market assistant.',
       es: 'Análisis con IA de earnings calls y datos de mercado, con watchlists, planes de pago y un asistente de mercado.',

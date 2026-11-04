@@ -11,6 +11,8 @@
  * Firestore security rules authenticate the user.
  */
 
+import { currentLink } from '../../data/moved-links';
+
 const PROJECT_ID = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
 const API_KEY = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
 
@@ -124,11 +126,14 @@ export async function getPostBySlug(slug) {
   return fetchWhere('blog_posts', 'slug', slug);
 }
 
+// Links to projects that moved hosts are rewritten until Firestore is edited (data/moved-links)
+const withCurrentLink = (project) => (project ? { ...project, href: currentLink(project.href) } : project);
+
 export async function getProjects() {
   const projects = await fetchCollection('projects');
-  return projects.sort((a, b) => (a.order || 0) - (b.order || 0));
+  return projects.map(withCurrentLink).sort((a, b) => (a.order || 0) - (b.order || 0));
 }
 
 export async function getProjectById(id) {
-  return fetchDocument('projects', id);
+  return withCurrentLink(await fetchDocument('projects', id));
 }

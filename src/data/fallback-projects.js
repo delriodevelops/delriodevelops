@@ -18,7 +18,7 @@ export const FALLBACK_PROJECTS = [
     href: 'https://motorsportive.com',
     date: '2026-11-03',
   },
-  { id: 'fainancial', name: 'Fainancial', description: 'AI-powered earnings call analysis. Turns a 60-minute call into the three things that moved the number.', image: '/fainancial/1.webp', tags: ['AI', 'Finance', 'SaaS'], href: 'https://fainancial.app/' },
+  { id: 'fainancial', name: 'Fainancial', description: 'AI-powered earnings call analysis. Turns a 60-minute call into the three things that moved the number.', image: '/fainancial/1.webp', tags: ['AI', 'Finance', 'SaaS'], href: 'https://fainancial.iamdelrio.com' },
   {
     id: 'meshmind',
     name: 'MeshMind',
