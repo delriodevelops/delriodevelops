@@ -6,9 +6,6 @@
  * `null` drops the link of a project that is offline.
  */
 export const MOVED_LINKS = {
-  // fainancial.app's DNS is still at the registrar, pointing at the dead Vercel deploy
-  'https://fainancial.app': 'https://fainancial.iamdelrio.com',
-  'https://ephemeral-chi.vercel.app': 'https://ephemeral.iamdelrio.com',
   // paused; not deployed anywhere
   'https://thumbly-seven.vercel.app': null,
 };

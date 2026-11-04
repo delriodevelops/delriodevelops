@@ -155,9 +155,9 @@ reads are split:
 
 #### Project links
 
-Several products moved from Vercel to Cloudflare Workers, and Firestore still
-holds some of their old URLs. `src/data/moved-links.js` rewrites those on every
-public page; once a project's link is corrected in `/admin`, its entry there can go.
+Project links live in Firestore and are edited in `/admin`. `src/data/moved-links.js`
+can override one on every public page without touching Firestore; today it only
+hides Thumbly's old link while that project is paused.
 
 #### Single source of truth for the CV
 
