@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import ProjectDetailContent from './page-content';
 import { getProjectById, getProjects } from '../../../lib/services/firestore-rest';
 import { FALLBACK_PROJECTS, fallbackProject } from '../../../data/fallback-projects';
+import { withRepoMedia } from '../../../lib/repo-media';
 
 export const revalidate = 300;
 
@@ -10,15 +11,8 @@ const loadProjects = async () => {
   const projects = await getProjects();
   return projects.length > 0 ? projects : FALLBACK_PROJECTS;
 };
-// A Firestore entry without a film borrows the one in this repo (its files live in public/),
-// matched by name; a film set in the admin always wins
-const withRepoFilm = (project) => {
-  if (!project || project.video) return project;
-  const local = FALLBACK_PROJECTS.find((p) => p.video && p.name?.toLowerCase() === project.name?.toLowerCase());
-  if (!local) return project;
-  return { ...project, video: local.video, videoPoster: local.videoPoster, longDescription: project.longDescription || local.longDescription };
-};
-const loadProject = async (id) => withRepoFilm((await getProjectById(id)) || fallbackProject(id));
+// A Firestore entry shows the cover, gallery and film this repo holds for it (lib/repo-media)
+const loadProject = async (id) => withRepoMedia((await getProjectById(id)) || fallbackProject(id));
 
 export async function generateStaticParams() {
   const projects = await loadProjects();

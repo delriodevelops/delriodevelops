@@ -1,5 +1,6 @@
 import ProductsPageContent from './page-content';
 import { getProjects } from '../../lib/services/firestore-rest';
+import { withRepoMedia } from '../../lib/repo-media';
 
 export const revalidate = 300;
 
@@ -12,7 +13,7 @@ export const metadata = {
 };
 
 export default async function Page() {
-  const all = await getProjects();
+  const all = (await getProjects()).map(withRepoMedia);
 
   const products = all
     .map((project, index) => ({

@@ -2,11 +2,14 @@ import HomeContent from './page-content';
 import { getPosts, getProjects } from '../lib/services/firestore-rest';
 import { identity, socials, companies } from '../data/profile';
 import { FALLBACK_PROJECTS } from '../data/fallback-projects';
+import { withRepoMedia } from '../lib/repo-media';
 
 export const revalidate = 300;
 
 export default async function Page() {
-  const [allProjects, allPosts] = await Promise.all([getProjects(), getPosts()]);
+  const [stored, allPosts] = await Promise.all([getProjects(), getPosts()]);
+  // current covers from the repo for the products re-shot with their films (lib/repo-media)
+  const allProjects = stored.map(withRepoMedia);
 
   const source = allProjects.length > 0 ? allProjects : FALLBACK_PROJECTS;
   const featured = source.filter((project) => project.featured);
