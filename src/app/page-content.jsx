@@ -98,6 +98,15 @@ const FEATURES = [
     lines: ['Five lights, then the news.', 'Formula 1, read closely.'],
     focus: '70%', // the start lights, right of centre
   },
+  {
+    id: 'resonant',
+    name: 'Resonant',
+    src: '/resonant/scroll.mp4',
+    poster: '/resonant/scroll-poster.webp',
+    alt: 'a generic résumé line struck through and rewritten for one company, the match score at 87%',
+    lines: ['Your resume, their problems.', 'Rewritten for one company.'],
+    tone: 'light',
+  },
 ];
 
 const heroLetters = ['D', 'E', 'L', 'R', 'Í', 'O'];

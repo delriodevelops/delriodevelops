@@ -42,6 +42,10 @@ Every featured product has a launch film, cut from the app's real screens. Click
     <td width="50%"><a href="https://www.iamdelrio.com/projects/billonario"><img src="public/billonario/film-poster.webp" alt="Billonario launch film"></a><br><b>BILLONARIO</b> — Bankrupt your friends. Live, on every screen.</td>
     <td width="50%"><a href="https://www.iamdelrio.com/projects/motorsportive"><img src="public/motorsportive/film-poster.webp" alt="Motorsportive launch film"></a><br><b>MOTORSPORTIVE</b> — Five lights, then the news. Formula 1, read closely.</td>
   </tr>
+  <tr>
+    <td width="50%"><a href="https://www.iamdelrio.com/projects/Djg9PQFbc4V6cYeb1RaW"><img src="public/resonant/scroll-poster.webp" alt="Resonant ad film"></a><br><b>RESONANT</b> — Your resume, their problems. Rewritten for one company.</td>
+    <td width="50%"></td>
+  </tr>
 </table>
 
 ---

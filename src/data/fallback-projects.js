@@ -59,6 +59,18 @@ export const FALLBACK_PROJECTS = [
     href: 'https://billonario.pages.dev',
     date: '2026-11-03',
   },
+  {
+    id: 'resonant',
+    name: 'Resonant',
+    description: "Reads a company's real problems and rewrites your résumé to position you as the solution.",
+    longDescription: "Point it at a job offer and it researches what that company is actually struggling with, maps your experience against those problems and rewrites your résumé and cover letter so you read as the answer, with the match score, the keywords it hit and the suggestions it still has. It also runs your job searches across Indeed, Adzuna, Jooble and InfoJobs and keeps a tracker of every application. The film above is a 9:16 ad cut from the app's real screens, with the voice-over and music made in ElevenLabs.",
+    image: '/resonant/scroll-poster.webp',
+    video: '/resonant/film.mp4',
+    videoPoster: '/resonant/film-poster.webp',
+    tags: ['AI', 'Careers', 'Next.js'],
+    href: 'https://resonant.iamdelrio.com',
+    date: '2026-11-05',
+  },
   { id: 'baitme', name: 'Baitme', description: 'A/B test your thumbnails before you publish, not after the CTR disappoints you.', image: '/baitme/1.webp', tags: ['Creator Tools', 'Analytics'], href: 'https://baitme.iamdelrio.com/' },
 ];
 

@@ -34,6 +34,7 @@ export default async function Page() {
     cityswipe: caseHref(/cityswipe/i, 'cityswipe'),
     billonario: caseHref(/billonario/i, 'billonario'),
     motorsportive: caseHref(/motorsportive/i, 'motorsportive'),
+    resonant: caseHref(/resonant/i, 'resonant'),
   };
 
   const posts = allPosts.slice(0, 4).map((post) => ({
