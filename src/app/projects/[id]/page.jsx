@@ -42,9 +42,14 @@ export default async function Page({ params }) {
 
   if (!project) notFound();
 
-  // "Next case" link: the following entry in the same archive (products stay with products)
+  // "Next case" link: the following entry in the same archive (products stay with products). The
+  // concept sites exist only in this repo, so they walk their own list, in its order, whether or
+  // not Firestore answered, and never step into the real work
   const isProduct = (p) => (p.type || p.category || '').toUpperCase() === 'PRODUCT';
-  const siblings = all.filter((p) => isProduct(p) === isProduct(project));
+  const isConcept = (p) => Boolean(p.concept);
+  const siblings = isConcept(project)
+    ? FALLBACK_PROJECTS.filter(isConcept)
+    : all.filter((p) => !isConcept(p) && isProduct(p) === isProduct(project));
   const index = siblings.findIndex((p) => p.id === project.id);
   const nextProject = siblings.length > 1 && index !== -1 ? siblings[(index + 1) % siblings.length] : null;
   const next = nextProject ? { id: nextProject.id, name: nextProject.name || nextProject.title } : null;

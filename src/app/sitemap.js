@@ -1,4 +1,5 @@
-import { getPosts, getProjects } from '../lib/services/firestore-rest';
+import { getPosts } from '../lib/services/firestore-rest';
+import { getAllProjects } from '../lib/all-projects';
 
 const BASE_URL = 'https://www.iamdelrio.com';
 
@@ -12,7 +13,9 @@ export default async function sitemap() {
     priority: route === '' ? 1 : 0.8,
   }));
 
-  const [posts, projects] = await Promise.all([getPosts(), getProjects()]);
+  // Every case page the archive links to: Firestore's projects plus the ones that live only in
+  // this repo (the films' fallback entries and the concept sites)
+  const [posts, projects] = await Promise.all([getPosts(), getAllProjects()]);
 
   const postRoutes = posts
     .filter((post) => post.slug)

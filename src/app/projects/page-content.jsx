@@ -12,6 +12,7 @@ export default function ProjectsPageContent({ projects = [] }) {
     date: project.date,
     createdAt: project.createdAt,
     wip: project.wip,
+    concept: project.concept,
     external: false,
   }));
 

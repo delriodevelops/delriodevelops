@@ -45,15 +45,21 @@ const plain = (text = '', max = 600) => {
   return flat.length > max ? `${flat.slice(0, max).trimEnd()}…` : flat;
 };
 
+// A concept site (data/fallback-projects, `concept: true`) is a fictional brand: say so up front,
+// so it is never presented as a client or a live product
+const CONCEPT_NOTE = 'concept site for a fictional brand, built with immersive-web: not a client, not a real company, not a live product';
+
 function formatProjects(projects) {
   return projects
     .map((project) => {
-      const lines = [`- ${project.name}${project.type ? ` (${project.type})` : ''}`];
+      const kind = project.concept ? CONCEPT_NOTE : project.type;
+      const lines = [`- ${project.name}${kind ? ` (${kind})` : ''}`];
       const description = project.longDescription || project.description;
       if (description) lines.push(`  ${plain(description, 700)}`);
       if (project.tags?.length) lines.push(`  Tags: ${project.tags.join(', ')}`);
       lines.push(`  Case study: ${SITE}/projects/${project.id}`);
-      lines.push(project.href ? `  Live: ${project.href}` : '  Live: not public right now');
+      if (project.concept) lines.push('  Live: not published (a concept)');
+      else lines.push(project.href ? `  Live: ${project.href}` : '  Live: not public right now');
       if (project.githubUrl) lines.push(`  Code: ${project.githubUrl}`);
       if (project.video) lines.push('  Has a launch film on its case study page.');
       return lines.join('\n');

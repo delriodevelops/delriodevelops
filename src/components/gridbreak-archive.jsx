@@ -35,7 +35,8 @@ const yearOf = (p) => {
 
 /**
  * Shared index for /projects and /products. Items come from the server
- * (page.jsx) as `{ id, name, image, tags, href, wip, external }`.
+ * (page.jsx) as `{ id, name, image, tags, href, wip, concept, external }`;
+ * a concept site (fictional brand) is labelled as one, like WIP.
  */
 export default function GridbreakArchive({ kind, items = [] }) {
   const rootRef = useRef(null);
@@ -108,6 +109,7 @@ export default function GridbreakArchive({ kind, items = [] }) {
                     <h2 className="gb-arch-name gb-cx" data-skew>
                       {item.name || item.title}
                       {item.wip && <sup>WIP</sup>}
+                      {item.concept && <sup>Concept</sup>}
                     </h2>
                     <span className="gb-arch-tags gb-mono">{(item.tags || []).slice(0, 3).join(' / ')}</span>
                     <span className="gb-mono">{yearOf(item) || '—'}</span>

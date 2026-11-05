@@ -329,6 +329,13 @@
   overflow-wrap: anywhere;
 }
 
+/* the rising letters are masked at the line box, which an accented capital overshoots (the Ó of
+   ÓRBITA): each mask reaches higher without moving the line, and still hides a letter below it */
+.gb-case-title .gb-char-mask {
+  padding-top: 0.24em;
+  margin-top: -0.24em;
+}
+
 .gb-spec {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));

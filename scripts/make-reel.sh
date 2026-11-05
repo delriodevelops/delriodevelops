@@ -6,7 +6,9 @@
 # its own camera moves, so it gets no push-in.
 #
 # Usage: bash scripts/make-reel.sh   (needs ffmpeg with WebP decoding on PATH)
-# Shot order must match REEL.shots in src/app/page-content.jsx.
+# Shot order must match REEL.shots in src/app/page-content.jsx. Concept sites (fictional
+# brands) come last, after the products, and at most two of them: twelve shots make 24.5 s,
+# and the reel stays at 25 s or less.
 set -euo pipefail
 cd "$(dirname "$0")/../public"
 
@@ -21,6 +23,8 @@ SHOTS=(
   drnews.webp
   mydogfood.webp
   escudolealjpt/1.webp
+  orbita/film.mp4@7.3  # concept: the terminator sweeps across the planet and the night side's cities switch on
+  bloop/film.mp4@2.65  # concept: the can's hero bursts into bubbles and stickers, then pulls out to ¡Agítala!
 )
 
 FPS=24

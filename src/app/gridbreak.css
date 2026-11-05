@@ -313,7 +313,7 @@
   }
 
   .gb-reel-wrap.is-sticky .gb-reel-titles {
-    height: clamp(36px, 10vw, 120px);
+    height: calc(clamp(36px, 10vw, 120px) * 1.22);
   }
 
   .gb-hero-ghost {
@@ -566,7 +566,8 @@
   right: var(--gb-gutter);
   bottom: 16vh;
   z-index: 3;
-  height: clamp(80px, 13vw, 230px);
+  /* taller than a line: room above the caps for accents (the Ó of ÓRBITA); titles sit on its bottom */
+  height: calc(clamp(80px, 13vw, 230px) * 1.22);
   overflow: hidden;
 }
 

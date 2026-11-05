@@ -76,7 +76,8 @@ export default function ProjectDetailContent({ project, next = null }) {
                     <div className="gb-crumbs gb-mono">
                         <Link href={archive.href}>← {archive.label}</Link>
                         <span>
-                            {project.type || 'Project'}
+                            {/* a concept site (fictional brand) says so before anything else */}
+                            {project.concept ? 'Concept site' : project.type || 'Project'}
                             {year ? ` — ${year}` : ''}
                         </span>
                     </div>

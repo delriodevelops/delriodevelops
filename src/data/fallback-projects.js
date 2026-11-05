@@ -2,7 +2,11 @@
  * Shown when Firestore is unreachable or not configured (local dev without
  * env vars, a transient outage, or a deploy that cannot reach it) so pages never
  * render an empty shell and case pages never 404. These are real, live
- * products — keep them in sync with Firestore.
+ * products — keep them in sync with Firestore — except the entries marked
+ * `concept: true`: concept sites for fictional brands, built end to end with
+ * immersive-web and featured by their films. They are not clients and not live
+ * products, have no link and exist only in this repo, and every text about them
+ * says so (the AI assistant reads these entries).
  */
 export const FALLBACK_PROJECTS = [
   {
@@ -73,6 +77,73 @@ export const FALLBACK_PROJECTS = [
     date: '2026-11-05',
   },
   { id: 'baitme', name: 'Baitme', description: 'A/B test your thumbnails before you publish, not after the CTR disappoints you.', image: '/baitme/1.webp', tags: ['Creator Tools', 'Analytics'], href: 'https://baitme.iamdelrio.com/' },
+  // Concept sites: fictional brands, each with a launch film recorded from the site itself. No
+  // link, as none of them is published. "Next case" walks them in this order, apart from the products
+  {
+    id: 'orbita',
+    name: 'ÓRBITA',
+    concept: true,
+    description: 'Concept site for a fictional orbital flight company, where one scroll of the page is one forty-minute flight around the Earth.',
+    longDescription: 'ÓRBITA is a concept site for a fictional company that sells forty-minute orbital flights, each passenger with a window seat. The page is the flight: a WebGL planet, its light and a mission HUD follow the scroll through two pinned scenes, the five flight phases, with the terminator sweeping across the night side and the cities switching on under your thumb, and a zoom-through that flies you through a cabin window into the whole planet. It is a concept with a fictional brand, built end to end with immersive-web, my Claude Code skill for cinematic sites. The film above is the site itself, recorded frame by frame.',
+    image: '/orbita/1.webp',
+    images: ['/orbita/1.webp', '/orbita/2.webp', '/orbita/3.webp', '/orbita/4.webp'],
+    video: '/orbita/film.mp4',
+    videoPoster: '/orbita/film-poster.webp',
+    tags: ['Concept', 'WebGL', 'Scroll story'],
+    date: '2026-11-05',
+  },
+  {
+    id: 'casa-alba',
+    name: 'Casa Alba',
+    concept: true,
+    description: 'Concept site for a fictional nine-room hotel on the north coast of Menorca, where the light of the page follows the hour of the day.',
+    longDescription: 'Casa Alba is a concept site for a fictional nine-room hotel on the north coast of Menorca. The page is one day, every chapter an hour with its own light: at 06:00 the arch window opens onto the sea and the sun rises into the HUD, the rooms slide past and the page dives into the cove of the ninth room, Calma, then the golden hour floods the table, the sun touches the sea and the lanterns light one by one into the night. It is a concept with a fictional brand, built end to end with immersive-web, my Claude Code skill for cinematic sites. The film above is the site itself, recorded frame by frame.',
+    image: '/casa-alba/1.webp',
+    images: ['/casa-alba/1.webp', '/casa-alba/2.webp', '/casa-alba/3.webp', '/casa-alba/4.webp'],
+    video: '/casa-alba/film.mp4',
+    videoPoster: '/casa-alba/film-poster.webp',
+    tags: ['Concept', 'Hospitality', 'Scroll story'],
+    date: '2026-11-05',
+  },
+  {
+    id: 'kern',
+    name: 'KERN',
+    concept: true,
+    description: 'Concept site for a fictional neuromorphic chip lab, where every scroll step turns up the magnification of an electron microscope.',
+    longDescription: 'KERN is a concept site for a fictional lab that designs neuromorphic chips, staged as one session under an electron microscope: the scroll is the magnification, from ×40 at the top to ×1 200 000 at the last pixel. A particle specimen slides under the objective and locks, fires once, collapses into a wafer, explodes into a bonded three-die stack and settles as a cortex; then a paper specimen sheet is laid over the scope and a plotter draws and measures the die, and at the end the specimen resolves into the KERN wordmark, which the cursor can scatter. It is a concept with a fictional brand, built end to end with immersive-web, my Claude Code skill for cinematic sites. The film above is the site itself, recorded frame by frame.',
+    image: '/kern/1.webp',
+    images: ['/kern/1.webp', '/kern/2.webp', '/kern/3.webp', '/kern/4.webp'],
+    video: '/kern/film.mp4',
+    videoPoster: '/kern/film-poster.webp',
+    tags: ['Concept', 'WebGL', 'Scroll story'],
+    date: '2026-11-05',
+  },
+  {
+    id: 'bloop',
+    name: 'BLOOP',
+    concept: true,
+    description: 'Concept site for a fictional yuzu and ginger soda, where scrolling down pours the can out.',
+    longDescription: 'BLOOP is a concept site for a fictional yuzu and ginger soda, written in Spanish and built like the inside of a 330 ml can: scrolling down pours it out. Its hero is a physics playground of bubbles and stickers you can grab, throw and shake; then the can opens with a psst!, foam rises over the page, the three flavours travel past (and stack like cards on a phone), a bubble swallows the screen for the four-step process, and the page dives into the soda before the stickers slap on and the letters fall into the bottom of the glass. It is a concept with a fictional brand, built end to end with immersive-web, my Claude Code skill for cinematic sites. The film above is the site itself, recorded frame by frame.',
+    image: '/bloop/1.webp',
+    images: ['/bloop/1.webp', '/bloop/2.webp', '/bloop/3.webp', '/bloop/4.webp'],
+    video: '/bloop/film.mp4',
+    videoPoster: '/bloop/film-poster.webp',
+    tags: ['Concept', 'Physics', 'Scroll story'],
+    date: '2026-11-05',
+  },
+  {
+    id: 'fractura',
+    name: 'FRACTURA',
+    concept: true,
+    description: 'Concept site for a fictional electronic music festival in a decommissioned Lisbon shipyard: a kinetic typographic poster that the scroll plays like a mixer.',
+    longDescription: 'FRACTURA is a concept site for a fictional festival, three nights of electronic music in a decommissioned Lisbon shipyard, sold the way a festival without photography is sold: by its poster. The page is a scroll instrument: a gate that dares you to enter with sound, a variable wordmark the cursor steers and the scroll compresses, stretches and switches off into a hairline, the lineup scratched back and forth, three stages arriving in red, a night schedule walked by a playhead and a fractured footer word that heals. It is a concept with a fictional brand, built end to end with immersive-web, my Claude Code skill for cinematic sites. The film above is the site itself, recorded frame by frame with its 124 BPM beat on.',
+    image: '/fractura/1.webp',
+    images: ['/fractura/1.webp', '/fractura/2.webp', '/fractura/3.webp', '/fractura/4.webp'],
+    video: '/fractura/film.mp4',
+    videoPoster: '/fractura/film-poster.webp',
+    tags: ['Concept', 'Kinetic type', 'Scroll choreography'],
+    date: '2026-11-05',
+  },
 ];
 
 /** The fallback entry for a case page, when Firestore has none. */

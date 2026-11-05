@@ -48,19 +48,21 @@ const navLinks = [
 const marqueeItems = ['Indie hacker', 'Solobuilder', 'Full stack', 'AI engineer', 'Product maker'];
 
 // Showreel video (rendered by scripts/make-reel.sh). `shots` lists the projects in the
-// order they appear; each shot lasts `shotLength` seconds of video.
+// order they appear; each shot lasts `shotLength` seconds of video. Two concept sites close it,
+// after the products.
 const REEL = {
   src: '/reel/showreel.mp4',
   poster: '/reel/showreel-poster.jpg',
   shotLength: 2,
-  shots: ['Fainancial', 'MeshMind', 'CitySwipe', 'Billonario', 'Motorsportive', 'Baitme', 'Clyme', 'DR.NEWS', 'My Dog Food', 'Escudo Leal'],
+  shots: ['Fainancial', 'MeshMind', 'CitySwipe', 'Billonario', 'Motorsportive', 'Baitme', 'Clyme', 'DR.NEWS', 'My Dog Food', 'Escudo Leal', 'ÓRBITA', 'BLOOP'],
 };
 
 // Featured films: a few seconds of one continuous camera move from each launch film, scrubbed by
 // the scroll. Their two lines swap halfway through; the button goes to the case page, where the
 // whole film plays with sound. A film shot on a light ground takes the light tone: bone under the
 // words instead of ink. A portrait screen crops the 16:9 film to a slice: `focus` (a horizontal
-// object-position) moves that slice onto a subject that sits off centre
+// object-position) moves that slice onto a subject that sits off centre. The concept sites
+// (fictional brands, built with immersive-web) come after the products and say so in their kicker
 const FEATURES = [
   {
     id: 'meshmind',
@@ -105,6 +107,56 @@ const FEATURES = [
     poster: '/resonant/scroll-poster.webp',
     alt: 'a generic résumé line struck through and rewritten for one company, the match score at 87%',
     lines: ['Your resume, their problems.', 'Rewritten for one company.'],
+    tone: 'light',
+  },
+  {
+    id: 'orbita',
+    name: 'ÓRBITA',
+    concept: true,
+    src: '/orbita/scroll.mp4',
+    poster: '/orbita/scroll-poster.webp',
+    alt: 'three cabin portholes on the site, then a flight through one of them into the whole planet',
+    lines: ['Choose your window.', 'Forty minutes around everything.'],
+  },
+  {
+    id: 'casa-alba',
+    name: 'Casa Alba',
+    concept: true,
+    src: '/casa-alba/scroll.mp4',
+    poster: '/casa-alba/scroll-poster.webp',
+    alt: "the last room's arch opening into a sea cove, then the long table under the vine and the golden hour sweeping in",
+    lines: ['The ninth room is called Calma.', 'Nine rooms facing the Mediterranean.'],
+    tone: 'light',
+    focus: '70%', // Calma, the ninth room's arch, right of centre, while its line is on screen
+  },
+  {
+    id: 'kern',
+    name: 'KERN',
+    concept: true,
+    src: '/kern/scroll.mp4',
+    poster: '/kern/scroll-poster.webp',
+    alt: 'the cortex condensing into the KERN particle wordmark, a cursor parting its letters, and the camera pushing in until the browser window is gone',
+    lines: ['Reasoning, etched in silicon.', 'Scroll to increase magnification.'],
+  },
+  {
+    id: 'bloop',
+    name: 'BLOOP',
+    concept: true,
+    src: '/bloop/scroll.mp4',
+    poster: '/bloop/scroll-poster.webp',
+    alt: 'the camera pushing into the can as it is sealed, opened with a psst! and dived into, until the page is all yuzu soda and bubbles',
+    lines: ['A yuzu and ginger soda.', 'Shake it here, not in real life.'],
+    tone: 'light',
+    focus: '34%', // the can, left of centre
+  },
+  {
+    id: 'fractura',
+    name: 'FRACTURA',
+    concept: true,
+    src: '/fractura/scroll.mp4',
+    poster: '/fractura/scroll-poster.webp',
+    alt: 'the site in a browser on pink: the scroll plays the giant wordmark like a fader, compressing, stretching and slanting it, then switching it off into a single red hairline',
+    lines: ['This site makes noise.', '124 BPM until the tide turns.'],
     tone: 'light',
   },
 ];
@@ -353,7 +405,7 @@ export default function Home({ projects: rawProjects = [], posts = [], totalProj
         {/* scenes: one continuous camera move from each launch film, its playhead on the scrollbar */}
         {FEATURES.map((feature) => (
           <div key={feature.id} className={`gb-scene-wrap gb-feature-wrap${feature.tone === 'light' ? ' gb-feature-wrap--light' : ''}`}>
-            <section className="gb-feature gb-scene" aria-label={`${feature.name}, featured`}>
+            <section className="gb-feature gb-scene" aria-label={`${feature.name}, ${feature.concept ? 'concept site' : 'featured'}`}>
               <video
                 className="gb-feature-video"
                 src={feature.src}
@@ -361,11 +413,13 @@ export default function Home({ projects: rawProjects = [], posts = [], totalProj
                 style={feature.focus ? { '--gb-feature-focus': feature.focus } : undefined}
                 muted
                 playsInline
-                preload="auto"
+                preload="none"
                 aria-label={`${feature.name} — ${feature.alt}`}
               />
               <div className="gb-feature-shade" aria-hidden="true" />
-              <p className="gb-feature-kicker gb-mono">(Featured) — {feature.name}</p>
+              <p className="gb-feature-kicker gb-mono">
+                ({feature.concept ? 'Concept' : 'Featured'}) — {feature.name}
+              </p>
               <div className="gb-feature-lines">
                 {feature.lines.map((line) => (
                   <p key={line} className="gb-feature-line gb-cx">
@@ -478,9 +532,9 @@ export default function Home({ projects: rawProjects = [], posts = [], totalProj
               poster={REEL.poster}
               muted
               playsInline
-              preload="auto"
+              preload="none"
               data-shot={REEL.shotLength}
-              aria-label="Showreel of Christian's products"
+              aria-label="Showreel of Christian's work"
             />
             <div className="gb-reel-titles" aria-hidden="true">
               {REEL.shots.map((shot) => (

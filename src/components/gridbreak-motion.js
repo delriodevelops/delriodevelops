@@ -145,22 +145,35 @@ export function initGridbreakMotion(root, { onSection, forceMotion = false } = {
 
       // A video scrubbed by the scroll is loaded whole into memory first. The hosting answers
       // range requests with the full file and no Accept-Ranges, and then Chrome will not seek
-      // the video at all: it stays on its first frame. A blob URL can always be sought
-      const makeSeekable = (video) => {
+      // the video at all: it stays on its first frame. A blob URL can always be sought.
+      // Each one is fetched only once its scene is within a few screens (`near`), so a visit does
+      // not download every film clip on arrival; until then the poster stands in
+      const makeSeekable = (video, near = video) => {
         const src = video.getAttribute('src');
         if (!src || src.startsWith('blob:')) return;
         let url = null;
         let cancelled = false;
-        fetch(src)
-          .then((res) => (res.ok ? res.blob() : null))
-          .then((blob) => {
-            if (!blob || cancelled) return;
-            url = URL.createObjectURL(blob);
-            video.src = url;
-          })
-          .catch(() => {});
+        const load = () =>
+          fetch(src)
+            .then((res) => (res.ok ? res.blob() : null))
+            .then((blob) => {
+              if (!blob || cancelled) return;
+              url = URL.createObjectURL(blob);
+              video.src = url;
+            })
+            .catch(() => {});
+        const io = new IntersectionObserver(
+          (entries) => {
+            if (!entries.some((entry) => entry.isIntersecting)) return;
+            io.disconnect();
+            load();
+          },
+          { rootMargin: '250% 0px 250% 0px' }
+        );
+        io.observe(near);
         cleanups.push(() => {
           cancelled = true;
+          io.disconnect();
           if (!url) return;
           video.src = src;
           URL.revokeObjectURL(url);
@@ -376,7 +389,7 @@ export function initGridbreakMotion(root, { onSection, forceMotion = false } = {
       q('.gb-feature-wrap').forEach((featureWrap) => {
         const featureVideo = featureWrap.querySelector('.gb-feature-video');
         if (!featureVideo) return;
-        makeSeekable(featureVideo);
+        makeSeekable(featureVideo, featureWrap);
         const featureLength = () => (featureVideo.duration > 0 ? featureVideo.duration : 3.1);
         stickyRun(featureWrap, () => window.innerHeight * 2.2);
 
@@ -399,7 +412,8 @@ export function initGridbreakMotion(root, { onSection, forceMotion = false } = {
         const tl = gsap.timeline({
           scrollTrigger: { trigger: featureWrap, start: 'top top', end: 'bottom bottom', scrub: 1, invalidateOnRefresh: true },
         });
-        tl.fromTo(head, { t: 0 }, { t: () => featureLength(), duration: 1, ease: 'none', onUpdate: seek }, 0);
+        const headTween = gsap.fromTo(head, { t: 0 }, { t: () => featureLength(), duration: 1, ease: 'none', onUpdate: seek });
+        tl.add(headTween, 0);
         if (lineA) {
           tl.fromTo(lineA, { yPercent: 110 }, { yPercent: 0, duration: 0.14, ease: 'power3.out' }, 0.04).to(
             lineA,
@@ -410,7 +424,14 @@ export function initGridbreakMotion(root, { onSection, forceMotion = false } = {
         if (lineB) tl.fromTo(lineB, { yPercent: 110 }, { yPercent: 0, duration: 0.14, ease: 'power3.out' }, 0.58);
         tl.fromTo(featureWrap.querySelector('.gb-feature-cta'), { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: 0.12, ease: 'power2.out' }, 0.8);
 
-        const onFeatureMeta = () => ScrollTrigger.refresh();
+        // once the real duration is known only this scene's playhead needs it: the clip loads while the
+        // page scrolls, and a full refresh then would re-render every scene, sending passed ones to frame 0
+        const onFeatureMeta = () => {
+          headTween.invalidate();
+          // and show the right frame at once if the scene is already on screen (a reload mid-page)
+          head.t = Math.min(1, Math.max(0, tl.time())) * featureLength();
+          seek();
+        };
         featureVideo.addEventListener('loadedmetadata', onFeatureMeta);
         cleanups.push(() => featureVideo.removeEventListener('loadedmetadata', onFeatureMeta));
       });
@@ -420,7 +441,7 @@ export function initGridbreakMotion(root, { onSection, forceMotion = false } = {
       const video = q('.gb-reel-video')[0];
       const reelTitles = q('.gb-reel-title');
       if (reelWrap && video && reelTitles.length) {
-        makeSeekable(video);
+        makeSeekable(video, reelWrap);
         const shots = reelTitles.length;
         const shotSeconds = Number(video.dataset.shot) || 2;
         // timeline units: 1 unit = one shot; the video spans all shots plus its last tail
@@ -447,17 +468,24 @@ export function initGridbreakMotion(root, { onSection, forceMotion = false } = {
         const tl = gsap.timeline({
           scrollTrigger: { trigger: reelWrap, start: 'top top', end: 'bottom bottom', scrub: 1, invalidateOnRefresh: true },
         });
-        tl.fromTo(q('.gb-reel-bar'), { scaleY: 4.6 }, { scaleY: 1, duration: 0.5, ease: 'power2.inOut' }, 0)
-          .fromTo(head, { t: 0 }, { t: () => videoLength(), duration: shots + 0.25, ease: 'none', onUpdate: seek }, 0.3);
+        const headTween = gsap.fromTo(head, { t: 0 }, { t: () => videoLength(), duration: shots + 0.25, ease: 'none', onUpdate: seek });
+        tl.fromTo(q('.gb-reel-bar'), { scaleY: 4.6 }, { scaleY: 1, duration: 0.5, ease: 'power2.inOut' }, 0).add(headTween, 0.3);
         reelTitles.forEach((title, i) => {
           const at = 0.3 + i;
           tl.fromTo(title, { yPercent: 110 }, { yPercent: 0, duration: 0.3, ease: 'power3.out' }, at + 0.15);
-          if (i < shots - 1) tl.to(title, { yPercent: -110, duration: 0.25, ease: 'power3.in' }, at + 0.85);
+          // the slot is taller than a line (room for accents such as ÓRBITA's), so a title leaves by a
+          // full slot height, not just its own, or its bottom edge stays in view under the next one
+          if (i < shots - 1) tl.to(title, { yPercent: -155, duration: 0.25, ease: 'power3.in' }, at + 0.85);
         });
         tl.to(q('.gb-reel-bar'), { scaleY: 4.6, duration: 0.5, ease: 'power2.inOut' }, '>+0.1');
 
-        // once the real duration is known, rebuild the playhead range
-        const onMeta = () => ScrollTrigger.refresh();
+        // once the real duration is known, rebuild the playhead range (only the playhead: the reel
+        // loads while the page scrolls, and a full refresh would re-render every scene)
+        const onMeta = () => {
+          headTween.invalidate();
+          head.t = Math.min(1, Math.max(0, (tl.time() - 0.3) / (shots + 0.25))) * videoLength();
+          seek();
+        };
         video.addEventListener('loadedmetadata', onMeta);
         cleanups.push(() => video.removeEventListener('loadedmetadata', onMeta));
       }
