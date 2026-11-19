@@ -444,7 +444,7 @@ export function initGridbreakMotion(root, { onSection, forceMotion = false } = {
         });
       }
 
-      // ---------- showreel: letterbox in, the scrollbar drives the video playhead ----------
+      // ---------- trailer: letterbox in, the scrollbar drives the video playhead ----------
       const reelWrap = q('.gb-reel-wrap')[0];
       const video = q('.gb-reel-video')[0];
       const reelTitles = q('.gb-reel-title');
@@ -452,13 +452,27 @@ export function initGridbreakMotion(root, { onSection, forceMotion = false } = {
         makeSeekable(video, reelWrap);
         const shots = reelTitles.length;
         const shotSeconds = Number(video.dataset.shot) || 2;
-        // timeline units: 1 unit = one shot; the video spans all shots plus its last tail
-        const videoLength = () => (video.duration > 0 ? video.duration : shots * shotSeconds + 0.5);
-        stickyRun(reelWrap, () => window.innerHeight * (0.9 * shots + 1));
+        // Each shot lasts its own seconds of video (`data-seconds`, two by default) and takes a
+        // stretch of scroll in proportion: one timeline unit per two seconds, so a montage that
+        // speeds up (shorter shots at the end) also scrolls by faster
+        const seconds = reelTitles.map((title) => Number(title.dataset.seconds) || shotSeconds);
+        const units = seconds.map((sec) => sec / 2);
+        const startSec = seconds.map((_, i) => seconds.slice(0, i).reduce((sum, sec) => sum + sec, 0));
+        const startUnit = units.map((_, i) => units.slice(0, i).reduce((sum, unit) => sum + unit, 0));
+        const totalSec = startSec[shots - 1] + seconds[shots - 1];
+        const totalUnits = startUnit[shots - 1] + units[shots - 1];
+        // the video spans every shot plus its last tail
+        const videoLength = () => (video.duration > 0 ? video.duration : totalSec + 0.5);
+        stickyRun(reelWrap, () => window.innerHeight * (0.9 * totalUnits + 1));
 
         const tc = q('.gb-reel-tc')[0];
         const reelCount = q('.gb-reel-count')[0];
         const pad = (n) => String(n).padStart(2, '0');
+        const shotAt = (t) => {
+          let k = 0;
+          while (k < shots - 1 && t >= startSec[k + 1]) k += 1;
+          return k;
+        };
         const head = { t: 0 };
         let lastSeek = -1;
         const seek = () => {
@@ -470,20 +484,21 @@ export function initGridbreakMotion(root, { onSection, forceMotion = false } = {
           }
           const f = Math.round(t * 24);
           if (tc) tc.textContent = `00:${pad(Math.floor(f / 1440))}:${pad(Math.floor(f / 24) % 60)}:${pad(f % 24)}`;
-          if (reelCount) reelCount.textContent = `${pad(Math.min(shots, Math.floor(t / shotSeconds) + 1))} / ${pad(shots)}`;
+          if (reelCount) reelCount.textContent = `${pad(shotAt(t) + 1)} / ${pad(shots)}`;
         };
 
         const tl = gsap.timeline({
           scrollTrigger: { trigger: reelWrap, start: 'top top', end: 'bottom bottom', scrub: 1, invalidateOnRefresh: true },
         });
-        const headTween = gsap.fromTo(head, { t: 0 }, { t: () => videoLength(), duration: shots + 0.25, ease: 'none', onUpdate: seek });
+        const headTween = gsap.fromTo(head, { t: 0 }, { t: () => videoLength(), duration: totalUnits + 0.25, ease: 'none', onUpdate: seek });
         tl.fromTo(q('.gb-reel-bar'), { scaleY: 4.6 }, { scaleY: 1, duration: 0.5, ease: 'power2.inOut' }, 0).add(headTween, 0.3);
         reelTitles.forEach((title, i) => {
-          const at = 0.3 + i;
-          tl.fromTo(title, { yPercent: 110 }, { yPercent: 0, duration: 0.3, ease: 'power3.out' }, at + 0.15);
+          const at = 0.3 + startUnit[i];
+          const u = units[i];
+          tl.fromTo(title, { yPercent: 110 }, { yPercent: 0, duration: 0.3 * u, ease: 'power3.out' }, at + 0.15 * u);
           // the slot is taller than a line (room for accents such as ÓRBITA's), so a title leaves by a
           // full slot height, not just its own, or its bottom edge stays in view under the next one
-          if (i < shots - 1) tl.to(title, { yPercent: -155, duration: 0.25, ease: 'power3.in' }, at + 0.85);
+          if (i < shots - 1) tl.to(title, { yPercent: -155, duration: 0.25 * u, ease: 'power3.in' }, at + 0.85 * u);
         });
         tl.to(q('.gb-reel-bar'), { scaleY: 4.6, duration: 0.5, ease: 'power2.inOut' }, '>+0.1');
 
@@ -491,14 +506,14 @@ export function initGridbreakMotion(root, { onSection, forceMotion = false } = {
         // loads while the page scrolls, and a full refresh would re-render every scene)
         const onMeta = () => {
           headTween.invalidate();
-          head.t = Math.min(1, Math.max(0, (tl.time() - 0.3) / (shots + 0.25))) * videoLength();
+          head.t = Math.min(1, Math.max(0, (tl.time() - 0.3) / (totalUnits + 0.25))) * videoLength();
           seek();
         };
         video.addEventListener('loadedmetadata', onMeta);
         cleanups.push(() => video.removeEventListener('loadedmetadata', onMeta));
       }
 
-      // ---------- concepts: an index whose rows play their site in a monitor under the cursor ----------
+      // ---------- concepts: an index whose rows play their film clip, or show their still, in a monitor under the cursor ----------
       const conceptsTitle = q('.gb-concepts-title')[0];
       if (conceptsTitle) riseChars(conceptsTitle);
 
@@ -515,11 +530,13 @@ export function initGridbreakMotion(root, { onSection, forceMotion = false } = {
       const monitor = q('.gb-concept-preview')[0];
       if (monitor && desktop) {
         const screen = monitor.querySelector('video');
+        const still = monitor.querySelector('.gb-concept-preview-still');
+        const kindEl = monitor.querySelector('.gb-concept-preview-kind');
         const nameEl = monitor.querySelector('.gb-concept-preview-name');
         const tcEl = monitor.querySelector('.gb-concept-preview-tc');
         const xTo = gsap.quickTo(monitor, 'x', { duration: 0.55, ease: 'power3' });
         const yTo = gsap.quickTo(monitor, 'y', { duration: 0.55, ease: 'power3' });
-        // every preview is fetched once, on its first hover, and kept as a blob so its loop comes round
+        // every clip is fetched once, on its first hover, and kept as a blob so its loop comes round
         const blobs = new Map();
         const blobFor = (src) => {
           if (!blobs.has(src)) {
@@ -534,42 +551,50 @@ export function initGridbreakMotion(root, { onSection, forceMotion = false } = {
           return blobs.get(src);
         };
         const pad2 = (n) => String(n).padStart(2, '0');
-        let current = '';
+        let current = null;
         let loaded = '';
         let raf = 0;
-        // the monitor's timecode runs with the clip, like the trailer's
+        // the monitor's timecode runs with the clip, like the trailer's; a still holds at zero
         const tick = () => {
           const f = Math.floor((screen.currentTime || 0) * 30);
           if (tcEl) tcEl.textContent = `00:00:${pad2(Math.floor(f / 30))}:${pad2(f % 30)}`;
           raf = requestAnimationFrame(tick);
         };
         const show = (row) => {
-          const src = row.dataset.preview;
-          if (!src) return;
-          current = src;
+          const clip = row.dataset.clip || '';
+          current = row;
           if (nameEl) nameEl.textContent = row.dataset.name || '';
-          // another site's clip never shows under this name: its still stands in until its own clip is in
-          if (loaded !== src) {
+          // the row's still is always under the clip: it is all there is until the site's film lands,
+          // and it stands in while a clip loads, so another site's frames never show under this name
+          if (row.dataset.still && still.getAttribute('src') !== row.dataset.still) still.src = row.dataset.still;
+          if (loaded !== clip) {
             screen.pause();
+            screen.classList.remove('is-live');
             screen.removeAttribute('src');
-            screen.poster = row.dataset.poster || '';
             screen.load();
             loaded = '';
           }
+          cancelAnimationFrame(raf);
+          if (kindEl) kindEl.textContent = clip ? 'Preview' : 'Still';
+          if (tcEl && !clip) tcEl.textContent = '00:00:00:00';
           monitor.classList.add('is-visible');
-          blobFor(src).then((url) => {
-            if (!url || current !== src) return;
-            if (loaded !== src) {
+          if (!clip) return;
+          blobFor(clip).then((url) => {
+            if (!url || current !== row) return;
+            if (loaded !== clip) {
               screen.src = url;
-              loaded = src;
+              loaded = clip;
             }
-            screen.play().catch(() => {});
+            screen
+              .play()
+              .then(() => current === row && screen.classList.add('is-live'))
+              .catch(() => {});
             cancelAnimationFrame(raf);
             raf = requestAnimationFrame(tick);
           });
         };
         const hide = () => {
-          current = '';
+          current = null;
           monitor.classList.remove('is-visible');
           screen.pause();
           cancelAnimationFrame(raf);

@@ -49,13 +49,26 @@ const navLinks = [
 const marqueeItems = ['Indie hacker', 'Solobuilder', 'Full stack', 'AI engineer', 'Product maker'];
 
 // The trailer: the showreel (rendered by scripts/make-reel.sh), the home's one full-screen film, its
-// playhead on the scrollbar. `shots` lists the projects in the order they appear; each shot lasts
-// `shotLength` seconds of video. Two concept sites close it, after the products.
+// playhead on the scrollbar. `shots` lists the projects in the order they appear; a shot lasts
+// `shotLength` seconds of video, or its own when written { name, seconds }, and takes a stretch of
+// scroll in proportion. Two concept sites close it, after the products.
 const REEL = {
   src: '/reel/showreel.mp4',
   poster: '/reel/showreel-poster.jpg',
   shotLength: 2,
   shots: ['Fainancial', 'MeshMind', 'CitySwipe', 'Billonario', 'Motorsportive', 'Baitme', 'Clyme', 'DR.NEWS', 'My Dog Food', 'Escudo Leal', 'ÓRBITA', 'BLOOP'],
+};
+
+// "5–19 Nov 2026" (or "28 Oct – 9 Nov 2026") from two ISO dates, for the concept sites' pace line
+const formatSpan = (from, to) => {
+  const opts = { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' };
+  const [a, b] = [new Date(from), new Date(to)];
+  const fmt = (d, o) => new Intl.DateTimeFormat('en-GB', o).format(d);
+  if (fmt(a, opts) === fmt(b, opts)) return fmt(a, opts);
+  if (a.getUTCMonth() === b.getUTCMonth() && a.getUTCFullYear() === b.getUTCFullYear()) {
+    return `${a.getUTCDate()}–${fmt(b, opts)}`;
+  }
+  return `${fmt(a, { day: 'numeric', month: 'short', timeZone: 'UTC' })} – ${fmt(b, opts)}`;
 };
 
 const heroLetters = ['D', 'E', 'L', 'R', 'Í', 'O'];
@@ -68,7 +81,7 @@ const INTRO_SEEN_KEY = 'gb-intro-seen';
  * Home. Data is fetched on the server (page.jsx) and passed in, so the page is
  * crawlable and never flashes placeholder content.
  */
-export default function Home({ projects: rawProjects = [], posts = [], totalProjects = 0, concepts = [] }) {
+export default function Home({ projects: rawProjects = [], posts = [], totalProjects = 0, concepts = [], conceptPace = null }) {
   const rootRef = useRef(null);
   const lenisRef = useLenis({ startStopped: true });
   const clock = useLocalClock();
@@ -313,11 +326,14 @@ export default function Home({ projects: rawProjects = [], posts = [], totalProj
               aria-label="Showreel of Christian's work"
             />
             <div className="gb-reel-titles" aria-hidden="true">
-              {REEL.shots.map((shot) => (
-                <p key={shot} className="gb-reel-title gb-cx">
-                  {shot}
-                </p>
-              ))}
+              {REEL.shots.map((shot) => {
+                const { name, seconds = REEL.shotLength } = typeof shot === 'string' ? { name: shot } : shot;
+                return (
+                  <p key={name} className="gb-reel-title gb-cx" data-seconds={seconds}>
+                    {name}
+                  </p>
+                );
+              })}
             </div>
             <div className="gb-reel-bar gb-reel-bar--top" aria-hidden="true" />
             <div className="gb-reel-bar gb-reel-bar--bottom" aria-hidden="true" />
@@ -433,8 +449,8 @@ export default function Home({ projects: rawProjects = [], posts = [], totalProj
         </div>
 
         {/* ==================== CONCEPTS ==================== */}
-        {/* an index of the concept sites, a row each: on a desktop the row's site plays in a small
-            monitor under the cursor (eight seconds of it being scrolled); on a phone each row shows its still */}
+        {/* an index of the concept sites, a row each: on a desktop a small monitor under the cursor plays
+            the row's film clip, or shows its still until the film lands; on a phone each row shows its still */}
         {concepts.length > 0 && (
           <section id="concepts" className="gb-concepts gb-has-bignum" data-section="concepts" aria-labelledby="gb-concepts-title">
             <span className="gb-bignum gb-cx" data-speed="-0.6" aria-hidden="true">
@@ -447,10 +463,20 @@ export default function Home({ projects: rawProjects = [], posts = [], totalProj
                   Concepts
                 </h2>
               </div>
-              <p className="gb-concepts-note">
-                {concepts.length} sites for brands that do not exist, each built end to end with immersive-web, my Claude
-                Code skill for cinematic sites. Not clients, not live products: studies in scroll, type and 3D.
-              </p>
+              <div>
+                {conceptPace && (
+                  <p className="gb-concepts-pace">
+                    <span className="gb-cx">
+                      {conceptPace.count} sites in {conceptPace.span}
+                    </span>
+                    <span className="gb-mono">{formatSpan(conceptPace.from, conceptPace.to)}</span>
+                  </p>
+                )}
+                <p className="gb-concepts-note">
+                  Sites for brands that do not exist, each built end to end with immersive-web, my Claude Code skill for
+                  cinematic sites. Not clients, not live products: studies in scroll, type and 3D.
+                </p>
+              </div>
             </div>
             <ol className="gb-concepts-list">
               {concepts.map((concept) => (
@@ -458,8 +484,8 @@ export default function Home({ projects: rawProjects = [], posts = [], totalProj
                   <Link
                     href={`/projects/${concept.id}`}
                     className="gb-concept"
-                    data-preview={concept.preview || ''}
-                    data-poster={concept.image || ''}
+                    data-clip={concept.clip || ''}
+                    data-still={concept.image || ''}
                     data-name={concept.name}
                   >
                     <span className="gb-concept-num gb-mono">C—{concept.number}</span>
@@ -481,16 +507,20 @@ export default function Home({ projects: rawProjects = [], posts = [], totalProj
                 </li>
               ))}
             </ol>
-            {/* the monitor: gridbreak-motion moves the outer box with the cursor, the inner one opens and closes */}
+            {/* the monitor: gridbreak-motion moves the outer box with the cursor, the inner one opens and closes;
+                its screen shows the row's still, and the film clip over it once there is one */}
             <div className="gb-concept-preview" aria-hidden="true">
               <div className="gb-concept-monitor">
-                <video className="gb-concept-preview-video" muted loop playsInline preload="none" tabIndex={-1} />
                 <span className="gb-concept-preview-hud gb-mono">
                   <span>
                     <span className="gb-dot" style={{ color: 'var(--gb-red)' }} />
-                    Preview — <span className="gb-concept-preview-name" />
+                    <span className="gb-concept-preview-kind">Preview</span> — <span className="gb-concept-preview-name" />
                   </span>
                   <span className="gb-concept-preview-tc">00:00:00:00</span>
+                </span>
+                <span className="gb-concept-screen">
+                  <img className="gb-concept-preview-still" alt="" />
+                  <video className="gb-concept-preview-video" muted loop playsInline preload="none" tabIndex={-1} />
                 </span>
               </div>
             </div>

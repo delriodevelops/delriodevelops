@@ -39,17 +39,33 @@ export default async function Page() {
   }));
 
   // The concept sites (fictional brands, built with immersive-web) have their own index, in the
-  // repo's order; a row plays eight seconds of its site on hover, and links to its case page
-  const concepts = FALLBACK_PROJECTS.filter((project) => project.concept).map((project, index) => ({
+  // repo's order; on hover a row plays its film's clip, or shows its still until the film lands,
+  // and links to its case page
+  const conceptEntries = FALLBACK_PROJECTS.filter((project) => project.concept);
+  const concepts = conceptEntries.map((project, index) => ({
     id: project.id,
     number: String(index + 1).padStart(2, '0'),
     name: project.name,
     tagline: project.tagline || project.description,
     tags: (project.tags || []).filter((tag) => tag !== 'Concept'),
     image: project.image,
-    preview: project.preview || null,
+    clip: project.clip || null,
     film: Boolean(project.video),
   }));
+
+  // How fast they were made, from the entries' own dates: the first batch to the latest site
+  const conceptDates = conceptEntries.map((project) => project.date).filter(Boolean).sort();
+  const days = conceptDates.length
+    ? Math.round((Date.parse(conceptDates[conceptDates.length - 1]) - Date.parse(conceptDates[0])) / 86400000) + 1
+    : 0;
+  const conceptPace = days
+    ? {
+        count: concepts.length,
+        span: days >= 10 ? `${Math.round(days / 7)} weeks` : `${days} days`,
+        from: conceptDates[0],
+        to: conceptDates[conceptDates.length - 1],
+      }
+    : null;
 
   const posts = allPosts.slice(0, 4).map((post) => ({
     slug: post.slug,
@@ -80,7 +96,7 @@ export default async function Page() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <HomeContent projects={projects} posts={posts} totalProjects={source.length} concepts={concepts} />
+      <HomeContent projects={projects} posts={posts} totalProjects={source.length} concepts={concepts} conceptPace={conceptPace} />
     </>
   );
 }

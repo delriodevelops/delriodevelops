@@ -1427,6 +1427,23 @@
   line-height: 0.8;
 }
 
+/* how fast they were made: the count in the display face, the dates in mono under it */
+.gb-concepts-pace {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0 0 18px;
+}
+
+.gb-concepts-pace .gb-cx {
+  font-size: clamp(30px, 3.2vw, 56px);
+  line-height: 0.9;
+}
+
+.gb-concepts-pace .gb-mono {
+  color: var(--gb-mute-on-ink);
+}
+
 .gb-concepts-note {
   margin: 0;
   max-width: 40ch;
@@ -1577,17 +1594,35 @@
   transform: translate(-50%, 28px) scale(1);
 }
 
+/* the screen: the row's still, and its film clip over it once the clip is playing */
+.gb-concept-screen {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 9;
+  background: var(--gb-ink-2);
+}
+
+.gb-concept-preview-still,
 .gb-concept-preview-video {
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
-  aspect-ratio: 16 / 10;
+  height: 100%;
   object-fit: cover;
-  background: var(--gb-ink-2);
+}
+
+.gb-concept-preview-video {
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+
+.gb-concept-preview-video.is-live {
+  opacity: 1;
 }
 
 /* a slate bar over the picture, never on it: the sites have their own headers */
 .gb-concept-preview-hud {
-  order: -1;
   display: flex;
   justify-content: space-between;
   gap: 12px;
