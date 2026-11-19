@@ -145,11 +145,14 @@ export function initGridbreakMotion(root, { onSection, forceMotion = false } = {
 
       // A video scrubbed by the scroll is loaded whole into memory first. The hosting answers
       // range requests with the full file and no Accept-Ranges, and then Chrome will not seek
-      // the video at all: it stays on its first frame. A blob URL can always be sought.
-      // Each one is fetched only once its scene is within a few screens (`near`), so a visit does
-      // not download every film clip on arrival; until then the poster stands in
-      const makeSeekable = (video, near = video) => {
-        const src = video.getAttribute('src');
+      // the video at all: it stays on its first frame. A blob URL can always be sought, and a loop
+      // (a seek back to the start) always comes round. Each one is fetched only once its scene is
+      // within a few screens (`near`), so a visit does not download every clip on arrival; until
+      // then the poster or the shot behind it stands in. A clip that should not start loading on
+      // its own keeps its file in `data-src` instead of `src`
+      const makeSeekable = (video, near = video, { margin = '250% 0px 250% 0px', onReady } = {}) => {
+        const original = video.getAttribute('src');
+        const src = original || video.dataset.src;
         if (!src || src.startsWith('blob:')) return;
         let url = null;
         let cancelled = false;
@@ -160,6 +163,7 @@ export function initGridbreakMotion(root, { onSection, forceMotion = false } = {
               if (!blob || cancelled) return;
               url = URL.createObjectURL(blob);
               video.src = url;
+              onReady?.();
             })
             .catch(() => {});
         const io = new IntersectionObserver(
@@ -168,14 +172,19 @@ export function initGridbreakMotion(root, { onSection, forceMotion = false } = {
             io.disconnect();
             load();
           },
-          { rootMargin: '250% 0px 250% 0px' }
+          { rootMargin: margin }
         );
         io.observe(near);
         cleanups.push(() => {
           cancelled = true;
           io.disconnect();
           if (!url) return;
-          video.src = src;
+          video.pause();
+          if (original) video.src = original;
+          else {
+            video.removeAttribute('src');
+            video.load();
+          }
           URL.revokeObjectURL(url);
         });
       };
@@ -296,6 +305,21 @@ export function initGridbreakMotion(root, { onSection, forceMotion = false } = {
       const count = q('.gb-work-count')[0];
       const total = projectPanels.length;
 
+      // A product's clip plays, muted and looping, only while its panel is the one in view; the
+      // others show their shot. `want` keeps the wish until the clip has finished loading
+      const setPlaying = (video, on) => {
+        video.dataset.want = on ? '1' : '';
+        if (!video.getAttribute('src')) return;
+        if (on) {
+          if (video.paused) video.play().catch(() => {});
+          video.classList.add('is-playing');
+        } else {
+          if (!video.paused) video.pause();
+          video.classList.remove('is-playing');
+        }
+      };
+      const playWanted = (video) => () => setPlaying(video, video.dataset.want === '1');
+
       if (work && workWrap && track && desktop) {
         // Per-panel reveals are driven from each panel's on-screen position while the
         // track slides; cheaper and more predictable than one trigger per element.
@@ -306,10 +330,13 @@ export function initGridbreakMotion(root, { onSection, forceMotion = false } = {
             panel,
             media: panel.querySelector('.gb-panel-media'),
             img: panel.querySelector('.gb-panel-media img'),
+            video: panel.querySelector('.gb-panel-video'),
             chars: title ? SplitText.create(title, { type: 'chars', charsClass: 'gb-char', mask: 'chars' }).chars : [],
           };
         });
 
+        // clips play only while the strip is on screen, and only the centred panel's
+        let workActive = false;
         const allPanels = q('.gb-panel');
         const updatePanels = () => {
           const vw = window.innerWidth;
@@ -319,8 +346,9 @@ export function initGridbreakMotion(root, { onSection, forceMotion = false } = {
             const off = gsap.utils.clamp(-1.2, 1.2, (left + width / 2 - vw / 2) / vw);
             panel.style.transform = `rotateY(${(off * -22).toFixed(2)}deg) scale(${(1 - Math.abs(off) * 0.14).toFixed(3)})`;
           });
-          panelFx.forEach(({ panel, media, img, chars }) => {
+          panelFx.forEach(({ panel, media, img, video, chars }) => {
             const { left, width } = panel.getBoundingClientRect();
+            if (video) setPlaying(video, workActive && Math.abs((left + width / 2 - vw / 2) / vw) < 0.32);
             const reveal = clamp01((vw * 0.95 - left) / (vw * 0.65));
             const travel = clamp01((vw - left) / (vw + width));
             const type = clamp01((vw * 0.75 - left) / (vw * 0.5));
@@ -334,10 +362,25 @@ export function initGridbreakMotion(root, { onSection, forceMotion = false } = {
           });
         };
 
+        // each clip is fetched once its panel is within a screen of the frame (the track slides sideways)
+        panelFx.forEach(({ panel, video }) => {
+          if (video) makeSeekable(video, panel, { margin: '50% 100% 50% 100%', onReady: updatePanels });
+        });
+        ScrollTrigger.create({
+          trigger: workWrap,
+          start: 'top bottom',
+          end: 'bottom top',
+          onToggle: (self) => {
+            workActive = self.isActive;
+            updatePanels();
+          },
+        });
+
         cleanups.push(() => {
-          panelFx.forEach(({ media, img }) => {
+          panelFx.forEach(({ media, img, video }) => {
             if (media) media.style.clipPath = '';
             if (img) img.style.transform = '';
+            if (video) setPlaying(video, false);
           });
           allPanels.forEach((panel) => {
             panel.style.transform = '';
@@ -369,6 +412,15 @@ export function initGridbreakMotion(root, { onSection, forceMotion = false } = {
         updatePanels();
         cleanups.push(() => slide.kill());
       } else if (work) {
+        // a phone stacks the panels: a clip plays while most of its panel is on screen
+        const seen = new IntersectionObserver(
+          (entries) =>
+            entries.forEach((entry) => {
+              const video = entry.target.querySelector('.gb-panel-video');
+              if (video) setPlaying(video, entry.isIntersecting);
+            }),
+          { threshold: 0.55 }
+        );
         projectPanels.forEach((panel) => {
           const media = panel.querySelector('.gb-panel-media');
           if (!media) return;
@@ -381,60 +433,16 @@ export function initGridbreakMotion(root, { onSection, forceMotion = false } = {
               scrollTrigger: { trigger: media, start: 'top 95%', end: 'top 45%', scrub: true },
             }
           );
+          const video = panel.querySelector('.gb-panel-video');
+          if (!video) return;
+          makeSeekable(video, panel, { margin: '100% 0px 100% 0px', onReady: playWanted(video) });
+          seen.observe(panel);
+        });
+        cleanups.push(() => {
+          seen.disconnect();
+          q('.gb-panel-video').forEach((video) => setPlaying(video, false));
         });
       }
-
-      // ---------- featured films: one camera move of a launch film each, the scrollbar is its playhead ----------
-      const pad = (n) => String(n).padStart(2, '0');
-      q('.gb-feature-wrap').forEach((featureWrap) => {
-        const featureVideo = featureWrap.querySelector('.gb-feature-video');
-        if (!featureVideo) return;
-        makeSeekable(featureVideo, featureWrap);
-        const featureLength = () => (featureVideo.duration > 0 ? featureVideo.duration : 3.1);
-        stickyRun(featureWrap, () => window.innerHeight * 2.2);
-
-        const featureTc = featureWrap.querySelector('.gb-feature-tc');
-        const head = { t: 0 };
-        let lastSeek = -1;
-        const seek = () => {
-          const t = Math.min(head.t, featureLength() - 0.04);
-          // seeking is expensive: skip moves of less than a frame (the clip runs at 30 fps)
-          if (featureVideo.readyState >= 1 && Math.abs(t - lastSeek) > 1 / 60) {
-            featureVideo.currentTime = t;
-            lastSeek = t;
-          }
-          const f = Math.round(t * 30);
-          if (featureTc) featureTc.textContent = `00:00:${pad(Math.floor(f / 30))}:${pad(f % 30)}`;
-        };
-
-        // the two lines share one masked slot: the first leaves halfway through the move
-        const [lineA, lineB] = featureWrap.querySelectorAll('.gb-feature-line');
-        const tl = gsap.timeline({
-          scrollTrigger: { trigger: featureWrap, start: 'top top', end: 'bottom bottom', scrub: 1, invalidateOnRefresh: true },
-        });
-        const headTween = gsap.fromTo(head, { t: 0 }, { t: () => featureLength(), duration: 1, ease: 'none', onUpdate: seek });
-        tl.add(headTween, 0);
-        if (lineA) {
-          tl.fromTo(lineA, { yPercent: 110 }, { yPercent: 0, duration: 0.14, ease: 'power3.out' }, 0.04).to(
-            lineA,
-            { yPercent: -110, duration: 0.1, ease: 'power3.in' },
-            0.5
-          );
-        }
-        if (lineB) tl.fromTo(lineB, { yPercent: 110 }, { yPercent: 0, duration: 0.14, ease: 'power3.out' }, 0.58);
-        tl.fromTo(featureWrap.querySelector('.gb-feature-cta'), { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: 0.12, ease: 'power2.out' }, 0.8);
-
-        // once the real duration is known only this scene's playhead needs it: the clip loads while the
-        // page scrolls, and a full refresh then would re-render every scene, sending passed ones to frame 0
-        const onFeatureMeta = () => {
-          headTween.invalidate();
-          // and show the right frame at once if the scene is already on screen (a reload mid-page)
-          head.t = Math.min(1, Math.max(0, tl.time())) * featureLength();
-          seek();
-        };
-        featureVideo.addEventListener('loadedmetadata', onFeatureMeta);
-        cleanups.push(() => featureVideo.removeEventListener('loadedmetadata', onFeatureMeta));
-      });
 
       // ---------- showreel: letterbox in, the scrollbar drives the video playhead ----------
       const reelWrap = q('.gb-reel-wrap')[0];
@@ -488,6 +496,120 @@ export function initGridbreakMotion(root, { onSection, forceMotion = false } = {
         };
         video.addEventListener('loadedmetadata', onMeta);
         cleanups.push(() => video.removeEventListener('loadedmetadata', onMeta));
+      }
+
+      // ---------- concepts: an index whose rows play their site in a monitor under the cursor ----------
+      const conceptsTitle = q('.gb-concepts-title')[0];
+      if (conceptsTitle) riseChars(conceptsTitle);
+
+      // each row rises into place as it scrolls in, one after the other
+      q('.gb-concepts-list > li').forEach((item) => {
+        revealFrom(item, {
+          y: 48,
+          autoAlpha: 0,
+          ease: 'none',
+          scrollTrigger: { trigger: item, start: 'top 100%', end: 'top 72%', scrub: true },
+        });
+      });
+
+      const monitor = q('.gb-concept-preview')[0];
+      if (monitor && desktop) {
+        const screen = monitor.querySelector('video');
+        const nameEl = monitor.querySelector('.gb-concept-preview-name');
+        const tcEl = monitor.querySelector('.gb-concept-preview-tc');
+        const xTo = gsap.quickTo(monitor, 'x', { duration: 0.55, ease: 'power3' });
+        const yTo = gsap.quickTo(monitor, 'y', { duration: 0.55, ease: 'power3' });
+        // every preview is fetched once, on its first hover, and kept as a blob so its loop comes round
+        const blobs = new Map();
+        const blobFor = (src) => {
+          if (!blobs.has(src)) {
+            blobs.set(
+              src,
+              fetch(src)
+                .then((res) => (res.ok ? res.blob() : null))
+                .then((blob) => (blob ? URL.createObjectURL(blob) : null))
+                .catch(() => null)
+            );
+          }
+          return blobs.get(src);
+        };
+        const pad2 = (n) => String(n).padStart(2, '0');
+        let current = '';
+        let loaded = '';
+        let raf = 0;
+        // the monitor's timecode runs with the clip, like the trailer's
+        const tick = () => {
+          const f = Math.floor((screen.currentTime || 0) * 30);
+          if (tcEl) tcEl.textContent = `00:00:${pad2(Math.floor(f / 30))}:${pad2(f % 30)}`;
+          raf = requestAnimationFrame(tick);
+        };
+        const show = (row) => {
+          const src = row.dataset.preview;
+          if (!src) return;
+          current = src;
+          if (nameEl) nameEl.textContent = row.dataset.name || '';
+          // another site's clip never shows under this name: its still stands in until its own clip is in
+          if (loaded !== src) {
+            screen.pause();
+            screen.removeAttribute('src');
+            screen.poster = row.dataset.poster || '';
+            screen.load();
+            loaded = '';
+          }
+          monitor.classList.add('is-visible');
+          blobFor(src).then((url) => {
+            if (!url || current !== src) return;
+            if (loaded !== src) {
+              screen.src = url;
+              loaded = src;
+            }
+            screen.play().catch(() => {});
+            cancelAnimationFrame(raf);
+            raf = requestAnimationFrame(tick);
+          });
+        };
+        const hide = () => {
+          current = '';
+          monitor.classList.remove('is-visible');
+          screen.pause();
+          cancelAnimationFrame(raf);
+        };
+        // it rides above the cursor, or below it near the top of the window, and never leaves the frame
+        const place = (e, now) => {
+          const box = monitor.firstElementChild.getBoundingClientRect();
+          const half = box.width / 2 + 16;
+          const x = gsap.utils.clamp(half, window.innerWidth - half, e.clientX);
+          monitor.classList.toggle('is-below', e.clientY < box.height + 72);
+          if (now) gsap.set(monitor, { x, y: e.clientY });
+          else {
+            xTo(x);
+            yTo(e.clientY);
+          }
+        };
+        const move = (e) => place(e, false);
+        const rows = q('.gb-concept');
+        const handlers = rows.map((row) => {
+          const enter = (e) => {
+            // the monitor appears where the cursor is, then follows it
+            place(e, true);
+            show(row);
+          };
+          row.addEventListener('mouseenter', enter);
+          row.addEventListener('mouseleave', hide);
+          row.addEventListener('mousemove', move);
+          return { row, enter };
+        });
+        cleanups.push(() => {
+          handlers.forEach(({ row, enter }) => {
+            row.removeEventListener('mouseenter', enter);
+            row.removeEventListener('mouseleave', hide);
+            row.removeEventListener('mousemove', move);
+          });
+          hide();
+          screen.removeAttribute('src');
+          screen.load();
+          blobs.forEach((promise) => promise.then((url) => url && URL.revokeObjectURL(url)));
+        });
       }
 
       // ---------- portrait scene: full-bleed face, camera pulls back to a frame ----------

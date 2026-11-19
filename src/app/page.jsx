@@ -2,20 +2,25 @@ import HomeContent from './page-content';
 import { getPosts, getProjects } from '../lib/services/firestore-rest';
 import { identity, socials, companies } from '../data/profile';
 import { FALLBACK_PROJECTS } from '../data/fallback-projects';
-import { withRepoMedia } from '../lib/repo-media';
+import { repoNames, withRepoMedia } from '../lib/repo-media';
 
 export const revalidate = 300;
 
 export default async function Page() {
   const [stored, allPosts] = await Promise.all([getProjects(), getPosts()]);
-  // current covers from the repo for the products re-shot with their films (lib/repo-media)
+  // current covers, galleries and film clips from the repo (lib/repo-media)
   const allProjects = stored.map(withRepoMedia);
 
   // Without Firestore the work list is the repo's entries, minus the concept sites: fictional
-  // brands, not products shipped (they have their own film scenes and case pages)
-  const source = allProjects.length > 0 ? allProjects : FALLBACK_PROJECTS.filter((project) => !project.concept);
+  // brands, not products shipped (they have their own index after the work)
+  const products = FALLBACK_PROJECTS.filter((project) => !project.concept);
+  const source = allProjects.length > 0 ? allProjects : products;
   const featured = source.filter((project) => project.featured);
-  const display = (featured.length > 0 ? featured : source).slice(0, 6);
+  const picked = featured.length > 0 ? featured : source;
+  // Every product with a launch film is in the strip as well, even one that lives only in this repo
+  // (CitySwipe, Billonario): the strip is the one place on the home where each product shows
+  const isPicked = (entry) => picked.some((project) => repoNames(entry).includes((project.name || '').toLowerCase()));
+  const display = [...picked, ...products.filter((entry) => entry.video && !isPicked(entry))].slice(0, 8);
 
   const projects = display.map((project, index) => ({
     id: project.id,
@@ -23,6 +28,7 @@ export default async function Page() {
     title: project.name,
     description: project.description,
     image: project.image,
+    clip: project.clip || null,
     tags: project.tags || [],
     category:
       project.type ||
@@ -32,21 +38,18 @@ export default async function Page() {
     featured: project.featured ?? false,
   }));
 
-  // Each featured film's button goes to its project's case page, wherever the entry lives
-  const caseHref = (pattern, fallback) => `/projects/${source.find((project) => pattern.test(project.name || ''))?.id || fallback}`;
-  const featureHrefs = {
-    meshmind: caseHref(/meshmind/i, 'meshmind'),
-    cityswipe: caseHref(/cityswipe/i, 'cityswipe'),
-    billonario: caseHref(/billonario/i, 'billonario'),
-    motorsportive: caseHref(/motorsportive/i, 'motorsportive'),
-    resonant: caseHref(/resonant/i, 'resonant'),
-    // the concept sites live only in this repo, so these fall back to their own ids
-    orbita: caseHref(/^órbita$/i, 'orbita'),
-    'casa-alba': caseHref(/^casa alba$/i, 'casa-alba'),
-    kern: caseHref(/^kern$/i, 'kern'),
-    bloop: caseHref(/^bloop$/i, 'bloop'),
-    fractura: caseHref(/^fractura$/i, 'fractura'),
-  };
+  // The concept sites (fictional brands, built with immersive-web) have their own index, in the
+  // repo's order; a row plays eight seconds of its site on hover, and links to its case page
+  const concepts = FALLBACK_PROJECTS.filter((project) => project.concept).map((project, index) => ({
+    id: project.id,
+    number: String(index + 1).padStart(2, '0'),
+    name: project.name,
+    tagline: project.tagline || project.description,
+    tags: (project.tags || []).filter((tag) => tag !== 'Concept'),
+    image: project.image,
+    preview: project.preview || null,
+    film: Boolean(project.video),
+  }));
 
   const posts = allPosts.slice(0, 4).map((post) => ({
     slug: post.slug,
@@ -77,7 +80,7 @@ export default async function Page() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <HomeContent projects={projects} posts={posts} totalProjects={source.length} featureHrefs={featureHrefs} />
+      <HomeContent projects={projects} posts={posts} totalProjects={source.length} concepts={concepts} />
     </>
   );
 }

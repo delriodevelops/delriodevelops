@@ -39,6 +39,7 @@ const previousEmployer = companies[1]?.company.split(' ')[0].toUpperCase();
 
 const navLinks = [
   { id: 'work', label: 'Work', href: '/#work' },
+  { id: 'concepts', label: 'Concepts', href: '/#concepts' },
   { id: 'info', label: 'Info', href: '/#info' },
   { id: 'stack', label: 'Stack', href: '/#stack' },
   { id: 'notes', label: 'Notes', href: '/#notes' },
@@ -47,119 +48,15 @@ const navLinks = [
 
 const marqueeItems = ['Indie hacker', 'Solobuilder', 'Full stack', 'AI engineer', 'Product maker'];
 
-// Showreel video (rendered by scripts/make-reel.sh). `shots` lists the projects in the
-// order they appear; each shot lasts `shotLength` seconds of video. Two concept sites close it,
-// after the products.
+// The trailer: the showreel (rendered by scripts/make-reel.sh), the home's one full-screen film, its
+// playhead on the scrollbar. `shots` lists the projects in the order they appear; each shot lasts
+// `shotLength` seconds of video. Two concept sites close it, after the products.
 const REEL = {
   src: '/reel/showreel.mp4',
   poster: '/reel/showreel-poster.jpg',
   shotLength: 2,
   shots: ['Fainancial', 'MeshMind', 'CitySwipe', 'Billonario', 'Motorsportive', 'Baitme', 'Clyme', 'DR.NEWS', 'My Dog Food', 'Escudo Leal', 'ÓRBITA', 'BLOOP'],
 };
-
-// Featured films: a few seconds of one continuous camera move from each launch film, scrubbed by
-// the scroll. Their two lines swap halfway through; the button goes to the case page, where the
-// whole film plays with sound. A film shot on a light ground takes the light tone: bone under the
-// words instead of ink. A portrait screen crops the 16:9 film to a slice: `focus` (a horizontal
-// object-position) moves that slice onto a subject that sits off centre. The concept sites
-// (fictional brands, built with immersive-web) come after the products and say so in their kicker
-const FEATURES = [
-  {
-    id: 'meshmind',
-    name: 'MeshMind',
-    src: '/meshmind/scroll.mp4',
-    poster: '/meshmind/1.webp',
-    alt: 'the canvas running a flow, then the app in its browser',
-    lines: ['Wire AI models into flows.', 'Right in your browser.'],
-  },
-  {
-    id: 'cityswipe',
-    name: 'CitySwipe',
-    src: '/cityswipe/scroll.mp4',
-    poster: '/cityswipe/scroll-poster.webp',
-    alt: 'every city as a dot, flying from what life costs there into the value-for-money chart',
-    lines: ['Price your life in 522 cities.', 'See where it goes furthest.'],
-    tone: 'light',
-    focus: '18%', // the frontier's named corner, left of centre
-  },
-  {
-    id: 'billonario',
-    name: 'Billonario',
-    src: '/billonario/scroll.mp4',
-    poster: '/billonario/scroll-poster.webp',
-    alt: 'one trade arriving at once on two phones and a laptop',
-    lines: ['Bankrupt your friends.', 'Live, on every screen.'],
-    focus: '94%', // the phone the offer arrives on, right of centre
-  },
-  {
-    id: 'motorsportive',
-    name: 'Motorsportive',
-    src: '/motorsportive/scroll.mp4',
-    poster: '/motorsportive/scroll-poster.webp',
-    alt: 'five red start lights coming on one by one, then lights out into the first story',
-    lines: ['Five lights, then the news.', 'Formula 1, read closely.'],
-    focus: '70%', // the start lights, right of centre
-  },
-  {
-    id: 'resonant',
-    name: 'Resonant',
-    src: '/resonant/scroll.mp4',
-    poster: '/resonant/scroll-poster.webp',
-    alt: 'a generic résumé line struck through and rewritten for one company, the match score at 87%',
-    lines: ['Your resume, their problems.', 'Rewritten for one company.'],
-    tone: 'light',
-  },
-  {
-    id: 'orbita',
-    name: 'ÓRBITA',
-    concept: true,
-    src: '/orbita/scroll.mp4',
-    poster: '/orbita/scroll-poster.webp',
-    alt: 'three cabin portholes on the site, then a flight through one of them into the whole planet',
-    lines: ['Choose your window.', 'Forty minutes around everything.'],
-  },
-  {
-    id: 'casa-alba',
-    name: 'Casa Alba',
-    concept: true,
-    src: '/casa-alba/scroll.mp4',
-    poster: '/casa-alba/scroll-poster.webp',
-    alt: "the last room's arch opening into a sea cove, then the long table under the vine and the golden hour sweeping in",
-    lines: ['The ninth room is called Calma.', 'Nine rooms facing the Mediterranean.'],
-    tone: 'light',
-    focus: '70%', // Calma, the ninth room's arch, right of centre, while its line is on screen
-  },
-  {
-    id: 'kern',
-    name: 'KERN',
-    concept: true,
-    src: '/kern/scroll.mp4',
-    poster: '/kern/scroll-poster.webp',
-    alt: 'the cortex condensing into the KERN particle wordmark, a cursor parting its letters, and the camera pushing in until the browser window is gone',
-    lines: ['Reasoning, etched in silicon.', 'Scroll to increase magnification.'],
-  },
-  {
-    id: 'bloop',
-    name: 'BLOOP',
-    concept: true,
-    src: '/bloop/scroll.mp4',
-    poster: '/bloop/scroll-poster.webp',
-    alt: 'the camera pushing into the can as it is sealed, opened with a psst! and dived into, until the page is all yuzu soda and bubbles',
-    lines: ['A yuzu and ginger soda.', 'Shake it here, not in real life.'],
-    tone: 'light',
-    focus: '34%', // the can, left of centre
-  },
-  {
-    id: 'fractura',
-    name: 'FRACTURA',
-    concept: true,
-    src: '/fractura/scroll.mp4',
-    poster: '/fractura/scroll-poster.webp',
-    alt: 'the site in a browser on pink: the scroll plays the giant wordmark like a fader, compressing, stretching and slanting it, then switching it off into a single red hairline',
-    lines: ['This site makes noise.', '124 BPM until the tide turns.'],
-    tone: 'light',
-  },
-];
 
 const heroLetters = ['D', 'E', 'L', 'R', 'Í', 'O'];
 const panelTones = ['bone', 'red', 'ink'];
@@ -171,7 +68,7 @@ const INTRO_SEEN_KEY = 'gb-intro-seen';
  * Home. Data is fetched on the server (page.jsx) and passed in, so the page is
  * crawlable and never flashes placeholder content.
  */
-export default function Home({ projects: rawProjects = [], posts = [], totalProjects = 0, featureHrefs = {} }) {
+export default function Home({ projects: rawProjects = [], posts = [], totalProjects = 0, concepts = [] }) {
   const rootRef = useRef(null);
   const lenisRef = useLenis({ startStopped: true });
   const clock = useLocalClock();
@@ -401,43 +298,42 @@ export default function Home({ projects: rawProjects = [], posts = [], totalProj
           </div>
         </section>
 
-        {/* ==================== FEATURED FILMS ==================== */}
-        {/* scenes: one continuous camera move from each launch film, its playhead on the scrollbar */}
-        {FEATURES.map((feature) => (
-          <div key={feature.id} className={`gb-scene-wrap gb-feature-wrap${feature.tone === 'light' ? ' gb-feature-wrap--light' : ''}`}>
-            <section className="gb-feature gb-scene" aria-label={`${feature.name}, ${feature.concept ? 'concept site' : 'featured'}`}>
-              <video
-                className="gb-feature-video"
-                src={feature.src}
-                poster={feature.poster}
-                style={feature.focus ? { '--gb-feature-focus': feature.focus } : undefined}
-                muted
-                playsInline
-                preload="none"
-                aria-label={`${feature.name} — ${feature.alt}`}
-              />
-              <div className="gb-feature-shade" aria-hidden="true" />
-              <p className="gb-feature-kicker gb-mono">
-                ({feature.concept ? 'Concept' : 'Featured'}) — {feature.name}
-              </p>
-              <div className="gb-feature-lines">
-                {feature.lines.map((line) => (
-                  <p key={line} className="gb-feature-line gb-cx">
-                    {line}
-                  </p>
-                ))}
-              </div>
-              <div className="gb-feature-foot">
-                <Link href={featureHrefs[feature.id] || `/projects/${feature.id}`} className="gb-btn gb-feature-cta">
-                  Watch the film ↗
-                </Link>
-                <span className="gb-feature-tc gb-mono" aria-hidden="true">
-                  00:00:00:00
-                </span>
-              </div>
-            </section>
-          </div>
-        ))}
+        {/* ==================== TRAILER ==================== */}
+        {/* scene: the letterboxed showreel, the home's one full-screen film — its playhead is the scrollbar */}
+        <div className="gb-scene-wrap gb-reel-wrap">
+          <section className="gb-reel gb-scene" aria-label="Showreel">
+            <video
+              className="gb-reel-video"
+              src={REEL.src}
+              poster={REEL.poster}
+              muted
+              playsInline
+              preload="none"
+              data-shot={REEL.shotLength}
+              aria-label="Showreel of Christian's work"
+            />
+            <div className="gb-reel-titles" aria-hidden="true">
+              {REEL.shots.map((shot) => (
+                <p key={shot} className="gb-reel-title gb-cx">
+                  {shot}
+                </p>
+              ))}
+            </div>
+            <div className="gb-reel-bar gb-reel-bar--top" aria-hidden="true" />
+            <div className="gb-reel-bar gb-reel-bar--bottom" aria-hidden="true" />
+            <div className="gb-reel-hud gb-reel-hud--top gb-mono" aria-hidden="true">
+              <span>
+                <span className="gb-dot" style={{ color: 'var(--gb-red)' }} />
+                Rec — Showreel
+              </span>
+              <span className="gb-reel-tc">00:00:00:00</span>
+            </div>
+            <div className="gb-reel-hud gb-reel-hud--bottom gb-mono" aria-hidden="true">
+              <span>CDR ©{new Date().getFullYear()}</span>
+              <span className="gb-reel-count">01 / {String(REEL.shots.length).padStart(2, '0')}</span>
+            </div>
+          </section>
+        </div>
 
         {/* ==================== WORK ==================== */}
         <div id="work" className="gb-work-wrap" data-section="work">
@@ -479,6 +375,20 @@ export default function Home({ projects: rawProjects = [], posts = [], totalProj
                     </div>
                     <div className="gb-panel-media">
                       {project.image && <img src={project.image} alt={`${project.title} screenshot`} loading="lazy" />}
+                      {/* a few seconds of its launch film, looping without sound while the panel is centred
+                          (gridbreak-motion loads it as the panel nears); until then, and without motion, the shot */}
+                      {project.clip && (
+                        <video
+                          className="gb-panel-video"
+                          data-src={project.clip}
+                          muted
+                          loop
+                          playsInline
+                          preload="none"
+                          aria-hidden="true"
+                          tabIndex={-1}
+                        />
+                      )}
                       <span className="gb-panel-num gb-cx" aria-hidden="true">
                         {project.number}
                       </span>
@@ -522,42 +432,70 @@ export default function Home({ projects: rawProjects = [], posts = [], totalProj
           </section>
         </div>
 
-        {/* ==================== REEL ==================== */}
-        {/* scene: letterboxed showreel — a video whose playhead is the scrollbar */}
-        <div className="gb-scene-wrap gb-reel-wrap">
-          <section className="gb-reel gb-scene" aria-label="Showreel">
-            <video
-              className="gb-reel-video"
-              src={REEL.src}
-              poster={REEL.poster}
-              muted
-              playsInline
-              preload="none"
-              data-shot={REEL.shotLength}
-              aria-label="Showreel of Christian's work"
-            />
-            <div className="gb-reel-titles" aria-hidden="true">
-              {REEL.shots.map((shot) => (
-                <p key={shot} className="gb-reel-title gb-cx">
-                  {shot}
-                </p>
+        {/* ==================== CONCEPTS ==================== */}
+        {/* an index of the concept sites, a row each: on a desktop the row's site plays in a small
+            monitor under the cursor (eight seconds of it being scrolled); on a phone each row shows its still */}
+        {concepts.length > 0 && (
+          <section id="concepts" className="gb-concepts gb-has-bignum" data-section="concepts" aria-labelledby="gb-concepts-title">
+            <span className="gb-bignum gb-cx" data-speed="-0.6" aria-hidden="true">
+              04
+            </span>
+            <div className="gb-concepts-head">
+              <div>
+                <p className="gb-mono gb-concepts-kicker">(004) — Concept sites · fictional brands, made with immersive-web</p>
+                <h2 id="gb-concepts-title" className="gb-concepts-title gb-cx">
+                  Concepts
+                </h2>
+              </div>
+              <p className="gb-concepts-note">
+                {concepts.length} sites for brands that do not exist, each built end to end with immersive-web, my Claude
+                Code skill for cinematic sites. Not clients, not live products: studies in scroll, type and 3D.
+              </p>
+            </div>
+            <ol className="gb-concepts-list">
+              {concepts.map((concept) => (
+                <li key={concept.id}>
+                  <Link
+                    href={`/projects/${concept.id}`}
+                    className="gb-concept"
+                    data-preview={concept.preview || ''}
+                    data-poster={concept.image || ''}
+                    data-name={concept.name}
+                  >
+                    <span className="gb-concept-num gb-mono">C—{concept.number}</span>
+                    <span className="gb-concept-shot" aria-hidden="true">
+                      <img src={concept.image} alt="" loading="lazy" />
+                    </span>
+                    <span className="gb-concept-name gb-cx" data-skew>
+                      {concept.name}
+                    </span>
+                    <span className="gb-concept-line">{concept.tagline}</span>
+                    <span className="gb-concept-tags gb-mono">
+                      {concept.tags.join(' / ')}
+                      {concept.film ? ' / Film' : ''}
+                    </span>
+                    <span className="gb-concept-arrow" aria-hidden="true">
+                      →
+                    </span>
+                  </Link>
+                </li>
               ))}
-            </div>
-            <div className="gb-reel-bar gb-reel-bar--top" aria-hidden="true" />
-            <div className="gb-reel-bar gb-reel-bar--bottom" aria-hidden="true" />
-            <div className="gb-reel-hud gb-reel-hud--top gb-mono" aria-hidden="true">
-              <span>
-                <span className="gb-dot" style={{ color: 'var(--gb-red)' }} />
-                Rec — Showreel
-              </span>
-              <span className="gb-reel-tc">00:00:00:00</span>
-            </div>
-            <div className="gb-reel-hud gb-reel-hud--bottom gb-mono" aria-hidden="true">
-              <span>CDR ©{new Date().getFullYear()}</span>
-              <span className="gb-reel-count">01 / {String(REEL.shots.length).padStart(2, '0')}</span>
+            </ol>
+            {/* the monitor: gridbreak-motion moves the outer box with the cursor, the inner one opens and closes */}
+            <div className="gb-concept-preview" aria-hidden="true">
+              <div className="gb-concept-monitor">
+                <video className="gb-concept-preview-video" muted loop playsInline preload="none" tabIndex={-1} />
+                <span className="gb-concept-preview-hud gb-mono">
+                  <span>
+                    <span className="gb-dot" style={{ color: 'var(--gb-red)' }} />
+                    Preview — <span className="gb-concept-preview-name" />
+                  </span>
+                  <span className="gb-concept-preview-tc">00:00:00:00</span>
+                </span>
+              </div>
             </div>
           </section>
-        </div>
+        )}
 
         {/* scene: the camera pulls back from a full-screen portrait */}
         <div className="gb-scene-wrap gb-pscene-wrap">
@@ -581,12 +519,12 @@ export default function Home({ projects: rawProjects = [], posts = [], totalProj
         {/* ==================== INFO ==================== */}
         <section id="info" className="gb-info gb-has-bignum" data-section="info" data-wipe>
           <span className="gb-bignum gb-cx" data-speed="-0.5" aria-hidden="true">
-            04
+            05
           </span>
           <div className="gb-info-grid">
             <div className="gb-info-aside">
               <p className="gb-mono" style={{ margin: '0 0 20px', color: 'var(--gb-mute-on-bone)' }}>
-                (004) — About
+                (005) — About
               </p>
               <h2 className="gb-info-title gb-cx">Info</h2>
               <figure className="gb-portrait" style={{ margin: '40px 0 0' }} data-speed="-0.12">
@@ -657,10 +595,10 @@ export default function Home({ projects: rawProjects = [], posts = [], totalProj
         {/* ==================== STACK ==================== */}
         <section id="stack" className="gb-stack gb-has-bignum" data-section="stack" data-wipe>
           <span className="gb-bignum gb-cx" data-speed="-0.6" aria-hidden="true">
-            05
+            06
           </span>
           <div className="gb-section-head gb-mono">
-            <span>(005) — The arsenal</span>
+            <span>(006) — The arsenal</span>
             <span>{skillsCategories.reduce((n, c) => n + c.tools.length, 0)} tools</span>
           </div>
           <h2 className="gb-stack-title gb-cx">Tech stack</h2>
@@ -688,12 +626,12 @@ export default function Home({ projects: rawProjects = [], posts = [], totalProj
         {/* ==================== NOTES ==================== */}
         <section id="notes" className="gb-notes gb-has-bignum" data-section="notes" data-wipe>
           <span className="gb-bignum gb-cx" data-speed="-0.6" aria-hidden="true">
-            06
+            07
           </span>
           <div className="gb-notes-head">
             <div>
               <p className="gb-mono" style={{ margin: '0 0 20px', color: 'var(--gb-mute-on-bone)' }}>
-                (006) — Writing
+                (007) — Writing
               </p>
               <h2 className="gb-notes-title gb-cx">Notes</h2>
             </div>
@@ -770,7 +708,7 @@ export default function Home({ projects: rawProjects = [], posts = [], totalProj
           </div>
 
           <p className="gb-mono" style={{ margin: '0 0 24px' }}>
-            (007) — Contact
+            (008) — Contact
           </p>
           <h2 className="gb-contact-title gb-cx">Let&apos;s talk</h2>
 

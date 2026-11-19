@@ -4,9 +4,16 @@
  * render an empty shell and case pages never 404. These are real, live
  * products — keep them in sync with Firestore — except the entries marked
  * `concept: true`: concept sites for fictional brands, built end to end with
- * immersive-web and featured by their films. They are not clients and not live
- * products, have no link and exist only in this repo, and every text about them
- * says so (the AI assistant reads these entries).
+ * immersive-web. They are not clients and not live products, have no link and
+ * exist only in this repo, and every text about them says so (the AI assistant
+ * reads these entries).
+ *
+ * The media here also wins over Firestore's for the same project (lib/repo-media):
+ * `image` and `images` are the current shots, `video` the launch film, `clip` a few
+ * seconds of it that loop in the home's work strip. `aliases` lists other spellings
+ * the same project has in Firestore. A concept site's `tagline` and `preview` (eight
+ * seconds of the site being scrolled) feed the home's concept index; one with no
+ * film yet shows its stills, and gets `video` and `videoPoster` when its film lands.
  */
 export const FALLBACK_PROJECTS = [
   {
@@ -18,11 +25,21 @@ export const FALLBACK_PROJECTS = [
     images: ['/motorsportive/1.webp', '/motorsportive/2.webp', '/motorsportive/3.webp', '/motorsportive/4.webp'],
     video: '/motorsportive/film.mp4',
     videoPoster: '/motorsportive/film-poster.webp',
+    clip: '/motorsportive/scroll.mp4',
     tags: ['Editorial', 'Publishing', 'SaaS'],
     href: 'https://motorsportive.com',
     date: '2026-11-03',
   },
-  { id: 'fainancial', name: 'Fainancial', description: 'AI-powered earnings call analysis. Turns a 60-minute call into the three things that moved the number.', image: '/fainancial/1.webp', tags: ['AI', 'Finance', 'SaaS'], href: 'https://fainancial.iamdelrio.com' },
+  {
+    id: 'fainancial',
+    name: 'Fainancial',
+    description: 'AI-powered earnings call analysis. Turns a 60-minute call into the three things that moved the number.',
+    // the redesigned site, shot live on 19 Nov 2026 (no film yet)
+    image: '/fainancial/1.webp',
+    images: ['/fainancial/1.webp', '/fainancial/2.webp', '/fainancial/3.webp', '/fainancial/4.webp'],
+    tags: ['AI', 'Finance', 'SaaS'],
+    href: 'https://fainancial.iamdelrio.com',
+  },
   {
     id: 'meshmind',
     name: 'MeshMind',
@@ -32,6 +49,7 @@ export const FALLBACK_PROJECTS = [
     images: ['/meshmind/1.webp', '/meshmind/2.webp', '/meshmind/3.webp', '/meshmind/4.webp'],
     video: '/meshmind/film.mp4',
     videoPoster: '/meshmind/film-poster.webp',
+    clip: '/meshmind/scroll.mp4',
     tags: ['AI', 'WebGPU', 'React'],
     href: 'https://delriodevelops.github.io/meshmind/',
     githubUrl: 'https://github.com/delriodevelops/meshmind',
@@ -46,6 +64,7 @@ export const FALLBACK_PROJECTS = [
     images: ['/cityswipe/1.webp', '/cityswipe/2.webp', '/cityswipe/3.webp', '/cityswipe/4.webp'],
     video: '/cityswipe/film.mp4',
     videoPoster: '/cityswipe/film-poster.webp',
+    clip: '/cityswipe/scroll.mp4',
     // no link yet: the site is not published and the repository is private
     tags: ['Data', 'Next.js', 'Remote work'],
     date: '2026-11-03',
@@ -59,6 +78,7 @@ export const FALLBACK_PROJECTS = [
     images: ['/billonario/1.webp', '/billonario/2.webp', '/billonario/3.webp', '/billonario/4.webp'],
     video: '/billonario/film.mp4',
     videoPoster: '/billonario/film-poster.webp',
+    clip: '/billonario/scroll.mp4',
     tags: ['Multiplayer', 'Game', 'Cloudflare'],
     href: 'https://billonario.pages.dev',
     date: '2026-11-03',
@@ -68,21 +88,47 @@ export const FALLBACK_PROJECTS = [
     name: 'Resonant',
     description: "Reads a company's real problems and rewrites your résumé to position you as the solution.",
     longDescription: "Point it at a job offer and it researches what that company is actually struggling with, maps your experience against those problems and rewrites your résumé and cover letter so you read as the answer, with the match score, the keywords it hit and the suggestions it still has. It also runs your job searches across Indeed, Adzuna, Jooble and InfoJobs and keeps a tracker of every application. The film above is a 9:16 ad cut from the app's real screens, with the voice-over and music made in ElevenLabs.",
+    // cover and stills: the redesigned site, shot live on 19 Nov 2026; the film is still the earlier ad
     image: '/resonant.webp',
     images: ['/resonant/1.webp', '/resonant/2.webp', '/resonant/3.webp', '/resonant/4.webp'],
     video: '/resonant/film.mp4',
     videoPoster: '/resonant/film-poster.webp',
+    clip: '/resonant/scroll.mp4',
     tags: ['AI', 'Careers', 'Next.js'],
     href: 'https://resonant.iamdelrio.com',
     date: '2026-11-05',
   },
-  { id: 'baitme', name: 'Baitme', description: 'A/B test your thumbnails before you publish, not after the CTR disappoints you.', image: '/baitme/1.webp', tags: ['Creator Tools', 'Analytics'], href: 'https://baitme.iamdelrio.com/' },
-  // Concept sites: fictional brands, each with a launch film recorded from the site itself. No
-  // link, as none of them is published. "Next case" walks them in this order, apart from the products
+  {
+    id: 'baitme',
+    name: 'Baitme',
+    description: 'A/B test your thumbnails before you publish, not after the CTR disappoints you.',
+    // the redesigned site, shot live on 19 Nov 2026 (no film yet)
+    image: '/baitme/1.webp',
+    images: ['/baitme/1.webp', '/baitme/2.webp', '/baitme/3.webp', '/baitme/4.webp'],
+    tags: ['Creator Tools', 'Analytics'],
+    href: 'https://baitme.iamdelrio.com/',
+  },
+  {
+    id: 'ephemeral',
+    name: 'Ephemeral',
+    // Firestore spells it "Ephemereal": the alias lets these shots reach that entry, under this name
+    aliases: ['Ephemereal'],
+    description: 'Ephemeral lets you share spreadsheets that encrypt client-side and self-destruct. No servers. No traces. Full control over time, views, and access. One-time payment, privacy by default.',
+    // the redesigned site, shot live on 19 Nov 2026 (no film yet)
+    image: '/ephemeral/1.webp',
+    images: ['/ephemeral/1.webp', '/ephemeral/2.webp', '/ephemeral/3.webp', '/ephemeral/4.webp'],
+    tags: ['Privacy', 'Encryption', 'SaaS'],
+    href: 'https://ephemeral.iamdelrio.com',
+  },
+  // Concept sites: fictional brands, each with a film recorded from the site itself or, until it has
+  // one, stills of the site. No link, as none of them is published. "Next case" walks them in this
+  // order, apart from the products, and so does the home's concept index
   {
     id: 'orbita',
     name: 'ÓRBITA',
     concept: true,
+    tagline: 'Forty minutes around everything.',
+    preview: '/orbita/preview.mp4',
     description: 'Concept site for a fictional orbital flight company, where one scroll of the page is one forty-minute flight around the Earth.',
     longDescription: 'ÓRBITA is a concept site for a fictional company that sells forty-minute orbital flights, each passenger with a window seat. The page is the flight: a WebGL planet, its light and a mission HUD follow the scroll through two pinned scenes, the five flight phases, with the terminator sweeping across the night side and the cities switching on under your thumb, and a zoom-through that flies you through a cabin window into the whole planet. It is a concept with a fictional brand, built end to end with immersive-web, my Claude Code skill for cinematic sites. The film above is the site itself, recorded frame by frame.',
     image: '/orbita/1.webp',
@@ -96,6 +142,8 @@ export const FALLBACK_PROJECTS = [
     id: 'casa-alba',
     name: 'Casa Alba',
     concept: true,
+    tagline: 'Nine rooms facing the Mediterranean.',
+    preview: '/casa-alba/preview.mp4',
     description: 'Concept site for a fictional nine-room hotel on the north coast of Menorca, where the light of the page follows the hour of the day.',
     longDescription: 'Casa Alba is a concept site for a fictional nine-room hotel on the north coast of Menorca. The page is one day, every chapter an hour with its own light: at 06:00 the arch window opens onto the sea and the sun rises into the HUD, the rooms slide past and the page dives into the cove of the ninth room, Calma, then the golden hour floods the table, the sun touches the sea and the lanterns light one by one into the night. It is a concept with a fictional brand, built end to end with immersive-web, my Claude Code skill for cinematic sites. The film above is the site itself, recorded frame by frame.',
     image: '/casa-alba/1.webp',
@@ -109,6 +157,8 @@ export const FALLBACK_PROJECTS = [
     id: 'kern',
     name: 'KERN',
     concept: true,
+    tagline: 'Reasoning, etched in silicon.',
+    preview: '/kern/preview.mp4',
     description: 'Concept site for a fictional neuromorphic chip lab, where every scroll step turns up the magnification of an electron microscope.',
     longDescription: 'KERN is a concept site for a fictional lab that designs neuromorphic chips, staged as one session under an electron microscope: the scroll is the magnification, from ×40 at the top to ×1 200 000 at the last pixel. A particle specimen slides under the objective and locks, fires once, collapses into a wafer, explodes into a bonded three-die stack and settles as a cortex; then a paper specimen sheet is laid over the scope and a plotter draws and measures the die, and at the end the specimen resolves into the KERN wordmark, which the cursor can scatter. It is a concept with a fictional brand, built end to end with immersive-web, my Claude Code skill for cinematic sites. The film above is the site itself, recorded frame by frame.',
     image: '/kern/1.webp',
@@ -122,6 +172,8 @@ export const FALLBACK_PROJECTS = [
     id: 'bloop',
     name: 'BLOOP',
     concept: true,
+    tagline: 'Scrolling down pours the can.',
+    preview: '/bloop/preview.mp4',
     description: 'Concept site for a fictional yuzu and ginger soda, where scrolling down pours the can out.',
     longDescription: 'BLOOP is a concept site for a fictional yuzu and ginger soda, written in Spanish and built like the inside of a 330 ml can: scrolling down pours it out. Its hero is a physics playground of bubbles and stickers you can grab, throw and shake; then the can opens with a psst!, foam rises over the page, the three flavours travel past (and stack like cards on a phone), a bubble swallows the screen for the four-step process, and the page dives into the soda before the stickers slap on and the letters fall into the bottom of the glass. It is a concept with a fictional brand, built end to end with immersive-web, my Claude Code skill for cinematic sites. The film above is the site itself, recorded frame by frame.',
     image: '/bloop/1.webp',
@@ -135,6 +187,8 @@ export const FALLBACK_PROJECTS = [
     id: 'fractura',
     name: 'FRACTURA',
     concept: true,
+    tagline: 'This site makes noise.',
+    preview: '/fractura/preview.mp4',
     description: 'Concept site for a fictional electronic music festival in a decommissioned Lisbon shipyard: a kinetic typographic poster that the scroll plays like a mixer.',
     longDescription: 'FRACTURA is a concept site for a fictional festival, three nights of electronic music in a decommissioned Lisbon shipyard, sold the way a festival without photography is sold: by its poster. The page is a scroll instrument: a gate that dares you to enter with sound, a variable wordmark the cursor steers and the scroll compresses, stretches and switches off into a hairline, the lineup scratched back and forth, three stages arriving in red, a night schedule walked by a playhead and a fractured footer word that heals. It is a concept with a fictional brand, built end to end with immersive-web, my Claude Code skill for cinematic sites. The film above is the site itself, recorded frame by frame with its 124 BPM beat on.',
     image: '/fractura/1.webp',
@@ -143,6 +197,98 @@ export const FALLBACK_PROJECTS = [
     videoPoster: '/fractura/film-poster.webp',
     tags: ['Concept', 'Kinetic type', 'Scroll choreography'],
     date: '2026-11-05',
+  },
+  // The second batch: no film yet, so their case pages show stills of the site. When a film lands, add
+  // `video` and `videoPoster` and end the long description like the five above
+  {
+    id: 'nacre',
+    name: 'NACRE',
+    concept: true,
+    tagline: 'Patient capital, laid down in layers.',
+    preview: '/nacre/preview.mp4',
+    description: 'Concept site for a fictional Rotterdam venture fund that backs new-materials startups, where ten thousand iridescent tablets lay themselves down into nacre as you scroll.',
+    longDescription: 'NACRE is a concept site for a fictional venture fund in Rotterdam that backs new-materials startups: patient capital, laid down in layers. About ten thousand iridescent hexagonal tablets, one instanced WebGL mesh with a physical material, follow the scroll from a loose cloud into ordered courses, a wall of 42 courses and finally an abalone shell whose rim shows the stepped layers of nacre, its sheen shifting with the angle and the cursor. Then the portfolio parades sideways as six glass cards in front of the shell. It is a concept with a fictional brand, built end to end with immersive-web, my Claude Code skill for cinematic sites.',
+    image: '/nacre/1.webp',
+    images: ['/nacre/1.webp', '/nacre/2.webp', '/nacre/3.webp', '/nacre/4.webp'],
+    video: null,
+    videoPoster: null,
+    tags: ['Concept', 'WebGL', 'Venture capital'],
+    date: '2026-11-19',
+  },
+  {
+    id: 'treinta-veranos',
+    name: 'Treinta veranos',
+    concept: true,
+    tagline: 'Every scroll step is a summer.',
+    preview: '/treinta-veranos/preview.mp4',
+    description: 'Concept site for a fictional glaciology station: a data story, in Spanish, in which every scroll step is a summer and a Pyrenean glacier shrinks under your thumb.',
+    longDescription: 'Treinta veranos is a concept site, written in Spanish, for a fictional research station that tells how the fictional Coll Blanc glacier, in the central Pyrenees, melted between 1991 and 2024, the way a newspaper tells a data story. On a procedural topographic map, with hillshade, contour lines, crevasses and a scale bar, the outline of the ice shrinks summer by summer while a giant year counter and the exact hectares run beside it and the summer temperature anomaly draws itself with its notes. Then the anomaly bars, the snowline and the fit change scale, and a cross-section of the ice drains while the method is explained; every number comes from one table that downloads as CSV, and the credits say the data is illustrative. It is a concept with a fictional brand, built end to end with immersive-web, my Claude Code skill for cinematic sites.',
+    image: '/treinta-veranos/1.webp',
+    images: ['/treinta-veranos/1.webp', '/treinta-veranos/2.webp', '/treinta-veranos/3.webp', '/treinta-veranos/4.webp'],
+    video: null,
+    videoPoster: null,
+    tags: ['Concept', 'Data story', 'Scroll story'],
+    date: '2026-11-19',
+  },
+  {
+    id: 'klak',
+    name: 'KLAK',
+    concept: true,
+    tagline: 'Every key, considered.',
+    preview: '/klak/preview.mp4',
+    description: 'Concept site for a fictional mechanical keyboard, the KLAK One, whose 3D model answers your own keys and comes apart layer by layer as you scroll.',
+    longDescription: 'KLAK is a concept site for a fictional maker of mechanical keyboards, launching the KLAK One, a 75% aluminium keyboard explained one layer at a time. A procedural 3D keyboard, lit like a studio product shot, answers your real keyboard: press a key and its twin on screen travels down 4 mm and springs back, with the synthesized sound of four switches to choose from. Four pinned scenes take it apart into seven layers with their dimensions, dive into the J switch with its force curve, recolour it in three colourways and open the pre-order through the Esc key, turned into an orange door. It is a concept with a fictional brand, built end to end with immersive-web, my Claude Code skill for cinematic sites.',
+    image: '/klak/1.webp',
+    images: ['/klak/1.webp', '/klak/2.webp', '/klak/3.webp', '/klak/4.webp'],
+    video: null,
+    videoPoster: null,
+    tags: ['Concept', 'WebGL', 'Product launch'],
+    date: '2026-11-19',
+  },
+  {
+    id: 'lenta',
+    name: 'Lenta',
+    concept: true,
+    tagline: 'One crane, three thousand kilometres.',
+    preview: '/lenta/preview.mp4',
+    description: 'Concept site for a fictional crane-counting association: a cut-paper storybook, in Spanish, in which a crane flies with your scroll from Lapland to the Gallocanta lagoon.',
+    longDescription: 'Lenta is a concept site, written in Spanish, for a fictional volunteer association that counts common cranes at the Gallocanta lagoon: an illustrated story in which the page is the sky. Lenta flies through a diorama of torn paper while each season recolours every layer and her wings beat with the speed of the scroll; a folded map of Europe draws her 3,640 km route with a kilometre counter, and at dusk three hundred cranes land at Gallocanta while the count climbs to 31,402. It ends with three ways to help: sponsor a crane, come and count them, or donate. It is a concept with a fictional brand, built end to end with immersive-web, my Claude Code skill for cinematic sites.',
+    image: '/lenta/1.webp',
+    images: ['/lenta/1.webp', '/lenta/2.webp', '/lenta/3.webp', '/lenta/4.webp'],
+    video: null,
+    videoPoster: null,
+    tags: ['Concept', 'Illustration', 'Scroll story'],
+    date: '2026-11-19',
+  },
+  {
+    id: 'grieta',
+    name: 'GRIETA',
+    concept: true,
+    tagline: 'We publish what slips through the cracks.',
+    preview: '/grieta/preview.mp4',
+    description: 'Concept site for a fictional poetry publisher in Zaragoza: a brutalist page, in Spanish, that cracks open like concrete as you read.',
+    longDescription: 'GRIETA is a concept site, written in Spanish, for a fictional independent publisher of poetry and essays in Zaragoza, built on the raw web as a deliberate language: white, black, visible grid lines and link blue. Its signature is the crack: a jagged fissure splits the GRIETA wordmark in two, the halves slide apart with the scroll while a verse types itself inside in link blue, and the crack becomes the spine of the page until it closes in the footer. A seven-rule manifesto strikes itself through and corrects itself, the catalogue is a real table, and the new book’s cover grows, opens into a poem and ends in its colophon. It is a concept with a fictional brand, built end to end with immersive-web, my Claude Code skill for cinematic sites.',
+    image: '/grieta/1.webp',
+    images: ['/grieta/1.webp', '/grieta/2.webp', '/grieta/3.webp', '/grieta/4.webp'],
+    video: null,
+    videoPoster: null,
+    tags: ['Concept', 'Brutalist', 'Editorial'],
+    date: '2026-11-19',
+  },
+  {
+    id: 'atolon',
+    name: 'Atolón',
+    concept: true,
+    tagline: 'A portfolio you sail, island by island.',
+    preview: '/atolon/preview.mp4',
+    description: 'Concept site for a fictional wooden-toy studio in Cádiz whose portfolio is an atoll you sail in a toy boat, island by island.',
+    longDescription: 'Atolón is a concept site, written in Spanish, for a fictional two-person studio in Cádiz that makes wooden toys and board games. Its portfolio is a photographed wooden diorama in three.js: procedural wood grain, lacquer, cork and linen, soft shadows and a tilt-shift blur. The camera comes down to the boat as the sail rises, and "Navega tú" hands you the helm: you sail it with the keys, docking at an island brings its toy into focus, and Esc returns you to the same point of the scroll. A pinned tour flies to the five islands, a beech log becomes a toy in the workshop, and at the end the evening falls on the atoll while the lighthouse sweeps the lagoon with the scroll. It is a concept with a fictional brand, built end to end with immersive-web, my Claude Code skill for cinematic sites.',
+    image: '/atolon/1.webp',
+    images: ['/atolon/1.webp', '/atolon/2.webp', '/atolon/3.webp', '/atolon/4.webp'],
+    video: null,
+    videoPoster: null,
+    tags: ['Concept', 'WebGL', 'Playable world'],
+    date: '2026-11-19',
   },
 ];
 
