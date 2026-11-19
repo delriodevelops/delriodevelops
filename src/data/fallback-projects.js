@@ -292,6 +292,22 @@ export const FALLBACK_PROJECTS = [
     tags: ['Concept', 'WebGL', 'Playable world'],
     date: '2026-11-19',
   },
+  // The twelfth, built on 19 Nov with immersive-web 2.1: stills until its film lands, like the batch above
+  {
+    id: 'lumbre',
+    name: 'Lumbre',
+    concept: true,
+    tagline: 'Everything served at −12 °C has been through the fire.',
+    description: 'Concept site for a fictional ice-cream workshop in Logroño that cooks every flavour over fire before freezing it, where the scroll is the thermometer.',
+    longDescription: 'Lumbre is a concept site, written in Spanish, for a fictional ice-cream workshop in Logroño that cooks every flavour over oak and vine-shoot embers before it freezes it: everything it serves at −12 °C has been through the fire first. The scroll is the thermometer. One studio-lit 3D scoop goes from an ember with glowing cracks at 480 °C to a drop of caramel, then cream, churned ridges and frost at −12 °C, while a giant figure counts down beside it. Then six flavours pass on a horizontal menu, each with its own wood and its own fire, a cone wobbles with the speed of the scroll, and the scoops answer your hand: they dent where you touch them, bounce with sparks or frost and spin when dragged, while a kraft tub with a stamped label fills with your flavours and snaps its lid shut on order. It is a concept with a fictional brand, built end to end with immersive-web, my Claude Code skill for cinematic sites.',
+    image: '/lumbre/1.webp',
+    images: ['/lumbre/1.webp', '/lumbre/2.webp', '/lumbre/3.webp', '/lumbre/4.webp'],
+    video: null,
+    videoPoster: null,
+    clip: null,
+    tags: ['Concept', 'WebGL', 'Playful 3D'],
+    date: '2026-11-19',
+  },
 ];
 
 /** The fallback entry for a case page, when Firestore has none. */
