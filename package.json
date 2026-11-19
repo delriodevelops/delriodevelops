@@ -7,7 +7,7 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint .",
-    "cf:build": "next build --webpack && npx @opennextjs/cloudflare build",
+    "cf:build": "next build --webpack && npx @opennextjs/cloudflare build && node scripts/populate-static-cache.mjs",
     "cf:preview": "npx wrangler dev --port 3000",
     "cf:deploy": "npx wrangler deploy",
     "optimize:images": "node scripts/optimize-images.mjs",

@@ -8,8 +8,6 @@ import { withRepoMedia } from '../../../lib/repo-media';
 // run past the CPU limit (error 1102) and strand the regeneration for the requests after it.
 // Content edited in the admin shows after the next deploy (a push, or Retry build in Cloudflare).
 export const revalidate = false;
-// an unknown id is a 404, not a render
-export const dynamicParams = false;
 
 // Without Firestore the case pages still render, from the fallback entries
 const loadProjects = async () => {

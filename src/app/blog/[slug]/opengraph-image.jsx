@@ -5,7 +5,6 @@ import { OG, FAMILY, loadOgFonts } from '../../../lib/og';
 // Drawn when the site is built, one card per published post, like the pages: drawing it on
 // demand costs more CPU than a Worker request is allowed (error 1102)
 export const revalidate = false;
-export const dynamicParams = false;
 
 export async function generateStaticParams() {
   const posts = await getPosts();
