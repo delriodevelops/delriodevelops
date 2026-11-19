@@ -2,7 +2,12 @@ import { notFound } from 'next/navigation';
 import BlogPostContent from './page-content';
 import { getPostBySlug, getPosts } from '../../../lib/services/firestore-rest';
 
-export const revalidate = 300;
+// Generated once per deploy, never at request time: on Workers a page rendered on demand can
+// run past the CPU limit (error 1102) and strand the regeneration for the requests after it.
+// Content edited in the admin shows after the next deploy (a push, or Retry build in Cloudflare).
+export const revalidate = false;
+// an unknown slug is a 404, not a render
+export const dynamicParams = false;
 
 /** Pre-render every published post at build time. */
 export async function generateStaticParams() {

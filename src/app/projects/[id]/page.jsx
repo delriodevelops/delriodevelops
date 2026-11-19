@@ -4,7 +4,12 @@ import { getProjectById, getProjects } from '../../../lib/services/firestore-res
 import { FALLBACK_PROJECTS, fallbackProject } from '../../../data/fallback-projects';
 import { withRepoMedia } from '../../../lib/repo-media';
 
-export const revalidate = 300;
+// Generated once per deploy, never at request time: on Workers a page rendered on demand can
+// run past the CPU limit (error 1102) and strand the regeneration for the requests after it.
+// Content edited in the admin shows after the next deploy (a push, or Retry build in Cloudflare).
+export const revalidate = false;
+// an unknown id is a 404, not a render
+export const dynamicParams = false;
 
 // Without Firestore the case pages still render, from the fallback entries
 const loadProjects = async () => {
@@ -14,9 +19,11 @@ const loadProjects = async () => {
 // A Firestore entry shows the cover, gallery and film this repo holds for it (lib/repo-media)
 const loadProject = async (id) => withRepoMedia((await getProjectById(id)) || fallbackProject(id));
 
+// Every case page is built: Firestore's projects under their ids, and every entry of this repo under
+// its own id too (the concept sites, the projects only here, and the repo ids older links may use)
 export async function generateStaticParams() {
-  const projects = await loadProjects();
-  return projects.map((project) => ({ id: project.id }));
+  const ids = new Set([...(await getProjects()).map((project) => project.id), ...FALLBACK_PROJECTS.map((project) => project.id)]);
+  return [...ids].map((id) => ({ id }));
 }
 
 export async function generateMetadata({ params }) {

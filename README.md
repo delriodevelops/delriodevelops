@@ -143,16 +143,24 @@ back to static data, and the AI assistant returns a 503.
 
 #### Rendering
 
-Every route is server-rendered. `/`, `/blog`, `/projects` and `/products` are
-prerendered with a 5-minute ISR window; `/blog/[slug]` and `/projects/[id]` are
-generated from `generateStaticParams`.
+Every page is static: it is generated once per deploy and never rendered at request
+time. `/`, `/blog`, `/projects`, `/products` and the sitemap are prerendered, and
+`/blog/[slug]` (with its social card) and `/projects/[id]` are generated from
+`generateStaticParams` for every post and every project, Firestore's and the repo's
+own; an unknown slug or id is a 404. Only `/api/*` runs at request time.
+
+That is deliberate. With on-demand regeneration (ISR) a Worker re-rendered a stale page
+inside a visitor's request, the render ran past the CPU limit (error 1102), and the
+regeneration it abandoned left the requests after it failing with a 500. So content
+edited in `/admin` shows on the site after the next deploy: a push to `main`, or
+**Retry build** on the last build in Workers Builds.
 
 Server-side reads go through **`src/lib/services/firestore-rest.js`**, which
 talks to the Firestore REST API over plain `fetch`. The `firebase/firestore` JS
 SDK is a browser client and does not run reliably in a Worker, which is why the
 reads are split:
 
-- **Reads, public pages** → `firestore-rest.js` (server, cached)
+- **Reads, public pages** → `firestore-rest.js` (server, at build time)
 - **Reads, admin dashboard** → `services/blog.js` / `services/projects.js`
   (client SDK, live)
 - **Writes** → client SDK only, so Firestore rules can authenticate the user
@@ -194,8 +202,7 @@ unavailable; `OPENCODE_MODELS` sets the order.
 
 - **Context.** `src/lib/assistant-context.js` builds the system prompt on every
   request from `profile.ts` plus every project (`src/lib/all-projects.js`, the same
-  list `/projects` shows) and blog post in Firestore, so a new post or project is
-  known within the 5-minute cache.
+  list `/projects` shows) and blog post in Firestore.
 - **Scope.** The prompt only allows questions about Christian and his work and
   turns everything else (code, homework, general chat) away.
 - **Limits.** 6 messages/minute per IP (in memory, `src/lib/rate-limit.ts`),

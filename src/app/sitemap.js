@@ -3,7 +3,8 @@ import { getAllProjects } from '../lib/all-projects';
 
 const BASE_URL = 'https://www.iamdelrio.com';
 
-export const revalidate = 3600;
+// built with the pages, once per deploy
+export const revalidate = false;
 
 export default async function sitemap() {
   const staticRoutes = ['', '/blog', '/projects', '/products'].map((route) => ({

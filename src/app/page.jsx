@@ -4,7 +4,10 @@ import { identity, socials, companies } from '../data/profile';
 import { FALLBACK_PROJECTS } from '../data/fallback-projects';
 import { repoNames, withRepoMedia } from '../lib/repo-media';
 
-export const revalidate = 300;
+// Generated once per deploy, never at request time: on Workers a page rendered on demand can
+// run past the CPU limit (error 1102) and strand the regeneration for the requests after it.
+// Content edited in the admin shows after the next deploy (a push, or Retry build in Cloudflare).
+export const revalidate = false;
 
 export default async function Page() {
   const [stored, allPosts] = await Promise.all([getProjects(), getPosts()]);

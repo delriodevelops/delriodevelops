@@ -16,8 +16,9 @@ import { currentLink } from '../../data/moved-links';
 const PROJECT_ID = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
 const API_KEY = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
 
-// Revalidate server-rendered data every 5 minutes.
-export const REVALIDATE_SECONDS = 300;
+// Read when the pages are built and kept until the next deploy (the pages are static, see app/page.jsx);
+// a revalidate time here would turn them back into pages regenerated on demand.
+const CACHE = 'force-cache';
 
 const BASE = PROJECT_ID
   ? `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents`
@@ -63,7 +64,7 @@ async function request(path, init) {
   try {
     const res = await fetch(`${BASE}${path}${path.includes('?') ? '&' : '?'}key=${API_KEY}`, {
       ...init,
-      next: { revalidate: REVALIDATE_SECONDS },
+      cache: CACHE,
     });
     if (!res.ok) {
       console.warn(`Firestore REST ${res.status} on ${path}`);

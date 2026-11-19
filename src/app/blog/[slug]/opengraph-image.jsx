@@ -1,6 +1,16 @@
 import { ImageResponse } from 'next/og';
-import { getPostBySlug } from '../../../lib/services/firestore-rest';
+import { getPostBySlug, getPosts } from '../../../lib/services/firestore-rest';
 import { OG, FAMILY, loadOgFonts } from '../../../lib/og';
+
+// Drawn when the site is built, one card per published post, like the pages: drawing it on
+// demand costs more CPU than a Worker request is allowed (error 1102)
+export const revalidate = false;
+export const dynamicParams = false;
+
+export async function generateStaticParams() {
+  const posts = await getPosts();
+  return posts.filter((post) => post.slug).map((post) => ({ slug: post.slug }));
+}
 
 export const alt = 'Article by Christian Del Río';
 export const size = { width: 1200, height: 630 };
