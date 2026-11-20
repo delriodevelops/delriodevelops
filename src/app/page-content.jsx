@@ -51,12 +51,17 @@ const marqueeItems = ['Indie hacker', 'Solobuilder', 'Full stack', 'AI engineer'
 // The trailer: the showreel (rendered by scripts/make-reel.sh), the home's one full-screen film, its
 // playhead on the scrollbar. `shots` lists the projects in the order they appear; a shot lasts
 // `shotLength` seconds of video, or its own when written { name, seconds }, and takes a stretch of
-// scroll in proportion. Two concept sites close it, after the products.
+// scroll in proportion. The montage speeds up: the products at 2 s each, then eight concept sites
+// cut fast at 22 frames (of 24 a second) each.
+const CONCEPT_SHOT = 22 / 24;
 const REEL = {
   src: '/reel/showreel.mp4',
   poster: '/reel/showreel-poster.jpg',
   shotLength: 2,
-  shots: ['Fainancial', 'MeshMind', 'CitySwipe', 'Billonario', 'Motorsportive', 'Baitme', 'Clyme', 'DR.NEWS', 'My Dog Food', 'Escudo Leal', 'ÓRBITA', 'BLOOP'],
+  shots: [
+    'Fainancial', 'MeshMind', 'CitySwipe', 'Billonario', 'Motorsportive', 'Baitme', 'Clyme', 'DR.NEWS', 'My Dog Food', 'Escudo Leal',
+    ...['FRACTURA', 'ÓRBITA', 'BLOOP', 'KERN', 'Casa Alba', 'GRIETA', 'Lumbre', 'Atolón'].map((name) => ({ name, seconds: CONCEPT_SHOT })),
+  ],
 };
 
 // "5–19 Nov 2026" (or "28 Oct – 9 Nov 2026") from two ISO dates, for the concept sites' pace line
