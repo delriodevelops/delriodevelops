@@ -100,6 +100,18 @@ export const FALLBACK_PROJECTS = [
     date: '2026-11-05',
   },
   {
+    id: 'phenotype',
+    name: 'PHENOTYPE',
+    description: 'A face scanner that runs entirely in your browser: one photo becomes a cloud of points, gets measured and comes back as a tier on the PSL scale. The photo never leaves your device.',
+    longDescription: 'Upload a photo and your face turns into ~150,000 points on the GPU; MediaPipe finds 478 landmarks, the face is cut from its background, CLIP describes it and a small model trained on MEBeauty (r = .73 for men, .77 for women on unseen faces) places it on the PSL scale. The points then pour into the number and re-form the face as a shareable card and video, with a versus mode and a tier list for several faces. Everything runs client-side with WebGL2, transformers.js and MediaPipe: no server, no paid API, no upload. It is an experiment and a piece of entertainment, not science, and the site says so: the number is a statistical guess from one photo and says nothing about anyone\'s worth.',
+    image: '/phenotype/1.webp',
+    images: ['/phenotype/1.webp', '/phenotype/2.webp', '/phenotype/3.webp', '/phenotype/4.webp'],
+    tags: ['AI', 'WebGL', 'Computer vision'],
+    href: 'https://fenotipo.pages.dev',
+    githubUrl: 'https://github.com/delriodevelops/phenotype',
+    date: '2026-11-21',
+  },
+  {
     id: 'baitme',
     name: 'Baitme',
     description: 'A/B test your thumbnails before you publish, not after the CTR disappoints you.',
