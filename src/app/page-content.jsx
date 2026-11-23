@@ -59,7 +59,7 @@ const REEL = {
   poster: '/reel/showreel-poster.jpg',
   shotLength: 2,
   shots: [
-    'Fainancial', 'MeshMind', 'CitySwipe', 'Billonario', 'Motorsportive', 'Baitme', 'Clyme', 'DR.NEWS', 'My Dog Food', 'Escudo Leal',
+    'Fainancial', 'MeshMind', 'CitySwipe', 'Billonario', 'Motorsportive', 'Baitme', 'Clyme', 'DR.NEWS', 'MyDogFood', 'Escudo Leal',
     ...['FRACTURA', 'ÓRBITA', 'BLOOP', 'KERN', 'Casa Alba', 'GRIETA', 'Lumbre', 'Atolón'].map((name) => ({ name, seconds: CONCEPT_SHOT })),
   ],
 };

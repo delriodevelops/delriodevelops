@@ -22,9 +22,9 @@ PRODUCTS=(
   billonario/film.mp4@20.3  # a country completed, then ten builds speeding up into the hotel
   motorsportive/film.mp4@14.6  # the red dot closes the Interlagos lap, the frame floods red, the site rises
   baitme/1.webp
-  clyme.webp
-  drnews.webp
-  mydogfood.webp
+  clyme/1.webp
+  drnews/film.mp4@10.9  # the edition lands, then a flip to the next story
+  mydogfood/film.mp4@8.1  # the vacuum, then manzana: Sí, and its rings
   escudolealjpt/1.webp
 )
 CONCEPTS=(

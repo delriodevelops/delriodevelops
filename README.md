@@ -63,7 +63,10 @@ Every featured product has a launch film, cut from the app's real screens. Click
 | 07 | **Baitme** | Drops your YouTube thumbnail into the real search results it will compete with, then an AI art director critiques it. | [Open ↗](https://baitme.iamdelrio.com) |
 | 08 | **[Resonant](https://www.iamdelrio.com/projects/Djg9PQFbc4V6cYeb1RaW)** | Reads a company's real problems and rewrites your résumé to position you as the solution. | [Open ↗](https://resonant.iamdelrio.com) |
 | 09 | **[PHENOTYPE](https://www.iamdelrio.com/projects/phenotype)** | A face scanner that runs entirely in the browser: one photo becomes points, gets measured and comes back as a tier on the PSL scale. The photo never leaves the device. | [Open ↗](https://fenotipo.pages.dev) · [Code](https://github.com/delriodevelops/phenotype) |
-| 10 | **[Thumbly](https://www.iamdelrio.com/projects/0sy38ebyThrCzxyD0KOO)** | AI thumbnail studio with real creative control over faces, emotions, poses and lighting. | Paused |
+| 10 | **[Clyme](https://www.iamdelrio.com/projects/clyme)** | The weather as an instrument: the reading, the map and fourteen days drawn on one lattice of dots that re-forms as you scroll. | Coming soon |
+| 11 | **[DR.NEWS](https://www.iamdelrio.com/projects/drnews)** | A news reader with one story per screen: the story on the left, its photograph fixed beside it, the whole article read in place. | Coming soon |
+| 12 | **[MyDogFood](https://www.iamdelrio.com/projects/mydogfood)** | Type a food and read one answer: whether your dog can eat it, with the reason in a line. 155 foods, in Spanish. | Coming soon |
+| 13 | **[Thumbly](https://www.iamdelrio.com/projects/0sy38ebyThrCzxyD0KOO)** | AI thumbnail studio with real creative control over faces, emotions, poses and lighting. | Paused |
 
 [**All projects →**](https://www.iamdelrio.com/projects)
 

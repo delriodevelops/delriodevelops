@@ -111,6 +111,48 @@ export const FALLBACK_PROJECTS = [
     githubUrl: 'https://github.com/delriodevelops/phenotype',
     date: '2026-11-21',
   },
+  // Clyme, DR.NEWS and MyDogFood: rebuilt from scratch in Nov 2026 as static sites on Cloudflare Workers.
+  // The rebuilds are not deployed yet, so these entries carry no `href`; add it when each goes live.
+  {
+    id: 'clyme',
+    name: 'Clyme',
+    description: 'The weather as an instrument: the reading, the map and the next fourteen days drawn on one lattice of dots that re-forms as you scroll.',
+    longDescription: 'Clyme draws the weather of any place on a single dot matrix rendered on the GPU: the temperature as a giant numeral, the next 24 hours, a map where wind, cloud, rain and radar move through time over coasts, borders and provinces, the air above you level by level up to the jet stream, air quality and pollen, the sea where there is one, the sun and the moon on their real paths, and fourteen days with the spread of 122 model runs against thirty years of normals. Every hand-over between chapters is a morph of the same dots, scrubbed by the scroll. A nerd mode adds the ground, and one sheet lists every reading with its unit and its source. Plain HTML, CSS and ES modules with raw WebGL2, no build step; a Cloudflare Worker caches Open-Meteo and RainViewer, and the map is drawn from Natural Earth and GeoNames.',
+    // shot from the site's own fixtures on 23 Nov 2026 (no film yet): now, the map in a gale, sun and moon, fourteen days
+    image: '/clyme/1.webp',
+    images: ['/clyme/1.webp', '/clyme/2.webp', '/clyme/3.webp', '/clyme/4.webp'],
+    tags: ['Weather', 'WebGL', 'Data'],
+    date: '2026-11-23',
+  },
+  {
+    id: 'drnews',
+    name: 'DR.NEWS',
+    description: 'A news reader with one story per screen: the story on the left, its photograph fixed beside it, and the whole article read without leaving.',
+    longDescription: 'DR.NEWS (Del Rio News) shows the news one story at a time on a split screen: the headline and the text on the left, the photograph held on the right, and a scroll or a key that flips to the next story. Every piece opens whole inside the page, with its videos, charts and other embeds in place, from the Guardian Open Platform. A For you edition takes the topics and sections you pick and interleaves them with the editors\' top story instead of stacking a block per topic. A Cloudflare Worker fetches, sanitises and caches the articles and keeps the daily call budget; the page is plain HTML, CSS and one script, with native scroll snap. The launch film above (17 s) goes from a wall of news to one story, one photo, the article read in place and an edition mixed from three topics.',
+    // the four stills come from the film: one story, the article read in place, the three topics picked, a For you story
+    image: '/drnews/1.webp',
+    images: ['/drnews/1.webp', '/drnews/2.webp', '/drnews/3.webp', '/drnews/4.webp'],
+    video: '/drnews/film.mp4',
+    videoPoster: '/drnews/film-poster.webp',
+    clip: '/drnews/scroll.mp4',
+    tags: ['Editorial', 'News', 'Cloudflare Workers'],
+    date: '2026-11-23',
+  },
+  {
+    id: 'mydogfood',
+    name: 'MyDogFood',
+    aliases: ['My Dog Food'],
+    description: 'Type a food and read one answer: whether your dog can eat it. Sí, Con cuidado or No, with the reason in a line. In Spanish.',
+    longDescription: 'MyDogFood is one sentence with a blank: «¿Puede comer ___ mi perro?». Type a food and the answer appears as you write, one of three verdicts (Sí, Con cuidado, No) with a short reason and the related foods under it; each of the 155 foods also has its own page with why and how. The only colour on the page is the verdict. A Cloudflare Worker renders the food pages with the same renderer the browser uses, so every answer reaches search, and the old links redirect. It is an informative guide and says so on every page: it does not replace a vet. The launch film above (13 s) sets twenty contradicting answers against one: uvas, No; queso, Con cuidado; manzana, Sí.',
+    // the four stills come from the film: Sí, No, Con cuidado, and the doubt before them
+    image: '/mydogfood/1.webp',
+    images: ['/mydogfood/1.webp', '/mydogfood/2.webp', '/mydogfood/3.webp', '/mydogfood/4.webp'],
+    video: '/mydogfood/film.mp4',
+    videoPoster: '/mydogfood/film-poster.webp',
+    clip: '/mydogfood/scroll.mp4',
+    tags: ['Pets', 'Search', 'Cloudflare Workers'],
+    date: '2026-11-23',
+  },
   {
     id: 'baitme',
     name: 'Baitme',
